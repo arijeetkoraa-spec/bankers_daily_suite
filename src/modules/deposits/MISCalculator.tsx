@@ -1,0 +1,271 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Button } from '../../components/ui/button';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { Coins, AlertTriangle, FileDown } from 'lucide-react';
+import { calculatePrematurePayout } from '../../lib/deposit_calculations';
+import { exportToPDF } from '../../lib/pdf-export';
+import { cn, formatPdfCurrency } from '../../lib/utils';
+
+export const MISCalculator: React.FC = () => {
+    const [principal, setPrincipal] = useLocalStorage<string>('mis_principal', '500000');
+    const [rate, setRate] = useLocalStorage<string>('mis_rate', '7.50');
+
+    const [monthlyPayout, setMonthlyPayout] = useState<number>(0);
+    const [quarterlyYield, setQuarterlyYield] = useState<number>(0);
+
+    const [isPremature, setIsPremature] = useState(false);
+    const [cardRate, setCardRate] = useLocalStorage<string>('mis_card_rate', '6.50');
+    const [penalty, setPenalty] = useLocalStorage<string>('mis_penalty', '1.00');
+    const [runMonths, setRunMonths] = useLocalStorage<string>('mis_run_months', '6');
+    const [interestAlreadyPaid, setInterestAlreadyPaid] = useLocalStorage<string>('mis_paid_interest', '0');
+    const [prematureResult, setPrematureResult] = useState<any>(null);
+
+    const calculate = React.useCallback(() => {
+        const P = parseFloat(principal);
+        const R = parseFloat(rate);
+
+        if (isNaN(P) || isNaN(R) || P <= 0) {
+            setMonthlyPayout(0);
+            setQuarterlyYield(0);
+            return;
+        }
+
+        const r_quarterly = R / 100 / 4;
+        const monthlyFactor = Math.pow(1 + r_quarterly, 1 / 3) - 1;
+        const monthlyAmount = P * monthlyFactor;
+
+        setMonthlyPayout(monthlyAmount);
+        setQuarterlyYield((Math.pow(1 + r_quarterly, 4) - 1) * 100);
+
+        if (isPremature) {
+            const res = calculatePrematurePayout({
+                product: 'MIS',
+                principal: P,
+                bookedRate: R,
+                cardRateForTenure: parseFloat(cardRate) || 0,
+                penalty: parseFloat(penalty) || 0,
+                completedMonths: parseFloat(runMonths) || 0,
+                interestAlreadyPaid: parseFloat(interestAlreadyPaid) || 0
+            });
+            setPrematureResult(res);
+        } else {
+            setPrematureResult(null);
+        }
+    }, [principal, rate, isPremature, cardRate, penalty, runMonths, interestAlreadyPaid]);
+
+    useEffect(() => {
+        calculate();
+    }, [calculate]);
+
+    const formatCurrency = (val: number) => {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0
+        }).format(val);
+    };
+
+    const downloadPDF = () => {
+        const f = formatPdfCurrency;
+
+        exportToPDF({
+            title: "MIS Deposit Summary",
+            subtitle: isPremature ? "Premature Closure Calculation" : "Income Calculation",
+            details: [
+                { label: "Principal Amount", value: f(parseFloat(principal)) },
+                { label: "Interest Rate", value: `${rate}% p.a.` },
+                { label: "Monthly Income Payout", value: f(monthlyPayout) },
+                { label: "Annualized Yield", value: `${quarterlyYield.toFixed(2)}%` },
+                ...(isPremature ? [
+                    { label: "--- Premature Details ---", value: "" },
+                    { label: "Months Completed", value: `${runMonths}` },
+                    { label: "Applicable Card Rate", value: `${cardRate}%` },
+                    { label: "Premature Penalty", value: `${penalty}%` },
+                    { label: "Interest Already Paid", value: f(parseFloat(interestAlreadyPaid)) },
+                    { label: "Interest Recovery", value: f(prematureResult?.interestRecovery || 0) },
+                    { label: "Net Payout Amount", value: f(prematureResult?.netPayout || 0) }
+                ] : [])
+            ]
+        }, `MIS_Summary.pdf`);
+    };
+
+    return (
+        <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-purple-500/10 via-background to-background border-b border-border/10 p-4 md:px-6">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        <Coins className="w-6 h-6 text-purple-600" />
+                        <div>
+                            <CardTitle className="text-xl font-black">Monthly Income Plan</CardTitle>
+                            <CardDescription className="text-[10px] font-bold uppercase tracking-wider text-foreground opacity-70">
+                                Discounted Monthly Interest Protocol
+                            </CardDescription>
+                        </div>
+                    </div>
+                    <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-purple-600/30 hover:bg-purple-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
+                        <FileDown className="w-5 h-5 text-purple-600" />
+                        EXPORT PDF
+                    </Button>
+                </div>
+            </CardHeader>
+            <CardContent className="p-0">
+                <div className="grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+                    {/* Inputs Section */}
+                    <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="mis-principal" className="result-label text-purple-600">Principal Corpus (₹)</Label>
+                                <Input
+                                    id="mis-principal"
+                                    type="number"
+                                    value={principal}
+                                    onChange={(e) => setPrincipal(e.target.value)}
+                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="mis-rate" className="result-label text-purple-700 dark:text-purple-300">Interest (%)</Label>
+                                    <button
+                                        onClick={() => setIsPremature(!isPremature)}
+                                        className={cn(
+                                            "h-7 px-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95",
+                                            isPremature ? "bg-red-600 text-white shadow-red-500/20" : "bg-purple-600 text-white shadow-purple-500/20 hover:bg-purple-700"
+                                        )}
+                                    >
+                                        {isPremature ? "Closure" : "+ Premature"}
+                                    </button>
+                                </div>
+                                <Input
+                                    id="mis-rate"
+                                    type="number"
+                                    step="0.01"
+                                    value={rate}
+                                    onChange={(e) => setRate(e.target.value)}
+                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 text-purple-600 shadow-inner"
+                                />
+                            </div>
+                        </div>
+
+                        {isPremature && (
+                            <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
+                                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold text-[10px] uppercase tracking-widest bg-red-600/10 py-1.5 px-3 rounded-lg border border-red-600/20 shadow-sm">
+                                    <AlertTriangle className="w-4 h-4" />
+                                    Premature Liquidation Protocol Active
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1">
+                                        <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Months Run</Label>
+                                        <Input
+                                            type="number"
+                                            value={runMonths}
+                                            onChange={e => setRunMonths(e.target.value)}
+                                            className="bg-background border-red-600/20 h-7 text-xs font-bold"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Card Rate (%)</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={cardRate}
+                                            onChange={e => setCardRate(e.target.value)}
+                                            className="bg-background border-red-600/20 h-7 text-xs font-bold"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1">
+                                        <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Penalty (%)</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={penalty}
+                                            onChange={e => setPenalty(e.target.value)}
+                                            className="bg-background border-red-600/20 h-7 text-xs font-bold text-red-600"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Interest Paid (₹)</Label>
+                                        <Input
+                                            type="number"
+                                            value={interestAlreadyPaid}
+                                            onChange={e => setInterestAlreadyPaid(e.target.value)}
+                                            className="bg-background border-red-600/20 h-7 font-bold text-xs"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="p-4 rounded-xl glass-panel bg-accent/50 border-2 border-primary/10 shadow-inner space-y-3">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-black text-foreground uppercase tracking-widest">Annualized Yield</span>
+                                    <span className="text-sm font-black text-purple-600">{quarterlyYield.toFixed(2)}%</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-black text-foreground uppercase tracking-widest">Compounding</span>
+                                    <span className="text-sm font-black text-foreground">QUARTERLY</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Results Section */}
+                    <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
+                        <div className="space-y-1">
+                            {isPremature && prematureResult ? (
+                                <div className="space-y-4">
+                                    <div className="space-y-1">
+                                        <span className="result-label">Net Settlement</span>
+                                        <div className="hero-result-value text-red-600 leading-tight">
+                                            {formatCurrency(prematureResult.netPayout)}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-2">
+                                        <div className="stat-card p-3">
+                                            <span className="result-label">Interest Earned</span>
+                                            <span className="text-lg font-black text-emerald-500 leading-none">
+                                                {formatCurrency(prematureResult.interestEarned)}
+                                            </span>
+                                        </div>
+                                        <div className="stat-card p-3">
+                                            <span className="result-label">Interest Recovery</span>
+                                            <span className="text-lg font-black text-red-600 leading-none">
+                                                {formatCurrency(prematureResult.interestRecovery)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="space-y-1">
+                                        <span className="result-label">Monthly Stream</span>
+                                        <div className="hero-result-value text-purple-700 leading-tight">
+                                            {formatCurrency(monthlyPayout)}
+                                        </div>
+                                    </div>
+
+                                    <div className="stat-card bg-purple-600/5 border border-purple-600/10 p-3">
+                                        <span className="result-label text-purple-700">Annual Cashflow</span>
+                                        <div className="text-lg font-black text-foreground mt-1">
+                                            {formatCurrency(monthlyPayout * 12)}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <p className="text-[10px] text-foreground font-black text-center uppercase tracking-tighter italic bg-purple-600/5 py-2 rounded-lg">
+                            *MIS interest is discounted to maintain quarterly parity.
+                        </p>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};

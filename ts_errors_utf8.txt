@@ -1,0 +1,10 @@
+﻿src/modules/loans/ReverseLoanCalculator.tsx(59,27): error TS6133: 'factor' is declared but its value is never read.
+src/modules/msme/DrawingPower.tsx(49,9): error TS2552: Cannot find name 'setPaidStock'. Did you mean 'setStock'?
+src/modules/msme/FeesCalculator.tsx(6,1): error TS6133: 'Switch' is declared but its value is never read.
+src/modules/msme/FeesCalculator.tsx(6,24): error TS2307: Cannot find module '../../components/ui/switch' or its corresponding type declarations.
+src/modules/msme/FeesCalculator.tsx(33,12): error TS6133: 'isAgri' is declared but its value is never read.
+src/modules/msme/FeesCalculator.tsx(33,20): error TS6133: 'setIsAgri' is declared but its value is never read.
+src/modules/msme/RatioCalculator.tsx(6,39): error TS6133: 'TabsContent' is declared but its value is never read.
+src/modules/msme/WorkingCapital.tsx(6,39): error TS6133: 'TabsContent' is declared but its value is never read.
+src/modules/msme/WorkingCapital.tsx(15,12): error TS6133: 'marginTurnover' is declared but its value is never read.
+src/modules/msme/WorkingCapital.tsx(15,28): error TS6133: 'setMarginTurnover' is declared but its value is never read.

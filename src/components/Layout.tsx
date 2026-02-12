@@ -1,0 +1,328 @@
+import React from 'react';
+import {
+    PiggyBank,
+    Landmark,
+    Briefcase,
+    Calculator,
+    Menu,
+    ChevronRight,
+    Mail,
+    MessageCircle
+} from 'lucide-react';
+import { cn } from '../lib/utils';
+import { Button } from './ui/button';
+import { ThemeToggle } from './ThemeToggle';
+import { FeedbackModal } from './FeedbackModal';
+
+interface SidebarItem {
+    id: string;
+    label: string;
+    icon?: React.ReactNode;
+    items?: { id: string; label: string }[];
+}
+
+interface LayoutProps {
+    children: React.ReactNode;
+    activeModule: string;
+    activeCalculator: string;
+    onNavigate: (moduleId: string, calculatorId: string) => void;
+}
+
+export const modules: SidebarItem[] = [
+    {
+        id: 'deposits',
+        label: 'Deposits & Savings',
+        icon: <PiggyBank className="w-5 h-5" />,
+        items: [
+            { id: 'fd', label: 'FD Calculator' },
+            { id: 'rd', label: 'RD Calculator' },
+            { id: 'mis', label: 'MIS (Discounted)' },
+            { id: 'qis', label: 'QIS (Simple)' },
+        ]
+    },
+    {
+        id: 'loans',
+        label: 'Loans & EMI',
+        icon: <Landmark className="w-5 h-5" />,
+        items: [
+            { id: 'emi', label: 'EMI Calculator' },
+            { id: 'gold', label: 'Gold Loan' },
+            { id: 'kcc', label: 'KCC Limit' },
+            { id: 'reverse', label: 'Reverse Calculator' },
+            { id: 'loan-compare', label: 'Loan Compare' },
+            { id: 'takeover', label: 'Takeover Benefit' },
+        ]
+    },
+    {
+        id: 'msme',
+        label: 'MSME & Credit',
+        icon: <Briefcase className="w-5 h-5" />,
+        items: [
+            { id: 'working-capital', label: 'Working Capital' },
+            { id: 'drawing-power', label: 'Drawing Power' },
+            { id: 'ratios', label: 'Financial Ratios' },
+            { id: 'fees', label: 'CGTMSE Fees' },
+        ]
+    },
+    {
+        id: 'utilities',
+        label: 'Utilities',
+        icon: <Calculator className="w-5 h-5" />,
+        items: [
+            { id: 'cash-counter', label: 'Cash Counter' },
+            { id: 'gst', label: 'GST Calculator' },
+            { id: 'date', label: 'Date Calculator' },
+            { id: 'converter', label: 'Unit Converter' },
+        ]
+    }
+];
+
+export const Layout: React.FC<LayoutProps> = ({
+    children,
+    activeModule,
+    activeCalculator,
+    onNavigate
+}) => {
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+    const [isFeedbackOpen, setIsFeedbackOpen] = React.useState(false);
+
+    const getCalcColor = (id: string, isMobile: boolean = false) => {
+        switch (id) {
+            case 'fd':
+            case 'date':
+                return isMobile ? 'bg-blue-600' : 'from-blue-600 to-blue-700 shadow-blue-500/40';
+            case 'rd':
+            case 'ratios':
+                return isMobile ? 'bg-emerald-600' : 'from-emerald-600 to-emerald-700 shadow-emerald-500/40';
+            case 'mis':
+            case 'fees':
+                return isMobile ? 'bg-purple-600' : 'from-purple-600 to-purple-700 shadow-purple-500/40';
+            case 'qis':
+                return isMobile ? 'bg-orange-600' : 'from-orange-600 to-orange-700 shadow-orange-500/40';
+            case 'emi':
+            case 'loan-compare':
+            case 'takeover':
+                return isMobile ? 'bg-indigo-600' : 'from-indigo-600 to-indigo-700 shadow-indigo-500/40';
+            case 'reverse':
+            case 'converter':
+                return isMobile ? 'bg-cyan-600' : 'from-cyan-600 to-cyan-700 shadow-cyan-500/40';
+            case 'gst':
+                return isMobile ? 'bg-slate-700' : 'from-slate-700 to-slate-800 shadow-slate-600/40';
+            case 'working-capital':
+            case 'drawing-power':
+            case 'kcc':
+            case 'gold':
+                return isMobile ? 'bg-amber-600' : 'from-amber-600 to-amber-700 shadow-amber-500/40';
+            case 'cash-counter':
+                return isMobile ? 'bg-emerald-600' : 'from-emerald-600 to-emerald-700 shadow-emerald-500/40';
+            default:
+                return isMobile ? 'bg-primary' : 'from-primary to-indigo-600 shadow-primary/40';
+        }
+    };
+
+    // Auto-close sidebar on mobile after navigation
+    const handleNavigate = (moduleId: string, calculatorId: string) => {
+        onNavigate(moduleId, calculatorId);
+        if (window.innerWidth < 768) {
+            setIsSidebarOpen(false);
+        }
+    };
+
+    return (
+        <div className="flex h-screen bg-background text-foreground overflow-hidden flex-col md:flex-row antialiased">
+            {/* Sidebar */}
+            <aside
+                className={cn(
+                    "bg-card/50 backdrop-blur-2xl border-r border-border/50 transition-all duration-500 ease-in-out flex flex-col fixed md:relative z-30 h-full",
+                    isSidebarOpen ? "w-64 translate-x-0 shadow-2xl" : "w-0 -translate-x-full md:w-64 md:translate-x-0 overflow-hidden"
+                )}
+            >
+                {/* Sidebar Header - Fixed */}
+                <div className="p-6 border-b border-border/50 bg-background/80 backdrop-blur-md">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.3)] border-2 border-white/20">
+                            <span className="text-2xl font-black text-white italic tracking-tighter">B</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <h1 className="text-2xl font-black tracking-tighter leading-none text-blue-600 uppercase">
+                                BANKER'S
+                            </h1>
+                            <span className="text-[11px] font-black tracking-[0.4em] text-slate-400 dark:text-slate-500 leading-none mt-2 uppercase">
+                                DAILY SUITE
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <nav className="flex-1 overflow-y-auto py-6">
+                    <ul className="space-y-6 px-4">
+                        {modules.map((module) => (
+                            <li key={module.id} className="space-y-3">
+                                <div className="px-3 py-1 text-[11px] uppercase font-display font-black tracking-widest text-foreground/70 flex items-center gap-2">
+                                    {module.label}
+                                </div>
+                                {module.items && (
+                                    <ul className="space-y-1.5">
+                                        {module.items.map((item) => (
+                                            <li key={item.id}>
+                                                <button
+                                                    onClick={() => handleNavigate(module.id, item.id)}
+                                                    className={cn(
+                                                        "w-full text-left px-5 py-3.5 text-[15px] rounded-2xl transition-all duration-400 flex items-center justify-between group",
+                                                        activeModule === module.id && activeCalculator === item.id
+                                                            ? cn("bg-gradient-to-r text-primary-foreground scale-[1.03] font-bold z-10 shadow-2xl", getCalcColor(item.id))
+                                                            : "text-foreground/80 hover:bg-primary/10 hover:text-primary font-semibold"
+                                                    )}
+                                                >
+                                                    <div className="flex items-center gap-3.5">
+                                                        <span className={cn(
+                                                            "transition-all duration-400",
+                                                            activeModule === module.id && activeCalculator === item.id ? "text-primary-foreground scale-125" : "text-muted-foreground group-hover:text-primary scale-110"
+                                                        )}>
+                                                            {React.isValidElement(module.icon) && React.cloneElement(module.icon as React.ReactElement<any>, { className: "w-5 h-5" })}
+                                                        </span>
+                                                        <span className="font-sans leading-none">{item.label}</span>
+                                                    </div>
+                                                    <ChevronRight className={cn(
+                                                        "w-4 h-4 transition-all duration-400",
+                                                        activeModule === module.id && activeCalculator === item.id ? "rotate-90 scale-110 opacity-100" : "opacity-0 group-hover:opacity-100 translate-x-1"
+                                                    )} />
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+
+                {/* Sidebar Footer */}
+                <div className="p-6 border-t border-border/50 bg-background/50">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Fintech Solution By</span>
+                        <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+                            <span className="text-sm font-black text-blue-600 tracking-tight uppercase italic">
+                                Arijit Kora
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+                <header className="bg-background/80 backdrop-blur-xl border-b border-border/30 p-2 md:px-8 flex items-center justify-between shadow-sm z-10 sticky top-0 h-14">
+                    <div className="flex items-center gap-4">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className="md:hidden"
+                        >
+                            <Menu className="w-5 h-5" />
+                        </Button>
+                        <div className="flex flex-col">
+                            <span className="text-[11px] uppercase font-display font-black tracking-widest text-primary/70">
+                                {modules.find(m => m.id === activeModule)?.label || 'Dashboard'}
+                            </span>
+                            <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
+                                {modules.find(m => m.id === activeModule)?.items?.find(i => i.id === activeCalculator)?.label || 'Suite'}
+                            </h2>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <ThemeToggle />
+                    </div>
+                </header>
+
+                <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-background flex flex-col pb-20 md:pb-6 relative">
+                    <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col justify-center">
+                        <div className="animate-in-up w-full">
+                            {children}
+                        </div>
+                    </div>
+
+                    {/* Global Calculation Footer */}
+                    <footer className="mt-8 pt-6 border-t border-border/30 max-w-6xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                                <Landmark className="w-5 h-5 text-primary" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Architect & Developer</span>
+                                <span className="text-4xl font-black text-blue-600 tracking-tighter italic">
+                                    ARIJIT KORA
+                                </span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <Button
+                                onClick={() => {
+                                    const text = `Check out this Calculator on Banker's Daily!`;
+                                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + window.location.href)}`, '_blank');
+                                }}
+                                variant="outline"
+                                size="sm"
+                                className="h-9 px-4 rounded-xl gap-2 border-green-500/20 hover:bg-green-500/5 text-green-600 font-bold"
+                            >
+                                <MessageCircle className="w-4 h-4" />
+                                Share
+                            </Button>
+                            <Button
+                                onClick={() => setIsFeedbackOpen(true)}
+                                variant="outline"
+                                size="sm"
+                                className="h-9 px-4 rounded-xl gap-2 border-primary/20 hover:bg-primary/5 text-primary font-bold"
+                            >
+                                <Mail className="w-4 h-4" />
+                                Feedback
+                            </Button>
+                        </div>
+                    </footer>
+                </div>
+
+                {/* Mobile Bottom Navigation */}
+                <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-card/80 backdrop-blur-2xl border border-border/50 flex items-center justify-around p-2 rounded-2xl shadow-2xl z-40 pb-safe ring-1 ring-white/10">
+                    {modules.map((module) => (
+                        <button
+                            key={module.id}
+                            onClick={() => handleNavigate(module.id, module.items?.[0]?.id || '')}
+                            className={cn(
+                                "flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all duration-300",
+                                activeModule === module.id ? "text-primary scale-110" : "text-muted-foreground/60"
+                            )}
+                        >
+                            <div className={cn(
+                                "p-2 rounded-xl transition-all duration-300",
+                                activeModule === module.id
+                                    ? cn("text-white shadow-lg", getCalcColor(activeCalculator, true))
+                                    : "hover:bg-accent"
+                            )}>
+                                {React.isValidElement(module.icon) && React.cloneElement(module.icon as React.ReactElement<any>, { className: "w-5 h-5" })}
+                            </div>
+                            <span className="text-[9px] font-black uppercase tracking-tighter">{module.label.split(' ')[0]}</span>
+                        </button>
+                    ))}
+                </nav>
+            </main>
+
+
+            {/* Mobile Overlay */}
+            {
+                isSidebarOpen && (
+                    <div
+                        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-20 md:hidden"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+                )
+            }
+
+            <FeedbackModal
+                isOpen={isFeedbackOpen}
+                onClose={() => setIsFeedbackOpen(false)}
+            />
+        </div >
+    );
+};
