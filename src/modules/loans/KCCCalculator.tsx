@@ -5,7 +5,7 @@ import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Tractor, FileDown, RotateCcw, Plus, Trash2, AlertCircle, Info, ChevronDown, ChevronUp } from 'lucide-react';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportToPDF, renderTable } from '../../lib/pdf-export';
 import { formatIndianCurrency, numberToIndianWords, formatPdfCurrency } from '../../lib/utils';
 
 // Constants
@@ -220,16 +220,22 @@ export const KCCCalculator: React.FC = () => {
                 { label: `Maintenance (${maintenancePercent}%)`, value: f(year1Components.maint) },
                 { label: "Insurance Premium", value: f(year1Components.ins) },
                 { label: "Year 1 Short Term Limit", value: f(projections[0].shortTermLimit) },
-                { label: "--- 5-Year Projection ---", value: "" },
-                ...projections.map(p => ({
-                    label: `Year ${p.year} Total Limit`,
-                    value: `${f(p.totalDrawable)} (TL: ${f(p.termLoan)})`
-                })),
                 { label: "--- Final Sanction ---", value: "" },
                 { label: "Max Permissible Limit (MPL)", value: f(maxPermissibleLimit) },
                 { label: "Amount in Words", value: limitWords }
             ]
-        }, `KCC_Advanced_Assessment.pdf`);
+        }, `KCC_Advanced_Assessment.pdf`, (doc: any, yPos: number) => {
+            // Addition of generic table for 5-year projection
+            yPos += 10;
+            const columns = ["Year", "KCC Limit", "Term Loan", "Total"];
+            const rows = projections.map(p => [
+                `Year ${p.year}`,
+                f(p.shortTermLimit),
+                p.termLoan > 0 ? f(p.termLoan) : "-",
+                f(p.totalDrawable)
+            ]);
+            return renderTable(doc, columns, rows, yPos);
+        });
     };
 
     return (
@@ -269,8 +275,8 @@ export const KCCCalculator: React.FC = () => {
 
                         {/* Top Controls */}
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <div className="space-y-1">
-                                <Label className="text-xs font-bold text-muted-foreground">Land Unit</Label>
+                            <div className="space-y-1 share-row" data-share-key="landUnit" data-share-type="option">
+                                <Label className="text-xs font-bold text-muted-foreground share-label">Land Unit</Label>
                                 <div className="flex p-1 bg-accent/50 dark:bg-slate-800/50 rounded-lg shadow-inner">
                                     {['Acres', 'Hectares'].map(u => (
                                         <button
@@ -283,8 +289,8 @@ export const KCCCalculator: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
-                            <div className="space-y-1 col-span-2 md:col-span-1">
-                                <Label className="text-xs font-bold text-muted-foreground">Farmer Type</Label>
+                            <div className="space-y-1 col-span-2 md:col-span-1 share-row" data-share-key="farmerType" data-share-type="option">
+                                <Label className="text-xs font-bold text-muted-foreground share-label">Farmer Type</Label>
                                 <select
                                     value={farmerType}
                                     onChange={(e) => setFarmerType(e.target.value)}
@@ -296,8 +302,8 @@ export const KCCCalculator: React.FC = () => {
                                     <option>Self Help Group (SHG)</option>
                                 </select>
                             </div>
-                            <div className="space-y-1">
-                                <Label className="text-xs font-bold text-muted-foreground">Mode</Label>
+                            <div className="space-y-1 share-row" data-share-key="inputMode" data-share-type="option">
+                                <Label className="text-xs font-bold text-muted-foreground share-label">Mode</Label>
                                 <div className="flex p-1 bg-accent/50 dark:bg-slate-800/50 rounded-lg shadow-inner">
                                     <button
                                         onClick={() => setIsMultiCrop(false)}
@@ -324,7 +330,7 @@ export const KCCCalculator: React.FC = () => {
                         {/* Crop Inputs */}
                         {!isMultiCrop ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-slate-100/50 dark:bg-slate-900/40 rounded-2xl border border-border/50">
-                                <div className="space-y-1 share-row">
+                                <div className="space-y-1 share-row" data-share-key="landHolding" data-share-type="input">
                                     <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">Land Holding ({landUnit})</Label>
                                     <Input
                                         type="number"
@@ -333,7 +339,7 @@ export const KCCCalculator: React.FC = () => {
                                         className="h-12 text-xl font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 share-value"
                                     />
                                 </div>
-                                <div className="space-y-1 share-row">
+                                <div className="space-y-1 share-row" data-share-key="cropType" data-share-type="input">
                                     <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">Crop</Label>
                                     <select
                                         value={singleCropType}
@@ -343,7 +349,7 @@ export const KCCCalculator: React.FC = () => {
                                         {CROP_OPTIONS.map(c => <option key={c} value={c} className="bg-background">{c}</option>)}
                                     </select>
                                 </div>
-                                <div className="space-y-1 md:col-span-2 share-row">
+                                <div className="space-y-1 md:col-span-2 share-row" data-share-key="scaleOfFinance" data-share-type="input">
                                     <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">Scale of Finance (₹/{landUnit})</Label>
                                     <Input
                                         type="number"
@@ -491,7 +497,7 @@ export const KCCCalculator: React.FC = () => {
                         <div className="p-6 space-y-6 flex-1 overflow-y-auto">
 
                             {/* Header Summary */}
-                            <div className="space-y-1 share-row">
+                            <div className="space-y-1 share-row" data-share-key="year1Limit" data-share-type="result">
                                 <span className="result-label share-label">Assessment Limit (Year 1)</span>
                                 <div className="hero-result-value text-green-700 dark:text-emerald-500 leading-tight share-value">
                                     {formatIndianCurrency(year1Limit)}
@@ -522,7 +528,7 @@ export const KCCCalculator: React.FC = () => {
                             </div>
 
                             {/* MPL Section */}
-                            <div className="bg-slate-900 rounded-xl p-5 text-white space-y-3 share-row">
+                            <div className="bg-slate-900 rounded-xl p-5 text-white space-y-3 share-row" data-share-key="mpl" data-share-type="result">
                                 <div className="space-y-1 text-center">
                                     <div className="text-[10px] font-bold uppercase opacity-60 share-label">Final Sanction (MPL)</div>
                                     <div className="text-3xl font-black tracking-tight text-emerald-400 share-value">

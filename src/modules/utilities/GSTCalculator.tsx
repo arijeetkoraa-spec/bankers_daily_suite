@@ -64,18 +64,18 @@ export const GSTCalculator: React.FC = () => {
     const downloadPDF = () => {
         const f = formatPdfCurrency;
         exportToPDF({
-            title: "GST Invoice Summary",
-            subtitle: `Mode: GST ${mode.toUpperCase()} Calculation`,
+            title: "GST Assessment Report",
+            subtitle: `Tax Configuration: GST ${mode.toUpperCase()} | Statutory Compliance`,
             details: [
-                { label: "Input Amount", value: f(parseFloat(amount)) },
-                { label: "Tax Rate", value: `${rate}%` },
-                { label: "--- Calculation Breakdown ---", value: "" },
-                { label: "Net Basic Amount", value: f(netAmount) },
-                { label: "Total GST Amount", value: f(gstAmount) },
-                { label: "CGST (Local)", value: f(gstAmount / 2) },
-                { label: "SGST (Local)", value: f(gstAmount / 2) },
-                { label: "--- Final Result ---", value: "" },
-                { label: "Gross Total Amount", value: f(totalAmount) }
+                { label: "Transaction Amount", value: f(parseFloat(amount)) },
+                { label: "Applicable Tax Rate", value: `${rate}%` },
+                { label: "--- Tax Itemization ---", value: "" },
+                { label: "Net Basic Value", value: f(netAmount) },
+                { label: "Total GST Component", value: f(gstAmount) },
+                { label: "CGST (Central Tax)", value: f(gstAmount / 2) },
+                { label: "SGST (State Tax)", value: f(gstAmount / 2) },
+                { label: "--- Final Valuation ---", value: "" },
+                { label: "Gross Invoice Value", value: f(totalAmount) }
             ]
         }, `GST_Report.pdf`);
     };
@@ -117,7 +117,7 @@ export const GSTCalculator: React.FC = () => {
                     <div className="lg:col-span-7 p-6 md:p-8 space-y-8 border-r-2 border-slate-100 bg-white">
                         <div className="space-y-5">
                             <Label className="text-[10px] font-black text-slate-950 uppercase tracking-widest">Calculation Mode</Label>
-                            <div className="flex p-1.5 bg-slate-100 border-2 border-slate-200 rounded-2xl gap-1.5 shadow-inner">
+                            <div className="flex p-1.5 bg-slate-100 border-2 border-slate-200 rounded-2xl gap-1.5 shadow-inner share-row" data-share-key="calculationMode" data-share-type="option">
                                 <button
                                     onClick={() => setMode('exclusive')}
                                     className={cn(
@@ -144,7 +144,7 @@ export const GSTCalculator: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            <div className="space-y-3 share-row">
+                            <div className="space-y-3 share-row" data-share-key="baseAmount" data-share-type="input">
                                 <Label htmlFor="gst-amount" className="text-[10px] font-black uppercase text-slate-950 tracking-widest leading-none share-label">
                                     {mode === 'exclusive' ? 'Net Base Amount (₹)' : 'Total Amount (₹)'}
                                 </Label>
@@ -157,7 +157,7 @@ export const GSTCalculator: React.FC = () => {
                                 />
                             </div>
 
-                            <div className="space-y-3 share-row">
+                            <div className="space-y-3 share-row" data-share-key="gstRate" data-share-type="input">
                                 <Label htmlFor="gst-rate" className="text-[10px] font-black uppercase text-slate-950 tracking-widest leading-none share-label">GST Tax Rate (%)</Label>
                                 <div className="grid grid-cols-4 gap-2">
                                     {[5, 12, 18, 28].map((r) => (
@@ -194,7 +194,7 @@ export const GSTCalculator: React.FC = () => {
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-6 md:p-8 bg-slate-50 flex flex-col justify-center space-y-8">
                         <div className="space-y-8">
-                            <div className="bg-slate-950 rounded-2xl p-8 shadow-2xl border-2 border-slate-900 relative overflow-hidden share-row">
+                            <div className="bg-slate-950 rounded-2xl p-8 shadow-2xl border-2 border-slate-900 relative overflow-hidden share-row" data-share-key="grossAmount" data-share-type="result">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-slate-500/10 rounded-full -mr-16 -mt-16" />
                                 <div className="relative z-10 space-y-2 text-center">
                                     <span className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] share-label">Final Gross Total</span>
@@ -205,7 +205,7 @@ export const GSTCalculator: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 gap-4">
-                                <div className="bg-white border-2 border-slate-200 p-5 rounded-2xl shadow-sm space-y-1 share-row">
+                                <div className="bg-white border-2 border-slate-200 p-5 rounded-2xl shadow-sm space-y-1 share-row" data-share-key="gstAmount" data-share-type="result">
                                     <div className="flex justify-between items-center">
                                         <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest share-label">GST Tax ({rate}%)</span>
                                         <div className="px-2 py-0.5 rounded-md bg-red-100 text-red-700 text-[8px] font-black uppercase tracking-widest">
@@ -217,14 +217,14 @@ export const GSTCalculator: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="bg-white border-2 border-slate-200 p-5 rounded-2xl shadow-sm space-y-1 share-row">
+                                <div className="bg-white border-2 border-slate-200 p-5 rounded-2xl shadow-sm space-y-1 share-row" data-share-key="netValue" data-share-type="result">
                                     <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest share-label">Net Basic Amount</span>
                                     <div className="text-2xl font-black text-emerald-600 share-value">
                                         {formatCurrency(netAmount)}
                                     </div>
                                 </div>
 
-                                <div className="p-4 rounded-xl bg-slate-950 text-white flex items-center justify-between shadow-xl ring-2 ring-white/5 share-row">
+                                <div className="p-4 rounded-xl bg-slate-950 text-white flex items-center justify-between shadow-xl ring-2 ring-white/5 share-row" data-share-key="taxBreakdown" data-share-type="result">
                                     <div className="flex flex-col">
                                         <span className="text-[9px] font-black uppercase tracking-widest opacity-60 share-label">CGST / SGST (50/50)</span>
                                         <span className="text-base font-black text-slate-300 share-value">{formatCurrency(gstAmount / 2)} <span className="text-[10px] opacity-60">EACH</span></span>

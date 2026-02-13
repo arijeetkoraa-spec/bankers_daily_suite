@@ -76,23 +76,24 @@ export const QISCalculator: React.FC = () => {
         const f = formatPdfCurrency;
 
         exportToPDF({
-            title: "QIS Deposit Summary",
-            subtitle: isPremature ? "Premature Closure Calculation" : "Income Calculation",
+            title: "Quarterly Income Assessment",
+            subtitle: `${isPremature ? "Premature Liquidation Review" : "Quarterly Strategic Payout"} | Professional Banking Summary`,
             details: [
-                { label: "Principal Amount", value: f(parseFloat(principal)) },
-                { label: "Interest Rate", value: `${rate}% p.a.` },
-                { label: "Quarterly Income Payout", value: f(quarterlyPayout) },
+                { label: "Principal Investment", value: f(parseFloat(principal)) },
+                { label: "ROI (Annually)", value: `${rate}% p.a.` },
+                { label: "Quarterly Interest Payout", value: f(quarterlyPayout) },
                 ...(isPremature ? [
-                    { label: "--- Premature Details ---", value: "" },
-                    { label: "Months Completed", value: `${runMonths}` },
-                    { label: "Applicable Card Rate", value: `${cardRate}%` },
-                    { label: "Premature Penalty", value: `${penalty}%` },
-                    { label: "Interest Already Paid", value: f(parseFloat(interestAlreadyPaid)) },
-                    { label: "Interest Recovery", value: f(prematureResult?.interestRecovery || 0) },
-                    { label: "Net Payout Amount", value: f(prematureResult?.netPayout || 0) }
+                    { label: "--- Premature Termination Details ---", value: "" },
+                    { label: "Active Months Run", value: `${runMonths}` },
+                    { label: "Applicable Base Rate", value: `${cardRate}%` },
+                    { label: "Foreclosure Penalty", value: `${penalty}%` },
+                    { label: "Interest Already Disbursed", value: f(parseFloat(interestAlreadyPaid)) },
+                    { label: "Interest Recovery Component", value: f(prematureResult?.interestRecovery || 0) },
+                    { label: "--- Final Settlement ---", value: "" },
+                    { label: "Net Redemption Amount", value: f(prematureResult?.netPayout || 0) }
                 ] : [])
             ]
-        }, `QIS_Summary.pdf`);
+        }, `QIS_Growth_Statement.pdf`);
     };
 
     return (
@@ -130,19 +131,19 @@ export const QISCalculator: React.FC = () => {
                     {/* Inputs Section */}
                     <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="qis-principal" className="result-label text-orange-600">Principal Corpus (₹)</Label>
+                            <div className="space-y-2 share-row" data-share-key="depositAmount" data-share-type="input">
+                                <Label htmlFor="qis-principal" className="result-label text-orange-600 share-label">Principal Corpus (₹)</Label>
                                 <Input
                                     id="qis-principal"
                                     type="number"
                                     value={principal}
                                     onChange={(e) => setPrincipal(e.target.value)}
-                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4"
+                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2 share-row" data-share-key="roi" data-share-type="input">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="qis-rate" className="result-label text-orange-700 dark:text-orange-300">Interest (%)</Label>
+                                    <Label htmlFor="qis-rate" className="result-label text-orange-700 dark:text-orange-300 share-label">Interest (%)</Label>
                                     <button
                                         onClick={() => setIsPremature(!isPremature)}
                                         className={cn(
@@ -159,7 +160,7 @@ export const QISCalculator: React.FC = () => {
                                     step="0.01"
                                     value={rate}
                                     onChange={(e) => setRate(e.target.value)}
-                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 text-orange-600 shadow-inner"
+                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 text-orange-600 shadow-inner share-value"
                                 />
                             </div>
                         </div>
@@ -192,7 +193,7 @@ export const QISCalculator: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 share-row" data-share-key="penalty">
                                         <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 shrink-0">Penalty (%)</Label>
                                         <Input
                                             type="number"
@@ -221,28 +222,28 @@ export const QISCalculator: React.FC = () => {
                         <div className="space-y-1">
                             {isPremature && prematureResult ? (
                                 <div className="space-y-4">
-                                    <div className="space-y-1">
-                                        <span className="result-label">Net Settlement</span>
-                                        <div className="hero-result-value text-red-600 leading-tight">
+                                    <div className="space-y-1 share-row" data-share-key="netSettlement" data-share-type="result">
+                                        <span className="result-label share-label">Net Settlement</span>
+                                        <div className="hero-result-value text-red-600 leading-tight share-value">
                                             {formatCurrency(prematureResult.netPayout)}
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 gap-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] font-black text-foreground uppercase tracking-widest">Payout Cycle</span>
-                                            <span className="text-sm font-black text-sky-600">QUARTERLY</span>
+                                        <div className="flex flex-col share-row" data-share-key="payoutCycle">
+                                            <span className="text-[9px] font-black text-foreground uppercase tracking-widest share-label">Payout Cycle</span>
+                                            <span className="text-sm font-black text-sky-600 share-value">QUARTERLY</span>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 gap-2">
-                                        <div className="stat-card p-3">
-                                            <span className="result-label">Interest Earned</span>
-                                            <span className="text-lg font-black text-emerald-500 leading-none">
+                                        <div className="stat-card p-3 share-row" data-share-key="interestEarned" data-share-type="result">
+                                            <span className="result-label share-label">Interest Earned</span>
+                                            <span className="text-lg font-black text-emerald-500 leading-none share-value">
                                                 {formatCurrency(prematureResult.interestEarned)}
                                             </span>
                                         </div>
-                                        <div className="stat-card p-3">
-                                            <span className="result-label">Interest Recovery</span>
-                                            <span className="text-lg font-black text-red-500 leading-none">
+                                        <div className="stat-card p-3 share-row" data-share-key="interestRecovery" data-share-type="result">
+                                            <span className="result-label share-label">Interest Recovery</span>
+                                            <span className="text-lg font-black text-red-500 leading-none share-value">
                                                 {formatCurrency(prematureResult.interestRecovery)}
                                             </span>
                                         </div>
@@ -250,16 +251,16 @@ export const QISCalculator: React.FC = () => {
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    <div className="space-y-1">
-                                        <span className="result-label">Quarterly Stream</span>
-                                        <div className="hero-result-value text-orange-700 leading-tight">
+                                    <div className="space-y-1 share-row" data-share-key="quarterlyPayout" data-share-type="result">
+                                        <span className="result-label share-label">Quarterly Stream</span>
+                                        <div className="hero-result-value text-orange-700 leading-tight share-value">
                                             {formatCurrency(quarterlyPayout)}
                                         </div>
                                     </div>
 
-                                    <div className="stat-card bg-orange-500/5 border-none p-3">
-                                        <span className="result-label text-orange-700">Annual Cashflow</span>
-                                        <div className="text-lg font-black text-foreground mt-1">
+                                    <div className="stat-card bg-orange-500/5 border-none p-3 share-row" data-share-key="annualCashflow" data-share-type="result">
+                                        <span className="result-label text-orange-700 share-label">Annual Cashflow</span>
+                                        <div className="text-lg font-black text-foreground mt-1 share-value">
                                             {formatCurrency(quarterlyPayout * 4)}
                                         </div>
                                     </div>

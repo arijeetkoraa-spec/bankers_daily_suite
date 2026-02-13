@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { RotateCcw, Sparkles, FileDown } from 'lucide-react';
 import { cn, formatPdfCurrency } from '../../lib/utils';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportAmortizationToPDF } from '../../lib/pdf-export';
 import { AmortizationModal } from '../../components/AmortizationModal';
 import { generateAmortizationSchedule } from '../../lib/amortization';
 import { TableProperties } from 'lucide-react';
@@ -96,17 +96,19 @@ export const ReverseLoanCalculator: React.FC = () => {
 
     const downloadPDF = () => {
         const f = formatPdfCurrency;
-        exportToPDF({
-            title: "Reverse Loan Computation",
-            subtitle: `Target Parameter: ${target.toUpperCase()}`,
+        exportAmortizationToPDF({
+            title: "Reverse Loan Analysis",
+            subtitle: `Target modeling: ${target.toUpperCase()} | Professional Debt Protocol`,
             details: [
+                { label: "Target Parameter", value: target.toUpperCase() },
                 { label: "Monthly EMI", value: f(parseFloat(emi)) },
                 { label: "Principal", value: f(parseFloat(principal)) },
                 { label: "Rate", value: `${rate}% p.a.` },
                 { label: "Tenure", value: `${tenure} Months` },
-                { label: "--- Calculated Result ---", value: "" },
-                { label: `Target: ${target.toUpperCase()}`, value: target === 'rate' ? `${rate}% p.a.` : (target === 'tenure' ? `${tenure} Months` : f(parseFloat(principal))) }
-            ]
+                { label: "--- Result ---", value: "" },
+                { label: `Computed ${target.charAt(0).toUpperCase() + target.slice(1)}`, value: target === 'rate' ? `${rate}% p.a.` : (target === 'tenure' ? `${tenure} Months` : f(parseFloat(principal))) }
+            ],
+            schedule: schedule
         }, `Reverse_Loan_${target}.pdf`);
     };
 
@@ -149,14 +151,15 @@ export const ReverseLoanCalculator: React.FC = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
                         {/* Inputs Section */}
                         <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
-                            <TabsList className="grid w-full grid-cols-3 bg-accent/50 p-1.5 h-11 rounded-xl shadow-inner">
-                                <TabsTrigger value="principal" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">Amount</TabsTrigger>
+                            <TabsList className="grid w-full grid-cols-3 bg-accent/50 p-1.5 h-11 rounded-xl shadow-inner share-row" data-share-key="targetParameter" data-share-type="option">
+                                <Label className="sr-only share-label">Target Parameter</Label>
+                                <TabsTrigger value="principal" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20 share-value">Amount</TabsTrigger>
                                 <TabsTrigger value="tenure" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">Tenure</TabsTrigger>
                                 <TabsTrigger value="rate" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">ROI</TabsTrigger>
                             </TabsList>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1 share-row">
+                                <div className="space-y-1 share-row" data-share-key="emi" data-share-type="input">
                                     <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">Monthly EMI (₹)</Label>
                                     <Input
                                         type="number"
@@ -165,7 +168,7 @@ export const ReverseLoanCalculator: React.FC = () => {
                                         className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                     />
                                 </div>
-                                <div className="space-y-1 share-row">
+                                <div className="space-y-1 share-row" data-share-key="loanAmount" data-share-type="input">
                                     <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">Principal (₹)</Label>
                                     <Input
                                         type="number"
@@ -181,7 +184,7 @@ export const ReverseLoanCalculator: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1 share-row">
+                                <div className="space-y-1 share-row" data-share-key="roi" data-share-type="input">
                                     <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">ROI (%)</Label>
                                     <Input
                                         type="number"
@@ -195,7 +198,7 @@ export const ReverseLoanCalculator: React.FC = () => {
                                         )}
                                     />
                                 </div>
-                                <div className="space-y-1 share-row">
+                                <div className="space-y-1 share-row" data-share-key="tenure" data-share-type="input">
                                     <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">Tenure (Months)</Label>
                                     <Input
                                         type="number"
@@ -217,8 +220,8 @@ export const ReverseLoanCalculator: React.FC = () => {
 
                         {/* Results Section */}
                         <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                            <div className="space-y-1 share-row">
-                                <span className="result-label share-label">Computed {target}</span>
+                            <div className="space-y-1 share-row" data-share-type="result">
+                                <span className="result-label share-label">Computed Result</span>
                                 <div className="hero-result-value text-cyan-700 leading-tight share-value">
                                     {result || "0"}
                                 </div>

@@ -2,8 +2,9 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { ClipboardCopy, RotateCcw, Banknote } from 'lucide-react';
-import { formatIndianCurrency, numberToIndianWords, cn } from '../../lib/utils';
+import { ClipboardCopy, RotateCcw, Banknote, FileDown } from 'lucide-react';
+import { formatIndianCurrency, numberToIndianWords, cn, formatPdfCurrency } from '../../lib/utils';
+import { exportToPDF, renderTable } from '../../lib/pdf-export';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 
 // Denominations
@@ -46,6 +47,32 @@ export const CashCounter: React.FC = () => {
         alert("Cash summary copied to clipboard!");
     };
 
+    const downloadPDF = () => {
+        const f = formatPdfCurrency;
+        exportToPDF({
+            title: "Cash Denomination Summary",
+            subtitle: "Physical Cash Verification Report | Professional Audit",
+            details: [
+                { label: "Grand Total Value", value: f(total) },
+                { label: "Amount in Words", value: totalWords },
+                { label: "--- Verification Stamp ---", value: "" },
+                { label: "Verified Date", value: new Date().toLocaleDateString('en-IN') },
+                { label: "Audit Status", value: "SELF-VERIFIED" }
+            ]
+        }, `Cash_Assessment.pdf`, (doc, yPos) => {
+            yPos += 10;
+            const columns = ["Denomination", "Quantity", "Total Value"];
+            const rows = denoms
+                .filter(d => counts[d] && parseInt(counts[d]) > 0)
+                .map(d => [
+                    `Rs. ${d}`,
+                    counts[d],
+                    f(d * parseInt(counts[d]))
+                ]);
+            return renderTable(doc, columns, rows, yPos);
+        });
+    };
+
     return (
         <Card className="premium-card w-full max-w-3xl mx-auto overflow-hidden">
             <CardHeader className="bg-gradient-to-r from-slate-800/5 via-background to-background border-b border-border/10 p-4 md:px-6">
@@ -69,9 +96,13 @@ export const CashCounter: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={copyToClipboard} size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm" variant="outline">
-                            <ClipboardCopy className="w-4 h-4 text-primary" />
-                            Copy Summary
+                        <Button onClick={copyToClipboard} size="sm" className="h-10 gap-2 border-slate-300 hover:bg-slate-100 hidden md:flex text-xs font-black px-4 shadow-sm" variant="outline">
+                            <ClipboardCopy className="w-4 h-4 text-slate-600" />
+                            Copy
+                        </Button>
+                        <Button onClick={downloadPDF} size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm" variant="outline">
+                            <FileDown className="w-5 h-5 text-primary" />
+                            PDF
                         </Button>
                     </div>
                 </div>
@@ -81,7 +112,7 @@ export const CashCounter: React.FC = () => {
                     {/* Input Section */}
                     <div className="md:col-span-7 p-4 space-y-3 bg-muted/20">
                         {denoms.map(denom => (
-                            <div key={denom} className={cn("flex items-center gap-4 group", counts[denom] && parseInt(counts[denom]) > 0 ? "share-row" : "")}>
+                            <div key={denom} className={cn("flex items-center gap-4 group", counts[denom] && parseInt(counts[denom]) > 0 ? "share-row" : "")} {...((counts[denom] && parseInt(counts[denom]) > 0) ? { "data-share-key": `denom${denom}`, "data-share-type": "input" } : {})}>
                                 <div className="w-16 text-right font-black text-slate-600 text-sm share-label">₹ {denom}</div>
                                 <div className="text-muted-foreground text-xs">x</div>
                                 <Input
@@ -101,7 +132,7 @@ export const CashCounter: React.FC = () => {
 
                     {/* Total Section */}
                     <div className="md:col-span-5 bg-slate-900 text-white p-6 flex flex-col justify-center items-center text-center space-y-4">
-                        <div className="space-y-1 share-row">
+                        <div className="space-y-1 share-row" data-share-key="totalCash" data-share-type="result">
                             <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 share-label">Grand Total</div>
                             <div className="text-4xl font-black tracking-tight text-emerald-400 share-value">
                                 {formatIndianCurrency(total)}

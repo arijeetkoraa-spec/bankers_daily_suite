@@ -73,29 +73,29 @@ export const LoanCompare: React.FC = () => {
         const f = formatPdfCurrency;
 
         exportToPDF({
-            title: "Loan Comparison Report",
-            subtitle: "Comparative Analysis of Loan Structures",
+            title: "Loan Comparison Matrix",
+            subtitle: "Multi-Entity Arbitrage Report | Professional Financial Review",
             details: [
-                { label: "--- Structure Alpha ---", value: "" },
-                { label: "Principal", value: f(parseFloat(amountA)) },
-                { label: "ROI (p.a.)", value: `${rateA}%` },
-                { label: "Tenure", value: `${tenureA} Months` },
+                { label: "--- Scenario ALPHA ---", value: "" },
+                { label: "Principal Corpus", value: f(parseFloat(amountA)) },
+                { label: "Rate of Interest", value: `${rateA}% p.a.` },
+                { label: "Tenure (Months)", value: `${tenureA}` },
                 { label: "Monthly EMI", value: f(resultA.emi) },
-                { label: "Total Interest", value: f(resultA.interest) },
-                { label: "Total Outflow", value: f(resultA.total) },
-                { label: "--- Structure Beta ---", value: "" },
-                { label: "Principal", value: f(parseFloat(amountB)) },
-                { label: "ROI (p.a.)", value: `${rateB}%` },
-                { label: "Tenure", value: `${tenureB} Months` },
+                { label: "Total Cost of Borrowing", value: f(resultA.interest) },
+                { label: "Aggregate Cash Outflow", value: f(resultA.total) },
+                { label: "--- Scenario BETA ---", value: "" },
+                { label: "Principal Corpus", value: f(parseFloat(amountB)) },
+                { label: "Rate of Interest", value: `${rateB}% p.a.` },
+                { label: "Tenure (Months)", value: `${tenureB}` },
                 { label: "Monthly EMI", value: f(resultB.emi) },
-                { label: "Total Interest", value: f(resultB.interest) },
-                { label: "Total Outflow", value: f(resultB.total) },
-                { label: "--- Comparison Results ---", value: "" },
-                { label: "Monthly Saving", value: f(Math.abs(resultA.emi - resultB.emi)) },
-                { label: "Total Interest Delta", value: f(Math.abs(resultA.interest - resultB.interest)) },
-                { label: "Optimal Choice", value: isAWinner ? "Structure Alpha" : (isBWinner ? "Structure Beta" : "No difference") }
+                { label: "Total Cost of Borrowing", value: f(resultB.interest) },
+                { label: "Aggregate Cash Outflow", value: f(resultB.total) },
+                { label: "--- Multi-Entity Delta ---", value: "" },
+                { label: "Monthly Liquidity Saving", value: f(Math.abs(resultA.emi - resultB.emi)) },
+                { label: "Interest Outflow Saving", value: f(Math.abs(resultA.interest - resultB.interest)) },
+                { label: "Optimal Strategic Choice", value: isAWinner ? "Scenario ALPHA" : (isBWinner ? "Scenario BETA" : "Statistically Neutral") }
             ]
-        }, `Loan_Comparison.pdf`);
+        }, `Loan_Comparison_Analysis.pdf`);
     };
 
     return (
@@ -153,7 +153,7 @@ export const LoanCompare: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="md:col-span-2 space-y-1 share-row">
+                            <div className="md:col-span-2 space-y-1 share-row" data-share-key="loanAmountA" data-share-type="input">
                                 <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Alpha Principal</Label>
                                 <Input
                                     value={amountA}
@@ -162,7 +162,7 @@ export const LoanCompare: React.FC = () => {
                                     className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-1 share-row">
+                            <div className="space-y-1 share-row" data-share-key="roiA" data-share-type="input">
                                 <Label className="text-[8px] font-black uppercase text-foreground share-label">Alpha Rate (%)</Label>
                                 <Input
                                     value={rateA}
@@ -172,7 +172,7 @@ export const LoanCompare: React.FC = () => {
                                     className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-1 share-row">
+                            <div className="space-y-1 share-row" data-share-key="tenureA" data-share-type="input">
                                 <Label className="text-[8px] font-black uppercase text-foreground share-label">Alpha Months</Label>
                                 <Input
                                     value={tenureA}
@@ -184,18 +184,18 @@ export const LoanCompare: React.FC = () => {
                         </div>
 
                         <div className="space-y-3 pt-2">
-                            <div className="stat-card bg-indigo-500/5 p-3 share-row">
+                            <div className="stat-card bg-indigo-500/5 p-3 share-row" data-share-key="emiA" data-share-type="result">
                                 <span className="result-label text-indigo-600 share-label">Alpha Monthly EMI</span>
                                 <div className="text-xl font-black text-foreground share-value">
                                     {formatCurrency(resultA.emi)}
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
-                                <div className="stat-card bg-accent/20 p-2 share-row">
+                                <div className="stat-card bg-accent/20 p-2 share-row" data-share-key="interestA" data-share-type="result">
                                     <span className="result-label share-label">Alpha Interest</span>
                                     <span className="text-xs font-black text-foreground share-value">{formatCurrency(resultA.interest)}</span>
                                 </div>
-                                <div className="stat-card bg-accent/20 p-2 share-row">
+                                <div className="stat-card bg-accent/20 p-2 share-row" data-share-key="totalPayableA" data-share-type="result">
                                     <span className="result-label share-label">Alpha Total</span>
                                     <span className="text-xs font-black text-foreground share-value">{formatCurrency(resultA.total)}</span>
                                 </div>
@@ -226,7 +226,7 @@ export const LoanCompare: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="md:col-span-2 space-y-1 share-row">
+                            <div className="md:col-span-2 space-y-1 share-row" data-share-key="loanAmountB" data-share-type="input">
                                 <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Beta Principal</Label>
                                 <Input
                                     value={amountB}
@@ -235,7 +235,7 @@ export const LoanCompare: React.FC = () => {
                                     className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-1 share-row">
+                            <div className="space-y-1 share-row" data-share-key="roiB" data-share-type="input">
                                 <Label className="text-[8px] font-black uppercase text-foreground share-label">Beta Rate (%)</Label>
                                 <Input
                                     value={rateB}
@@ -245,7 +245,7 @@ export const LoanCompare: React.FC = () => {
                                     className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-1 share-row">
+                            <div className="space-y-1 share-row" data-share-key="tenureB" data-share-type="input">
                                 <Label className="text-[8px] font-black uppercase text-foreground share-label">Beta Months</Label>
                                 <Input
                                     value={tenureB}
@@ -257,18 +257,18 @@ export const LoanCompare: React.FC = () => {
                         </div>
 
                         <div className="space-y-3 pt-2">
-                            <div className="stat-card bg-emerald-500/5 p-3 share-row">
+                            <div className="stat-card bg-emerald-500/5 p-3 share-row" data-share-key="emiB" data-share-type="result">
                                 <span className="result-label text-emerald-600 share-label">Beta Monthly EMI</span>
                                 <div className="text-xl font-black text-foreground share-value">
                                     {formatCurrency(resultB.emi)}
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
-                                <div className="stat-card bg-accent/20 p-2 share-row">
+                                <div className="stat-card bg-accent/20 p-2 share-row" data-share-key="interestB" data-share-type="result">
                                     <span className="result-label share-label">Beta Interest</span>
                                     <span className="text-xs font-black text-foreground share-value">{formatCurrency(resultB.interest)}</span>
                                 </div>
-                                <div className="stat-card bg-accent/20 p-2 share-row">
+                                <div className="stat-card bg-accent/20 p-2 share-row" data-share-key="totalPayableB" data-share-type="result">
                                     <span className="result-label share-label">Beta Total</span>
                                     <span className="text-xs font-black text-foreground share-value">{formatCurrency(resultB.total)}</span>
                                 </div>
@@ -287,11 +287,11 @@ export const LoanCompare: React.FC = () => {
                             <h4 className="text-[13px] font-black uppercase text-foreground mt-2">Comparative Advantage Analysis</h4>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="p-2 px-3 rounded-xl glass-panel border-emerald-600/20 bg-accent/40 share-row">
+                            <div className="p-2 px-3 rounded-xl glass-panel border-emerald-600/20 bg-accent/40 share-row" data-share-key="monthlySaving" data-share-type="result">
                                 <span className="text-[8px] font-black text-foreground uppercase share-label">Monthly Saving</span>
                                 <div className="text-lg font-black text-emerald-600 share-value">{formatCurrency(Math.abs(resultA.emi - resultB.emi))}</div>
                             </div>
-                            <div className="p-2 px-3 rounded-xl glass-panel border-emerald-600/20 bg-accent/40 share-row">
+                            <div className="p-2 px-3 rounded-xl glass-panel border-emerald-600/20 bg-accent/40 share-row" data-share-key="interestDelta" data-share-type="result">
                                 <span className="text-[8px] font-black text-foreground uppercase share-label">Interest Delta</span>
                                 <div className="text-lg font-black text-emerald-600 share-value">{formatCurrency(Math.abs(resultA.interest - resultB.interest))}</div>
                             </div>

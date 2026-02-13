@@ -108,19 +108,19 @@ export const RatioCalculator: React.FC = () => {
 
         exportToPDF({
             title: "Financial Ratio Analysis",
-            subtitle: "Credit Health Diagnostic Report",
+            subtitle: "Credit Health Diagnostic Report | Professional Banking Protocol",
             details: [
                 { label: "--- DSCR Analysis ---", value: "" },
                 { label: "Net Profit After Tax", value: f(parseFloat(pat)) },
                 { label: "Depreciation", value: f(parseFloat(dep)) },
                 { label: "Interest Expense", value: f(parseFloat(interest)) },
                 { label: "Total Obligation", value: f(parseFloat(obligation)) },
-                { label: "DSCR Ratio", value: dscr.toFixed(2) },
+                { label: "Computed DSCR Ratio", value: dscr.toFixed(2) },
                 { label: "--- Liquidity ---", value: "" },
                 { label: "Current Assets", value: f(parseFloat(ca)) },
                 { label: "Current Liabilities", value: f(parseFloat(cl)) },
-                { label: "Current Ratio", value: currentRatio.toFixed(2) },
-                { label: "Quick Ratio", value: quickRatio.toFixed(2) },
+                { label: "Current Ratio", value: `${currentRatio.toFixed(2)}x` },
+                { label: "Quick Ratio", value: `${quickRatio.toFixed(2)}x` },
                 { label: "--- Leverage ---", value: "" },
                 { label: "Total Outside Lib.", value: f(parseFloat(tol)) },
                 { label: "Tangible Net Worth", value: f(parseFloat(tnw)) },
@@ -192,33 +192,33 @@ export const RatioCalculator: React.FC = () => {
                         <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
                             {activeTab === 'dscr' && (
                                 <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-left-2 duration-300">
-                                    <div className="space-y-2 share-row"><Label className="result-label text-primary share-label">PAT (Profit After Tax)</Label><Input value={pat} onChange={e => setPat(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
-                                    <div className="space-y-2 share-row"><Label className="result-label text-primary share-label">Depreciation</Label><Input value={dep} onChange={e => setDep(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
-                                    <div className="space-y-2 share-row"><Label className="result-label text-primary share-label">Interest Expense</Label><Input value={interest} onChange={e => setInterest(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
-                                    <div className="space-y-2 share-row"><Label className="result-label text-primary share-label">Total Obligation</Label><Input value={obligation} onChange={e => setObligation(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 share-row" data-share-key="pat" data-share-type="input"><Label className="result-label text-primary share-label">PAT (Profit After Tax)</Label><Input value={pat} onChange={e => setPat(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 share-row" data-share-key="depreciation" data-share-type="input"><Label className="result-label text-primary share-label">Depreciation</Label><Input value={dep} onChange={e => setDep(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 share-row" data-share-key="interestExpense" data-share-type="input"><Label className="result-label text-primary share-label">Interest Expense</Label><Input value={interest} onChange={e => setInterest(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 share-row" data-share-key="totalObligation" data-share-type="input"><Label className="result-label text-primary share-label">Total Obligation</Label><Input value={obligation} onChange={e => setObligation(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
                                 </div>
                             )}
 
                             {activeTab === 'liquidity' && (
                                 <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-left-2 duration-300">
-                                    <div className="space-y-2 share-row"><Label className="result-label text-primary share-label">Current Assets</Label><Input value={ca} onChange={e => setCa(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
-                                    <div className="space-y-2 share-row"><Label className="result-label text-primary share-label">Current Liab.</Label><Input value={cl} onChange={e => setCl(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
-                                    <div className="space-y-2 col-span-2 share-row"><Label className="result-label text-primary share-label">Inventory (for Quick Ratio)</Label><Input value={inventory} onChange={e => setInventory(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 share-row" data-share-key="currentAssets" data-share-type="input"><Label className="result-label text-primary share-label">Current Assets</Label><Input value={ca} onChange={e => setCa(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 share-row" data-share-key="currentLiabilities" data-share-type="input"><Label className="result-label text-primary share-label">Current Liab.</Label><Input value={cl} onChange={e => setCl(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 col-span-2 share-row" data-share-key="inventory" data-share-type="input"><Label className="result-label text-primary share-label">Inventory (for Quick Ratio)</Label><Input value={inventory} onChange={e => setInventory(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
                                 </div>
                             )}
 
                             {activeTab === 'leverage' && (
                                 <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-left-2 duration-300">
-                                    <div className="space-y-2 share-row"><Label className="result-label text-primary share-label">Total Outside Liab. (TOL)</Label><Input value={tol} onChange={e => setTol(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
-                                    <div className="space-y-2 share-row"><Label className="result-label text-primary share-label">Tangible Net Worth (TNW)</Label><Input value={tnw} onChange={e => setTnw(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 share-row" data-share-key="tol" data-share-type="input"><Label className="result-label text-primary share-label">Total Outside Liab. (TOL)</Label><Input value={tol} onChange={e => setTol(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 share-row" data-share-key="tnw" data-share-type="input"><Label className="result-label text-primary share-label">Tangible Net Worth (TNW)</Label><Input value={tnw} onChange={e => setTnw(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
                                 </div>
                             )}
 
                             {activeTab === 'bep' && (
                                 <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-left-2 duration-300">
-                                    <div className="space-y-2 share-row"><Label className="result-label text-primary share-label">Fixed Costs</Label><Input value={fixedCost} onChange={e => setFixedCost(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
-                                    <div className="space-y-2 share-row"><Label className="result-label text-primary share-label">Variable Costs</Label><Input value={varCost} onChange={e => setVarCost(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
-                                    <div className="space-y-2 col-span-2 share-row"><Label className="result-label text-primary share-label">Total Projected Sales</Label><Input value={sales} onChange={e => setSales(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 share-row" data-share-key="fixedCost" data-share-type="input"><Label className="result-label text-primary share-label">Fixed Costs</Label><Input value={fixedCost} onChange={e => setFixedCost(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 share-row" data-share-key="variableCost" data-share-type="input"><Label className="result-label text-primary share-label">Variable Costs</Label><Input value={varCost} onChange={e => setVarCost(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
+                                    <div className="space-y-2 col-span-2 share-row" data-share-key="projectedSales" data-share-type="input"><Label className="result-label text-primary share-label">Total Projected Sales</Label><Input value={sales} onChange={e => setSales(e.target.value)} type="number" className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground share-value" /></div>
                                 </div>
                             )}
                         </div>
@@ -227,7 +227,7 @@ export const RatioCalculator: React.FC = () => {
                         <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
                             {activeTab === 'dscr' && (
                                 <div className="space-y-4">
-                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row">
+                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row" data-share-key="dscrRatio" data-share-type="result">
                                         <div className="space-y-1 text-center">
                                             <span className="result-label share-label">DSCR Ratio</span>
                                             <div className={cn("hero-result-value h-12 flex items-center justify-center share-value", dscr >= 1.25 ? "text-emerald-500" : "text-amber-500")}>
@@ -235,8 +235,8 @@ export const RatioCalculator: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex items-center justify-between">
-                                        <span className="result-label">Risk Profile</span>
+                                    <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex items-center justify-between share-row" data-share-key="riskProfile" data-share-type="result">
+                                        <span className="result-label share-label">Risk Profile</span>
                                         <span className={cn("text-sm font-black uppercase tracking-widest px-3 py-1 rounded-lg shadow-inner",
                                             dscr < 1.0 ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20" :
                                                 dscr < 1.25 ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" :
@@ -249,7 +249,7 @@ export const RatioCalculator: React.FC = () => {
 
                             {activeTab === 'liquidity' && (
                                 <div className="space-y-4">
-                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row">
+                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row" data-share-key="currentRatio" data-share-type="result">
                                         <div className="space-y-1 text-center">
                                             <span className="result-label share-label">Current Ratio</span>
                                             <div className={cn("hero-result-value h-12 flex items-center justify-center share-value", currentRatio >= 1.33 ? "text-emerald-500" : "text-amber-500")}>
@@ -257,9 +257,9 @@ export const RatioCalculator: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="stat-card p-3 rounded-xl border-none flex items-center justify-between">
-                                        <span className="result-label">Quick Ratio</span>
-                                        <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">
+                                    <div className="stat-card p-3 rounded-xl border-none flex items-center justify-between share-row" data-share-key="quickRatio" data-share-type="result">
+                                        <span className="result-label share-label">Quick Ratio</span>
+                                        <span className="text-sm font-black text-emerald-600 dark:text-emerald-400 share-value">
                                             {quickRatio.toFixed(2)}
                                         </span>
                                     </div>
@@ -268,7 +268,7 @@ export const RatioCalculator: React.FC = () => {
 
                             {activeTab === 'leverage' && (
                                 <div className="space-y-4">
-                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row">
+                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row" data-share-key="leverageRatio" data-share-type="result">
                                         <div className="space-y-1 text-center">
                                             <span className="result-label share-label">TOL/TNW</span>
                                             <div className={cn("hero-result-value h-12 flex items-center justify-center share-value", leverage <= 3 ? "text-emerald-500" : "text-red-500")}>
@@ -276,8 +276,8 @@ export const RatioCalculator: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="stat-card p-3 rounded-xl border-none flex items-center justify-between">
-                                        <span className={cn("text-[10px] font-black uppercase", leverage <= 3 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
+                                    <div className="stat-card p-3 rounded-xl border-none flex items-center justify-between share-row" data-share-key="riskStatus" data-share-type="result">
+                                        <span className={cn("text-[10px] font-black uppercase share-label", leverage <= 3 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
                                             {leverage <= 3 ? 'Within Norms' : 'High Risk'}
                                         </span>
                                     </div>
@@ -286,7 +286,7 @@ export const RatioCalculator: React.FC = () => {
 
                             {activeTab === 'bep' && (
                                 <div className="space-y-4">
-                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row">
+                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row" data-share-key="bep" data-share-type="result">
                                         <div className="space-y-1 text-center">
                                             <span className="result-label share-label">Break-Even Point</span>
                                             <div className="hero-result-value h-12 flex items-center justify-center text-emerald-500 share-value">

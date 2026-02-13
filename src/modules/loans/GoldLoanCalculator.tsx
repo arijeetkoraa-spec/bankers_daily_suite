@@ -5,7 +5,7 @@ import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Coins, FileDown, RotateCcw, Plus, Trash2, AlertCircle, Info, ChevronDown, ChevronUp, ShieldCheck, Landmark, ReceiptText, Percent, IndianRupee } from 'lucide-react';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportAmortizationToPDF } from '../../lib/pdf-export';
 import { formatIndianCurrency, numberToIndianWords, formatPdfCurrency } from '../../lib/utils';
 
 // -- TYPES --
@@ -109,7 +109,7 @@ export const GoldLoanCalculator: React.FC = () => {
     let emi = 0;
     let totalInterest = 0;
     let totalPayment = 0;
-    const schedule: { month: number, principal: number, interest: number, balance: number }[] = [];
+    const schedule: { month: number, emi: number, principal: number, interest: number, balance: number }[] = [];
 
     const r = (parseFloat(interestRate) || 0) / 12 / 100;
     const n = parseFloat(tenureMonths) || 12;
@@ -125,13 +125,13 @@ export const GoldLoanCalculator: React.FC = () => {
                     const interest = balance * r;
                     const principal = emi - interest;
                     balance = Math.max(0, balance - principal);
-                    schedule.push({ month: i, principal, interest, balance });
+                    schedule.push({ month: i, emi, principal, interest, balance });
                 }
             }
         } else if (loanType === 'Bullet') {
             totalInterest = (actualLoanAmount * (parseFloat(interestRate) || 0) * (n / 12)) / 100;
             totalPayment = actualLoanAmount + totalInterest;
-            schedule.push({ month: Math.round(n), principal: actualLoanAmount, interest: totalInterest, balance: 0 });
+            schedule.push({ month: Math.round(n), emi: totalPayment, principal: actualLoanAmount, interest: totalInterest, balance: 0 });
         } else if (loanType === 'Overdraft') {
             totalInterest = (actualLoanAmount * (parseFloat(interestRate) || 0) * (1 / 12)) / 100;
             totalPayment = actualLoanAmount;
@@ -184,33 +184,25 @@ export const GoldLoanCalculator: React.FC = () => {
 
         const f = formatPdfCurrency;
 
-        exportToPDF({
-            title: `Gold Loan Assessment (${loanType} @ ${interestRate}% for ${tenureMonths}m)`,
-            subtitle: `Detailed Valuation & Repayment Roadmap`,
+        exportAmortizationToPDF({
+            title: `Gold Loan Assessment`,
+            subtitle: `${loanType} @ ${interestRate}% for ${tenureMonths}m | Detailed Repayment Roadmap`,
             details: [
                 { label: "Loan Type", value: loanType },
                 { label: "Gold Rate (22K)", value: `${f(rate)}/g` },
                 { label: "Applied LTV", value: `${applicableLTV}%` },
-                { label: "--- Ornaments ---", value: "" },
-                ...detailedValuation.map(o => ({
-                    label: `${o.description || 'Item'} (${o.purity}K)`,
-                    value: `${o.netWeight.toFixed(2)}g Net | Val: ${f(o.value)}`
-                })),
                 { label: "--- Summary ---", value: "" },
                 { label: "Total Net Weight", value: `${totalNetWeight.toFixed(2)} grams` },
                 { label: "Total Valuation", value: f(totalValuation) },
                 { label: "Max Eligible Loan", value: f(maxEligibleLoan) },
-                { label: "Amount in Words", value: actualLoanWords },
+                { label: "Requested Amount", value: requestedLoanAmount ? f(parseFloat(requestedLoanAmount)) : "Max Eligible" },
+                { label: "Actual Loan Amount", value: f(actualLoanAmount) },
                 { label: "--- Repayment ---", value: "" },
                 { label: "Monthly EMI", value: loanType === 'EMI' ? f(emi) : 'N/A' },
                 { label: "Total Interest", value: f(totalInterest) },
                 { label: "Total Payable", value: f(totalPayment) },
-                { label: "--- Amortization Schedule ---", value: "" },
-                ...schedule.map(s => ({
-                    label: `Month ${s.month}`,
-                    value: `P: ${f(s.principal)} | I: ${f(s.interest)} | Bal: ${f(s.balance)}`
-                }))
-            ]
+            ],
+            schedule: schedule
         }, docTitle);
     };
 
@@ -252,7 +244,7 @@ export const GoldLoanCalculator: React.FC = () => {
                     <div className="xl:col-span-7 p-4 md:p-6 space-y-6 border-r border-border/50 h-full overflow-y-auto max-h-[850px]">
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-1 share-row">
+                            <div className="space-y-1 share-row" data-share-key="loanScheme" data-share-type="option">
                                 <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Loan Scheme</Label>
                                 <div className="flex p-1 bg-accent/50 dark:bg-slate-800/50 rounded-lg shadow-inner">
                                     {[
@@ -270,7 +262,7 @@ export const GoldLoanCalculator: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
-                            <div className="space-y-1 share-row">
+                            <div className="space-y-1 share-row" data-share-key="goldRate" data-share-type="input">
                                 <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Gold Rate (₹/gm 22K)</Label>
                                 <Input
                                     type="number"
@@ -347,7 +339,7 @@ export const GoldLoanCalculator: React.FC = () => {
 
                         {/* Loan Selection & Repayment Params */}
                         <div className="p-6 bg-slate-100/50 dark:bg-slate-900/40 rounded-2xl border border-border/50 space-y-6">
-                            <div className="space-y-2 share-row">
+                            <div className="space-y-2 share-row" data-share-key="loanAmount" data-share-type="input">
                                 <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label flex items-center gap-2">
                                     <Landmark className="w-4 h-4 text-emerald-600" /> Desired Loan Amount
                                 </Label>
@@ -365,11 +357,11 @@ export const GoldLoanCalculator: React.FC = () => {
                                 )}
                             </div>
                             <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2 share-row">
+                                <div className="space-y-2 share-row" data-share-key="roi" data-share-type="input">
                                     <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">ROI (% p.a)</Label>
                                     <Input type="number" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} className="h-10 text-lg font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 share-value" />
                                 </div>
-                                <div className="space-y-2 share-row">
+                                <div className="space-y-2 share-row" data-share-key="tenure" data-share-type="input">
                                     <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Tenure (Months)</Label>
                                     <Input type="number" value={tenureMonths} onChange={(e) => setTenureMonths(e.target.value)} className="h-10 text-lg font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 share-value" />
                                 </div>
@@ -459,7 +451,7 @@ export const GoldLoanCalculator: React.FC = () => {
                     <div className="xl:col-span-5 bg-muted/30 flex flex-col h-full border-l border-border/10">
                         <div className="p-6 space-y-6 flex-1 overflow-y-auto">
 
-                            <div className="bg-slate-900 dark:bg-slate-950 rounded-2xl p-6 shadow-2xl relative overflow-hidden border border-white/5 share-row">
+                            <div className="bg-slate-900 dark:bg-slate-950 rounded-2xl p-6 shadow-2xl relative overflow-hidden border border-white/5 share-row" data-share-key="sanctionedAmount" data-share-type="result">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full -mr-16 -mt-16" />
                                 <div className="relative z-10 space-y-2">
                                     <span className="result-label share-label text-yellow-500 font-black">Sanctioned Loan Amount</span>
@@ -476,26 +468,26 @@ export const GoldLoanCalculator: React.FC = () => {
 
                             <div className="bg-background dark:bg-slate-900/40 border border-border/50 p-5 rounded-2xl shadow-sm space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1 share-row">
+                                    <div className="space-y-1 share-row" data-share-key="totalValuation" data-share-type="result">
                                         <div className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Collateral Value</div>
                                         <div className="text-xl font-black text-foreground share-value">{formatIndianCurrency(totalValuation)}</div>
                                     </div>
-                                    <div className="space-y-1 text-right share-row">
+                                    <div className="space-y-1 text-right share-row" data-share-key="appliedLtv" data-share-type="result">
                                         <div className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Applied LTV</div>
                                         <div className="text-xl font-black text-yellow-600 dark:text-yellow-500 share-value">{totalValuation > 0 ? ((actualLoanAmount / totalValuation) * 100).toFixed(1) : applicableLTV}%</div>
                                     </div>
                                 </div>
                                 <div className="h-px bg-border/50" />
                                 <div className="space-y-3">
-                                    <div className="flex justify-between items-center text-[10px] uppercase font-black share-row">
+                                    <div className="flex justify-between items-center text-[10px] uppercase font-black share-row" data-share-key="loanAmountResult" data-share-type="result">
                                         <span className="text-foreground dark:text-muted-foreground share-label">Gross Loan:</span>
                                         <span className="text-foreground share-value">{formatIndianCurrency(actualLoanAmount)}</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-[10px] uppercase font-black share-row">
+                                    <div className="flex justify-between items-center text-[10px] uppercase font-black share-row" data-share-key="totalDeductions" data-share-type="result">
                                         <span className="text-foreground dark:text-muted-foreground share-label">Total Deductions:</span>
                                         <span className="text-red-600 dark:text-red-400 share-value">-{formatIndianCurrency(totalUpfrontCharges)}</span>
                                     </div>
-                                    <div className="flex justify-between items-center p-4 bg-emerald-600 dark:bg-emerald-700 rounded-2xl text-white shadow-xl shadow-emerald-600/20 share-row">
+                                    <div className="flex justify-between items-center p-4 bg-emerald-600 dark:bg-emerald-700 rounded-2xl text-white shadow-xl shadow-emerald-600/20 share-row" data-share-key="netDisbursement" data-share-type="result">
                                         <span className="text-[10px] font-black uppercase tracking-widest share-label">Net Disbursement</span>
                                         <span className="text-xl font-black share-value">{formatIndianCurrency(netDisbursement)}</span>
                                     </div>
@@ -504,11 +496,11 @@ export const GoldLoanCalculator: React.FC = () => {
 
                             <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-4 bg-slate-900 dark:bg-slate-800 rounded-xl border border-slate-800 text-center shadow-md share-row">
+                                    <div className="p-4 bg-slate-900 dark:bg-slate-800 rounded-xl border border-slate-800 text-center shadow-md share-row" data-share-key="emi" data-share-type="result">
                                         <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 share-label">Monthly EMI</div>
                                         <div className="text-xl font-black text-white share-value">{loanType === 'EMI' ? formatIndianCurrency(emi) : 'N/A'}</div>
                                     </div>
-                                    <div className="p-4 bg-slate-900 dark:bg-slate-800 rounded-xl border border-slate-800 text-center shadow-md share-row">
+                                    <div className="p-4 bg-slate-900 dark:bg-slate-800 rounded-xl border border-slate-800 text-center shadow-md share-row" data-share-key="totalInterest" data-share-type="result">
                                         <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 share-label">Total Interest</div>
                                         <div className="text-xl font-black text-white share-value">{formatIndianCurrency(totalInterest)}</div>
                                     </div>

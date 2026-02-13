@@ -93,18 +93,18 @@ export const UnitConverter: React.FC = () => {
 
     const downloadPDF = () => {
         exportToPDF({
-            title: "Unit Conversion Audit",
-            subtitle: `${type.toUpperCase()} Conversion Matrix`,
+            title: "Measurement Dynamics Audit",
+            subtitle: `${type.toUpperCase()} Matrix Conversion | Professional Standardized Report`,
             details: [
-                { label: "Measurement Category", value: type.charAt(0).toUpperCase() + type.slice(1) },
-                { label: "--- Input ---", value: "" },
-                { label: "Source Value", value: value },
-                { label: "Source Unit", value: unitLabels[fromUnit] },
-                { label: "--- Output ---", value: "" },
-                { label: "Target Value", value: result },
-                { label: "Target Unit", value: unitLabels[toUnit] },
-                { label: "--- Reference Identity ---", value: "" },
-                { label: "Conversion Match", value: `${value} ${fromUnit} = ${result} ${toUnit}` }
+                { label: "Conversion Category", value: type.charAt(0).toUpperCase() + type.slice(1) },
+                { label: "--- Source Specification ---", value: "" },
+                { label: "Input Value", value: value },
+                { label: "Input Metric Unit", value: unitLabels[fromUnit] },
+                { label: "--- Target Matrix Output ---", value: "" },
+                { label: "Conversion Result", value: result },
+                { label: "Output Metric Unit", value: unitLabels[toUnit] },
+                { label: "--- Verification Identity ---", value: "" },
+                { label: "Formula Alignment", value: `${value} ${fromUnit} = ${result} ${toUnit}` }
             ]
         }, `Unit_Conversion_${type}.pdf`);
     };
@@ -141,7 +141,7 @@ export const UnitConverter: React.FC = () => {
             </CardHeader>
             <CardContent className="p-0">
                 <Tabs defaultValue={type} value={type} onValueChange={(v) => setType(v as UnitType)} className="w-full">
-                    <div className="p-4 bg-muted/30 border-b border-border/50 share-row">
+                    <div className="p-4 bg-muted/30 border-b border-border/50 share-row" data-share-key="conversionType" data-share-type="option">
                         <span className="sr-only share-label">Category</span>
                         <TabsList className="grid w-full grid-cols-3 gap-2 bg-transparent h-auto p-0">
                             {(['area', 'length', 'weight'] as UnitType[]).map((t) => (
@@ -166,7 +166,7 @@ export const UnitConverter: React.FC = () => {
                         {/* Inputs Section */}
                         <div className="lg:col-span-7 p-6 md:p-8 space-y-8 border-r border-border/50">
                             <div className="grid grid-cols-1 md:grid-cols-11 gap-4 items-center">
-                                <div className="md:col-span-5 space-y-1 share-row">
+                                <div className="md:col-span-5 space-y-1 share-row" data-share-key="inputValue" data-share-type="input">
                                     <Label className="text-[10px] font-bold uppercase text-cyan-700 opacity-70 share-label">From ({unitLabels[fromUnit]})</Label>
                                     <div className="relative group">
                                         <Input
@@ -194,7 +194,7 @@ export const UnitConverter: React.FC = () => {
                                     <ArrowRightLeft className="w-6 h-6 rotate-90 md:rotate-0" />
                                 </div>
 
-                                <div className="md:col-span-5 space-y-1 share-row">
+                                <div className="md:col-span-5 space-y-1 share-row" data-share-key="outputValue" data-share-type="result">
                                     <Label className="text-[10px] font-bold uppercase text-cyan-700 opacity-70 share-label">To ({unitLabels[toUnit]})</Label>
                                     <div className="h-12 flex items-center px-6 rounded-2xl bg-cyan-600/10 border border-cyan-600/20 text-xl font-black text-cyan-700 overflow-hidden text-ellipsis whitespace-nowrap shadow-inner share-value">
                                         {result}

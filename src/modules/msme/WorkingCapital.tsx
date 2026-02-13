@@ -67,9 +67,9 @@ export const WorkingCapitalCalculator: React.FC = () => {
 
         exportToPDF({
             title: "Working Capital Assessment",
-            subtitle: method === 'turnover' ? "Nayak Committee (Turnover Method)" : "Tandon Committee (MPBF Method II)",
+            subtitle: `${method === 'turnover' ? "Nayak Committee (Turnover Method)" : "Tandon Committee (MPBF Method II)"} | Professional Review`,
             details: [
-                { label: "Assessment Method", value: method === 'turnover' ? "Turnover Method" : "MPBF Method II" },
+                { label: "Assessment Method", value: method === 'turnover' ? "Nayak Committee (Turnover)" : "Tandon Committee (MPBF-II)" },
                 ...(method === 'turnover' ? [
                     { label: "Projected Annual Sales", value: f(parseFloat(sales)) },
                     { label: "WC Requirement (25%)", value: f(parseFloat(sales) * 0.25) },
@@ -79,9 +79,9 @@ export const WorkingCapitalCalculator: React.FC = () => {
                     { label: "Other Current Liabilities", value: f(parseFloat(cl)) },
                     { label: "Working Capital Gap", value: f(parseFloat(ca) - parseFloat(cl)) },
                 ]),
-                { label: "--- Limit Calculation ---", value: "" },
-                { label: "Bank Finance Share", value: method === 'turnover' ? "20% of Sales" : "75% of Gap" },
-                { label: "Proposed Limit", value: f(method === 'turnover' ? turnoverLimit : mpbf) }
+                { label: "--- Final Credit Sanction ---", value: "" },
+                { label: "Permissible Bank Finance", value: method === 'turnover' ? "20% of Sales" : "75% of Gap" },
+                { label: "Calculated Limit", value: f(method === 'turnover' ? turnoverLimit : mpbf) }
             ]
         }, `Working_Capital_${method}.pdf`);
     };
@@ -119,7 +119,7 @@ export const WorkingCapitalCalculator: React.FC = () => {
             <CardContent className="p-0">
                 <Tabs defaultValue={method} value={method} onValueChange={setMethod} className="w-full">
                     <div className="p-2 bg-muted/30 border-b border-border/50">
-                        <TabsList className="grid w-full grid-cols-2 gap-1 bg-transparent h-auto p-0">
+                        <TabsList className="grid w-full grid-cols-2 gap-1 bg-transparent h-auto p-0 share-row" data-share-key="assessmentMethod" data-share-type="option">
                             {[
                                 { id: 'turnover', label: 'Nayak (Turnover)', icon: <BarChart3 className="w-3 h-3" /> },
                                 { id: 'mpbf', label: 'Tandon (Gap)', icon: <ShieldCheck className="w-3 h-3" /> }
@@ -145,7 +145,7 @@ export const WorkingCapitalCalculator: React.FC = () => {
                         <div className="lg:col-span-7 p-4 md:p-6 space-y-6 border-r border-border/50">
                             {method === 'turnover' && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
-                                    <div className="space-y-2 share-row">
+                                    <div className="space-y-2 share-row" data-share-key="projectedSales" data-share-type="input">
                                         <Label htmlFor="wc-sales" className="result-label text-amber-600 share-label">Projected Annual Turnover (₹)</Label>
                                         <div className="relative">
                                             <Input
@@ -162,15 +162,15 @@ export const WorkingCapitalCalculator: React.FC = () => {
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex flex-col gap-1">
-                                            <span className="result-label">WC Requirement (25%)</span>
-                                            <span className="text-xl font-black text-amber-600">
+                                        <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex flex-col gap-1 share-row" data-share-key="wcRequirement" data-share-type="result">
+                                            <span className="result-label share-label">WC Requirement (25%)</span>
+                                            <span className="text-xl font-black text-amber-600 share-value">
                                                 {formatCurrency(parseFloat(sales) * 0.25)}
                                             </span>
                                         </div>
-                                        <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex flex-col gap-1">
-                                            <span className="result-label text-red-600">Min. Margin (5%)</span>
-                                            <span className="text-xl font-black text-red-600">
+                                        <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex flex-col gap-1 share-row" data-share-key="minMargin" data-share-type="result">
+                                            <span className="result-label text-red-600 share-label">Min. Margin (5%)</span>
+                                            <span className="text-xl font-black text-red-600 share-value">
                                                 {formatCurrency(parseFloat(sales) * 0.05)}
                                             </span>
                                         </div>
@@ -181,7 +181,7 @@ export const WorkingCapitalCalculator: React.FC = () => {
                             {method === 'mpbf' && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
                                     <div className="grid grid-cols-1 gap-4">
-                                        <div className="space-y-2 share-row">
+                                        <div className="space-y-2 share-row" data-share-key="currentAssets" data-share-type="input">
                                             <Label htmlFor="wc-ca" className="result-label text-amber-600 share-label">Total Current Assets (₹)</Label>
                                             <Input
                                                 id="wc-ca"
@@ -191,7 +191,7 @@ export const WorkingCapitalCalculator: React.FC = () => {
                                                 className="h-10 bg-accent/30 font-bold px-3 text-lg text-foreground placeholder:text-muted-foreground share-value"
                                             />
                                         </div>
-                                        <div className="space-y-2 share-row">
+                                        <div className="space-y-2 share-row" data-share-key="currentLiabilities" data-share-type="input">
                                             <Label htmlFor="wc-cl" className="result-label text-amber-600 share-label">Other Current Liabilities (₹)</Label>
                                             <Input
                                                 id="wc-cl"
@@ -204,9 +204,9 @@ export const WorkingCapitalCalculator: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex items-center justify-between">
-                                        <span className="result-label">Working Capital Gap</span>
-                                        <span className="text-xl font-black text-amber-600">
+                                    <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex items-center justify-between share-row" data-share-key="wcGap" data-share-type="result">
+                                        <span className="result-label share-label">Working Capital Gap</span>
+                                        <span className="text-xl font-black text-amber-600 share-value">
                                             {formatCurrency(parseFloat(ca) - parseFloat(cl))}
                                         </span>
                                     </div>
@@ -217,7 +217,7 @@ export const WorkingCapitalCalculator: React.FC = () => {
                         {/* Results Section */}
                         <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-6">
                             <div className="space-y-6 flex-1 flex flex-col justify-center">
-                                <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-6 shadow-sm dark:shadow-none share-row">
+                                <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-6 shadow-sm dark:shadow-none share-row" data-share-key="limitAmount" data-share-type="result">
                                     <div className="space-y-1 text-center">
                                         <span className="result-label share-label">
                                             Max Permissible Finance
@@ -228,7 +228,7 @@ export const WorkingCapitalCalculator: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex items-center justify-between group">
+                                <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex items-center justify-between group share-row" data-share-key="bankShare" data-share-type="result">
                                     <div className="flex flex-col">
                                         <span className="result-label share-label">Bank Share</span>
                                         <span className="text-xl font-black text-amber-600 share-value">

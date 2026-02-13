@@ -67,22 +67,22 @@ export const DateCalculator: React.FC = () => {
 
     const downloadPDF = () => {
         exportToPDF({
-            title: "Date Analysis Report",
-            subtitle: mode === 'maturity' ? "Maturity Forecasting Engine" : "Duration Analysis Matrix",
+            title: "Date Dynamics Analysis",
+            subtitle: `${mode === 'maturity' ? "Maturity Forecasting Engine" : "Duration Multi-Matrix Analysis"} | Operational Protocol`,
             details: [
                 { label: "Reference Start Date", value: format(parseISO(startDate), 'dd-MMM-yyyy') },
                 ...(mode === 'maturity' ? [
-                    { label: "Tenure Period", value: `${tenure} ${tenureType}` },
-                    { label: "--- Result ---", value: "" },
+                    { label: "Configured Tenure", value: `${tenure} ${tenureType}` },
+                    { label: "--- Forecasted Result ---", value: "" },
                     { label: "Maturity Date", value: maturityDate }
                 ] : [
-                    { label: "Target End Date", value: format(parseISO(endDate), 'dd-MMM-yyyy') },
-                    { label: "--- Result ---", value: "" },
-                    { label: "Elapsed Days", value: `${diffDays} Days` },
-                    { label: "Elapsed Weeks", value: `${(diffDays / 7).toFixed(1)} Weeks` }
+                    { label: "Target Terminal Date", value: format(parseISO(endDate), 'dd-MMM-yyyy') },
+                    { label: "--- Duration Metrics ---", value: "" },
+                    { label: "Total Elapsed Days", value: `${diffDays} Days` },
+                    { label: "Equivalent Weeks", value: `${(diffDays / 7).toFixed(1)} Weeks` }
                 ])
             ]
-        }, `Date_Analysis_${mode}.pdf`);
+        }, `Date_Analysis_Report.pdf`);
     };
 
     return (
@@ -144,7 +144,7 @@ export const DateCalculator: React.FC = () => {
                         <div className="lg:col-span-7 p-6 md:p-8 space-y-8 border-r border-border/50">
                             {mode === 'maturity' && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
-                                    <div className="space-y-1 share-row">
+                                    <div className="space-y-1 share-row" data-share-key="startDate" data-share-type="input">
                                         <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70 share-label">Start Date</Label>
                                         <div className="relative">
                                             <Input
@@ -157,7 +157,7 @@ export const DateCalculator: React.FC = () => {
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-1 share-row">
+                                        <div className="space-y-1 share-row" data-share-key="tenureValue" data-share-type="input">
                                             <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70 share-label">Tenure</Label>
                                             <Input
                                                 type="number"
@@ -166,7 +166,7 @@ export const DateCalculator: React.FC = () => {
                                                 className="h-12 text-2xl font-black bg-accent border-none px-6 share-value"
                                             />
                                         </div>
-                                        <div className="space-y-1 share-row">
+                                        <div className="space-y-1 share-row" data-share-key="unit">
                                             <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70 share-label">Unit</Label>
                                             <div className="grid grid-cols-3 gap-1 p-1 bg-accent border-none rounded-xl h-12">
                                                 {['days', 'months', 'years'].map(t => (
@@ -191,7 +191,7 @@ export const DateCalculator: React.FC = () => {
 
                             {mode === 'diff' && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
-                                    <div className="space-y-1 share-row">
+                                    <div className="space-y-1 share-row" data-share-key="startDate" data-share-type="input">
                                         <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70 share-label">Reference Start Date</Label>
                                         <Input
                                             type="date"
@@ -200,7 +200,7 @@ export const DateCalculator: React.FC = () => {
                                             className="h-12 text-xl font-black bg-accent border-none focus-visible:ring-blue-500 px-6 share-value"
                                         />
                                     </div>
-                                    <div className="space-y-1 share-row">
+                                    <div className="space-y-1 share-row" data-share-key="endDate" data-share-type="input">
                                         <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70 share-label">Target End Date</Label>
                                         <Input
                                             type="date"
@@ -216,7 +216,7 @@ export const DateCalculator: React.FC = () => {
                         {/* Results Section */}
                         <div className="lg:col-span-5 p-6 md:p-8 bg-muted/40 flex flex-col justify-center">
                             <div className="space-y-8 text-center lg:text-left">
-                                <div className="space-y-2 share-row">
+                                <div className="space-y-2 share-row" data-share-key="computedDate" data-share-type="result">
                                     <span className="result-label share-label">
                                         {mode === 'maturity' ? 'Forecasted Maturity' : 'Elapsed Duration'}
                                     </span>

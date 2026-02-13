@@ -99,24 +99,24 @@ export const FDCalculator: React.FC = () => {
 
         exportToPDF({
             title: "Fixed Deposit Summary",
-            subtitle: isPremature ? "Premature Closure Calculation" : "Maturity Calculation",
+            subtitle: `${isPremature ? "Premature Redemption Assessment" : "Maturity Growth Forecast"} | Professional Payout Schedule`,
             details: [
-                { label: "Principal Amount", value: f(parseFloat(principal)) },
-                { label: "Interest Rate", value: `${rate}% p.a.` },
-                { label: "Tenure", value: `${tenure} ${tenureType}` },
-                { label: "Total Interest Earned", value: f(interestEarned) },
-                { label: "Maturity Value", value: f(maturityValue) },
+                { label: "Principal Invested", value: f(parseFloat(principal)) },
+                { label: "Base ROI (Annually)", value: `${rate}% p.a.` },
+                { label: "Booked Tenure", value: `${tenure} ${tenureType}` },
+                { label: "Aggregate Interest", value: f(interestEarned) },
+                { label: "Maturity Payout", value: f(maturityValue) },
                 { label: "Effective Yield", value: `${yieldRate.toFixed(2)}%` },
                 ...(isPremature ? [
-                    { label: "--- Premature Details ---", value: "" },
-                    { label: "Actual Run Period", value: `${runTenure} ${runTenureType}` },
-                    { label: "Applicable Card Rate", value: `${cardRate}%` },
+                    { label: "--- Premature Termination Details ---", value: "" },
+                    { label: "Actual Days Service", value: `${runTenure} ${runTenureType}` },
+                    { label: "Applicable Base Rate", value: `${cardRate}%` },
                     { label: "Premature Penalty", value: `${penalty}%` },
-                    { label: "Payout Interest Rate", value: `${prematureResult?.effectiveRate.toFixed(2)}%` },
+                    { label: "Revised Effective ROI", value: `${prematureResult?.effectiveRate.toFixed(2)}%` },
                     { label: "Net Payout Amount", value: f(prematureResult?.netPayout || 0) }
                 ] : [])
             ]
-        }, `FD_Summary.pdf`);
+        }, `FD_Statement_Report.pdf`);
     };
 
     return (
@@ -154,7 +154,7 @@ export const FDCalculator: React.FC = () => {
                     {/* Inputs Section */}
                     <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2 share-row">
+                            <div className="space-y-2 share-row" data-share-key="depositAmount" data-share-type="input">
                                 <Label htmlFor="principal" className="result-label text-primary share-label">Investment (₹)</Label>
                                 <Input
                                     id="principal"
@@ -164,7 +164,7 @@ export const FDCalculator: React.FC = () => {
                                     className="h-12 text-2xl font-black bg-accent/30 border-none px-4 shadow-inner share-value"
                                 />
                             </div>
-                            <div className="space-y-2 share-row">
+                            <div className="space-y-2 share-row" data-share-key="roi" data-share-type="input">
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="rate" className="result-label text-primary share-label">Interest (%)</Label>
                                     <button
@@ -195,7 +195,7 @@ export const FDCalculator: React.FC = () => {
                                     Premature Closure Active
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1 share-row">
+                                    <div className="space-y-1 share-row" data-share-key="runTenure">
                                         <Label className="hidden share-label">Actual Run ({runTenureType})</Label>
                                         <div className="flex gap-1 bg-background rounded-lg border border-border p-0.5">
                                             <Input
@@ -215,7 +215,7 @@ export const FDCalculator: React.FC = () => {
                                             </select>
                                         </div>
                                     </div>
-                                    <div className="space-y-1 share-row">
+                                    <div className="space-y-1 share-row" data-share-key="cardRate">
                                         <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Months Run</Label>
                                         <Input
                                             type="number"
@@ -226,7 +226,7 @@ export const FDCalculator: React.FC = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 share-row">
+                                <div className="flex items-center gap-2 share-row" data-share-key="penalty">
                                     <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 shrink-0 share-label">Penalty (%)</Label>
                                     <Input
                                         type="number"
@@ -239,7 +239,7 @@ export const FDCalculator: React.FC = () => {
                             </div>
                         )}
 
-                        <div className="space-y-3 pt-2 share-row">
+                        <div className="space-y-3 pt-2 share-row" data-share-key="tenure" data-share-type="input">
                             <Label className="result-label text-primary share-label">Investment Tenure ({tenureType})</Label>
                             <div className="flex flex-col md:flex-row gap-3">
                                 <div className="flex p-1 bg-accent/50 rounded-xl gap-1 flex-1 shadow-inner">
@@ -272,11 +272,11 @@ export const FDCalculator: React.FC = () => {
 
                         <div className="p-4 rounded-xl glass-panel bg-accent/50 border-2 border-primary/10 shadow-inner space-y-3">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col share-row">
+                                <div className="flex flex-col share-row" data-share-key="yieldRate">
                                     <span className="text-[9px] font-black text-foreground uppercase tracking-widest share-label">Effective Yield</span>
                                     <span className="text-sm font-black text-primary share-value">{yieldRate.toFixed(2)}%</span>
                                 </div>
-                                <div className="flex flex-col share-row">
+                                <div className="flex flex-col share-row" data-share-key="compounding">
                                     <span className="text-[9px] font-black text-foreground uppercase tracking-widest share-label">Compounding</span>
                                     <span className="text-sm font-black text-foreground uppercase share-value">Quarterly</span>
                                 </div>
@@ -286,7 +286,7 @@ export const FDCalculator: React.FC = () => {
 
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                        <div className="space-y-1 share-row">
+                        <div className="space-y-1 share-row" data-share-key="maturityValue" data-share-type="result">
                             <span className="result-label share-label">
                                 {isPremature ? "Net Payout" : "Expected Maturity"}
                             </span>
@@ -296,13 +296,13 @@ export const FDCalculator: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 gap-3">
-                            <div className="stat-card share-row">
+                            <div className="stat-card share-row" data-share-key="investment" data-share-type="result">
                                 <span className="result-label text-foreground share-label">Principal Invested</span>
                                 <span className="text-lg font-black text-foreground leading-none share-value">
                                     {formatCurrency(parseFloat(principal) || 0)}
                                 </span>
                             </div>
-                            <div className="stat-card share-row">
+                            <div className="stat-card share-row" data-share-key="interest" data-share-type="result">
                                 <span className="result-label share-label">Interest Accrued</span>
                                 <span className={cn(
                                     "text-lg font-black leading-none share-value",

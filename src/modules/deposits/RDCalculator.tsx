@@ -79,24 +79,24 @@ export const RDCalculator: React.FC = () => {
         const f = formatPdfCurrency;
 
         exportToPDF({
-            title: "Recurring Deposit Summary",
-            subtitle: isPremature ? "Premature Closure Calculation" : "Maturity Calculation",
+            title: "Recurring Deposit Assessment",
+            subtitle: `${isPremature ? "Premature Closure Review" : "Maturity Growth Forecast"} | Professional Wealth Profile`,
             details: [
                 { label: "Monthly Installment", value: f(parseFloat(monthlyInstallment)) },
-                { label: "Interest Rate", value: `${rate}% p.a.` },
+                { label: "ROI (Annually)", value: `${rate}% p.a.` },
                 { label: "Planned Tenure", value: `${months} Months` },
-                { label: "Total Investment", value: f(parseFloat(monthlyInstallment) * parseInt(months)) },
-                { label: "Maturity Value", value: f(maturityValue) },
-                { label: "Total Interest Earned", value: f(interestEarned) },
+                { label: "Net Principal Invested", value: f(parseFloat(monthlyInstallment) * parseInt(months)) },
+                { label: "Accumulated Interest", value: f(isPremature ? prematureResult?.interestEarned : interestEarned) },
+                { label: "--- Final Payout ---", value: "" },
+                { label: isPremature ? "Net Closure Amount" : "Expected Maturity Value", value: f(isPremature ? prematureResult?.netPayout : maturityValue) },
                 ...(isPremature ? [
-                    { label: "--- Premature Details ---", value: "" },
-                    { label: "Months Completed", value: `${runMonths}` },
-                    { label: "Applicable Card Rate", value: `${cardRate}%` },
-                    { label: "Premature Penalty", value: `${penalty}%` },
-                    { label: "Net Payout Amount", value: f(prematureResult?.netPayout || 0) }
+                    { label: "--- Premature Penalties ---", value: "" },
+                    { label: "Months Served", value: `${runMonths}` },
+                    { label: "Base Card Rate", value: `${cardRate}%` },
+                    { label: "Penalty Deducted", value: `${penalty}%` }
                 ] : [])
             ]
-        }, `RD_Summary.pdf`);
+        }, `RD_Financial_Statement.pdf`);
     };
 
     return (
@@ -134,7 +134,7 @@ export const RDCalculator: React.FC = () => {
                     {/* Inputs Section */}
                     <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2 share-row">
+                            <div className="space-y-2 share-row" data-share-key="monthlySavings" data-share-type="input">
                                 <Label htmlFor="rd-amount" className="result-label text-emerald-600 share-label">Monthly Savings (₹)</Label>
                                 <Input
                                     id="rd-amount"
@@ -144,7 +144,7 @@ export const RDCalculator: React.FC = () => {
                                     className="h-12 text-2xl font-black bg-accent/30 border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-2 share-row">
+                            <div className="space-y-2 share-row" data-share-key="roi" data-share-type="input">
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="rd-rate" className="result-label text-emerald-700 dark:text-emerald-300 share-label">Interest (%)</Label>
                                     <button
@@ -168,7 +168,7 @@ export const RDCalculator: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-2 pt-2 share-row">
+                        <div className="space-y-2 pt-2 share-row" data-share-key="tenure" data-share-type="input">
                             <Label htmlFor="rd-months" className="result-label text-emerald-600 share-label">Period (Months)</Label>
                             <Input
                                 id="rd-months"
@@ -206,7 +206,7 @@ export const RDCalculator: React.FC = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 share-row">
+                                <div className="flex items-center gap-2 share-row" data-share-key="penalty">
                                     <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 shrink-0 share-label">Penalty (%)</Label>
                                     <Input
                                         type="number"
@@ -222,7 +222,7 @@ export const RDCalculator: React.FC = () => {
 
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                        <div className="space-y-1 share-row">
+                        <div className="space-y-1 share-row" data-share-key="maturityValue" data-share-type="result">
                             <span className="result-label share-label">
                                 {isPremature ? "Net Payout" : "Expected Maturity"}
                             </span>
@@ -232,13 +232,13 @@ export const RDCalculator: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 gap-3">
-                            <div className="stat-card share-row">
+                            <div className="stat-card share-row" data-share-key="investment" data-share-type="result">
                                 <span className="result-label share-label">Principal Invested</span>
                                 <span className="text-lg font-black text-foreground leading-none share-value">
                                     {formatCurrency(parseFloat(monthlyInstallment) * parseInt(months) || 0)}
                                 </span>
                             </div>
-                            <div className="stat-card share-row">
+                            <div className="stat-card share-row" data-share-key="interest" data-share-type="result">
                                 <span className="result-label share-label">Interest Accrued</span>
                                 <span className={cn(
                                     "text-lg font-black leading-none share-value",

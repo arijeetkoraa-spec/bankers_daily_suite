@@ -15,6 +15,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { FeedbackModal } from './FeedbackModal';
 import { AboutModal } from './AboutModal';
 import { Info } from 'lucide-react';
+import { buildWhatsappMessage, type ShareField } from '../lib/whatsapp-share';
 
 interface SidebarItem {
     id: string;
@@ -126,8 +127,7 @@ export const Layout: React.FC<LayoutProps> = ({
     // Auto-close sidebar on mobile after navigation
     const handleWhatsAppShare = () => {
         const rows = document.querySelectorAll('.share-row');
-        let message = `*Calculation Details from Bankers' Daily Suite*\n\n`;
-        let hasDetails = false;
+        const fields: ShareField[] = [];
 
         rows.forEach(row => {
             // Only scrape visible elements (e.g., skip hidden tabs)
@@ -135,6 +135,8 @@ export const Layout: React.FC<LayoutProps> = ({
 
             const labelEl = row.querySelector('.share-label');
             const valueEl = row.querySelector('.share-value');
+            const key = (row as HTMLElement).getAttribute('data-share-key') || '';
+            const type = (row as HTMLElement).getAttribute('data-share-type') as 'input' | 'option' | 'result' || 'result';
 
             if (labelEl && valueEl) {
                 const label = labelEl.textContent?.trim().replace(/:$/, '') || '';
@@ -147,20 +149,18 @@ export const Layout: React.FC<LayoutProps> = ({
                 }
 
                 if (label && value) {
-                    message += `*${label}:* ${value}\n`;
-                    hasDetails = true;
+                    fields.push({ key, label, value, type });
                 }
             }
         });
 
-        if (!hasDetails) {
-            message = `Check out this Calculator on Banker's Daily!`;
+        if (fields.length === 0) {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Check out this Calculator on Banker's Daily Suite!")}`, '_blank');
         } else {
-            message += `\n*Bankers' Daily Suite App Developed By Arijit Kora*`;
+            const message = buildWhatsappMessage(activeCalculator, fields);
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://api.whatsapp.com/send?text=${encodedMessage}`, '_blank');
         }
-
-        const encodedMessage = encodeURIComponent(message + "\n\nLink: " + window.location.href);
-        window.open(`https://api.whatsapp.com/send?text=${encodedMessage}`, '_blank');
     };
 
     const handleNavigate = (moduleId: string, calcId: string) => {

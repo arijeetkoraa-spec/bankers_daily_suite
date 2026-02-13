@@ -82,24 +82,25 @@ export const MISCalculator: React.FC = () => {
         const f = formatPdfCurrency;
 
         exportToPDF({
-            title: "MIS Deposit Summary",
-            subtitle: isPremature ? "Premature Closure Calculation" : "Income Calculation",
+            title: "Monthly Income Plan Assessment",
+            subtitle: `${isPremature ? "Premature Liquidation Review" : "Monthly Yield Forecast"} | Professional Payout Model`,
             details: [
-                { label: "Principal Amount", value: f(parseFloat(principal)) },
-                { label: "Interest Rate", value: `${rate}% p.a.` },
-                { label: "Monthly Income Payout", value: f(monthlyPayout) },
-                { label: "Annualized Yield", value: `${quarterlyYield.toFixed(2)}%` },
+                { label: "Principal Investment", value: f(parseFloat(principal)) },
+                { label: "Booked ROI (Annually)", value: `${rate}% p.a.` },
+                { label: "Discounted Monthly Income", value: f(monthlyPayout) },
+                { label: "Annualized Effective Yield", value: `${quarterlyYield.toFixed(2)}%` },
                 ...(isPremature ? [
-                    { label: "--- Premature Details ---", value: "" },
-                    { label: "Months Completed", value: `${runMonths}` },
-                    { label: "Applicable Card Rate", value: `${cardRate}%` },
+                    { label: "--- Termination Analysis ---", value: "" },
+                    { label: "Active Tenure (Months)", value: `${runMonths}` },
+                    { label: "Prevailing Card Rate", value: `${cardRate}%` },
                     { label: "Premature Penalty", value: `${penalty}%` },
-                    { label: "Interest Already Paid", value: f(parseFloat(interestAlreadyPaid)) },
-                    { label: "Interest Recovery", value: f(prematureResult?.interestRecovery || 0) },
-                    { label: "Net Payout Amount", value: f(prematureResult?.netPayout || 0) }
+                    { label: "Interest Already Disbursed", value: f(parseFloat(interestAlreadyPaid)) },
+                    { label: "Interest Recovery Amount", value: f(prematureResult?.interestRecovery || 0) },
+                    { label: "--- Final Settlement ---", value: "" },
+                    { label: "Net Payout for Liquidation", value: f(prematureResult?.netPayout || 0) }
                 ] : [])
             ]
-        }, `MIS_Summary.pdf`);
+        }, `MIS_Statement.pdf`);
     };
 
     return (
@@ -137,19 +138,19 @@ export const MISCalculator: React.FC = () => {
                     {/* Inputs Section */}
                     <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="mis-principal" className="result-label text-purple-600">Principal Corpus (₹)</Label>
+                            <div className="space-y-2 share-row" data-share-key="depositAmount" data-share-type="input">
+                                <Label htmlFor="mis-principal" className="result-label text-purple-600 share-label">Principal Corpus (₹)</Label>
                                 <Input
                                     id="mis-principal"
                                     type="number"
                                     value={principal}
                                     onChange={(e) => setPrincipal(e.target.value)}
-                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4"
+                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2 share-row" data-share-key="roi" data-share-type="input">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="mis-rate" className="result-label text-purple-700 dark:text-purple-300">Interest (%)</Label>
+                                    <Label htmlFor="mis-rate" className="result-label text-purple-700 dark:text-purple-300 share-label">Interest (%)</Label>
                                     <button
                                         onClick={() => setIsPremature(!isPremature)}
                                         className={cn(
@@ -166,7 +167,7 @@ export const MISCalculator: React.FC = () => {
                                     step="0.01"
                                     value={rate}
                                     onChange={(e) => setRate(e.target.value)}
-                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 text-purple-600 shadow-inner"
+                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 text-purple-600 shadow-inner share-value"
                                 />
                             </div>
                         </div>
@@ -241,22 +242,22 @@ export const MISCalculator: React.FC = () => {
                         <div className="space-y-1">
                             {isPremature && prematureResult ? (
                                 <div className="space-y-4">
-                                    <div className="space-y-1">
-                                        <span className="result-label">Net Settlement</span>
-                                        <div className="hero-result-value text-red-600 leading-tight">
+                                    <div className="space-y-1 share-row" data-share-key="netSettlement" data-share-type="result">
+                                        <span className="result-label share-label">Net Settlement</span>
+                                        <div className="hero-result-value text-red-600 leading-tight share-value">
                                             {formatCurrency(prematureResult.netPayout)}
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 gap-2">
-                                        <div className="stat-card p-3">
-                                            <span className="result-label">Interest Earned</span>
-                                            <span className="text-lg font-black text-emerald-500 leading-none">
+                                        <div className="stat-card p-3 share-row" data-share-key="interestEarned" data-share-type="result">
+                                            <span className="result-label share-label">Interest Earned</span>
+                                            <span className="text-lg font-black text-emerald-500 leading-none share-value">
                                                 {formatCurrency(prematureResult.interestEarned)}
                                             </span>
                                         </div>
-                                        <div className="stat-card p-3">
-                                            <span className="result-label">Interest Recovery</span>
-                                            <span className="text-lg font-black text-red-600 leading-none">
+                                        <div className="stat-card p-3 share-row" data-share-key="interestRecovery" data-share-type="result">
+                                            <span className="result-label share-label">Interest Recovery</span>
+                                            <span className="text-lg font-black text-red-600 leading-none share-value">
                                                 {formatCurrency(prematureResult.interestRecovery)}
                                             </span>
                                         </div>
@@ -264,16 +265,16 @@ export const MISCalculator: React.FC = () => {
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    <div className="space-y-1">
-                                        <span className="result-label">Monthly Stream</span>
-                                        <div className="hero-result-value text-purple-700 leading-tight">
+                                    <div className="space-y-1 share-row" data-share-key="monthlyPayout" data-share-type="result">
+                                        <span className="result-label share-label">Monthly Stream</span>
+                                        <div className="hero-result-value text-purple-700 leading-tight share-value">
                                             {formatCurrency(monthlyPayout)}
                                         </div>
                                     </div>
 
-                                    <div className="stat-card bg-purple-600/5 border border-purple-600/10 p-3">
-                                        <span className="result-label text-purple-700">Annual Cashflow</span>
-                                        <div className="text-lg font-black text-foreground mt-1">
+                                    <div className="stat-card bg-purple-600/5 border border-purple-600/10 p-3 share-row" data-share-key="annualCashflow" data-share-type="result">
+                                        <span className="result-label text-purple-700 share-label">Annual Cashflow</span>
+                                        <div className="text-lg font-black text-foreground mt-1 share-value">
                                             {formatCurrency(monthlyPayout * 12)}
                                         </div>
                                     </div>

@@ -5,7 +5,7 @@ import { Label } from '../../components/ui/label';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Landmark, Sparkles, FileDown, ArrowRight, RotateCcw, Plus, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportAmortizationToPDF } from '../../lib/pdf-export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
 import { AmortizationModal } from '../../components/AmortizationModal';
 import { generateAmortizationSchedule } from '../../lib/amortization';
@@ -82,9 +82,9 @@ export const TakeoverCalculator: React.FC = () => {
     const downloadPDF = () => {
         const f = formatPdfCurrency;
 
-        exportToPDF({
+        exportAmortizationToPDF({
             title: "Loan Takeover Analysis",
-            subtitle: "Refinancing Impact & Savings Assessment",
+            subtitle: "Refinancing Impact & Savings Assessment | Professional Audit",
             details: [
                 { label: "Principal Outstanding", value: f(parseFloat(principal)) },
                 { label: "--- Current Profile ---", value: "" },
@@ -98,7 +98,8 @@ export const TakeoverCalculator: React.FC = () => {
                 { label: "--- Impact Analysis ---", value: "" },
                 { label: "Monthly Savings", value: f(monthlySavings) },
                 { label: "Net Lifetime Savings", value: f(savings) }
-            ]
+            ],
+            schedule: newSchedule // Exporting the proposed schedule by default
         }, `Takeover_Analysis.pdf`);
     };
 
@@ -155,7 +156,7 @@ export const TakeoverCalculator: React.FC = () => {
                                         <TableProperties className="w-3 h-3" /> Schedule
                                     </button>
                                 </div>
-                                <div className="space-y-2 share-row">
+                                <div className="space-y-2 share-row" data-share-key="loanAmount" data-share-type="input">
                                     <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">O/S Principal (₹)</Label>
                                     <Input
                                         type="number"
@@ -164,7 +165,7 @@ export const TakeoverCalculator: React.FC = () => {
                                         className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                     />
                                 </div>
-                                <div className="space-y-2 share-row">
+                                <div className="space-y-2 share-row" data-share-key="roi" data-share-type="input">
                                     <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Existing Rate (%)</Label>
                                     <Input
                                         type="number"
@@ -173,7 +174,7 @@ export const TakeoverCalculator: React.FC = () => {
                                         className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                     />
                                 </div>
-                                <div className="space-y-2 share-row">
+                                <div className="space-y-2 share-row" data-share-key="tenure" data-share-type="input">
                                     <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Remaining Tenure (Months)</Label>
                                     <Input
                                         type="number"
@@ -194,7 +195,7 @@ export const TakeoverCalculator: React.FC = () => {
                                         <TableProperties className="w-3 h-3" /> Schedule
                                     </button>
                                 </div>
-                                <div className="space-y-2 share-row">
+                                <div className="space-y-2 share-row" data-share-key="newRate" data-share-type="input">
                                     <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">New Proposed ROI (%)</Label>
                                     <Input
                                         type="number"
@@ -265,7 +266,7 @@ export const TakeoverCalculator: React.FC = () => {
 
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                        <div className="space-y-1 share-row">
+                        <div className="space-y-1 share-row" data-share-key="netSavings" data-share-type="result">
                             <span className="result-label share-label">Net Lifetime Savings</span>
                             <div className={cn("hero-result-value leading-tight share-value", savings > 0 ? "text-emerald-500" : "text-red-500")}>
                                 {formatCurrency(savings)}
@@ -273,7 +274,7 @@ export const TakeoverCalculator: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 gap-3">
-                            <div className="stat-card share-row">
+                            <div className="stat-card share-row" data-share-key="emi" data-share-type="result">
                                 <div className="flex justify-between items-center mb-1">
                                     <span className="result-label share-label">New Proposed EMI</span>
                                     <span className="text-[10px] font-black text-emerald-700 bg-emerald-500/20 px-2 py-1 rounded-lg border border-emerald-500/20 shadow-sm">

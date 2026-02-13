@@ -59,22 +59,22 @@ export const DrawingPowerCalculator: React.FC = () => {
 
         exportToPDF({
             title: "Drawing Power Assessment",
-            subtitle: "Stock & Book Debt Audit Summary",
+            subtitle: "Security Audit Summary | Stock & Book Debt Validation",
             details: [
-                { label: "--- Inventory Assets ---", value: "" },
-                { label: "Total Stock Value", value: f(parseFloat(stock)) },
-                { label: "Stock Margin", value: `${stockMargin}%` },
-                { label: "Net Stock Value", value: f(parseFloat(stock) * (1 - parseFloat(stockMargin) / 100)) },
-                { label: "--- Receivables ---", value: "" },
-                { label: "Eligible Debtors", value: f(parseFloat(debtors)) },
-                { label: "Debtor Margin", value: `${debtorMargin}%` },
-                { label: "Net Debtor Value", value: f(parseFloat(debtors) * (1 - parseFloat(debtorMargin) / 100)) },
-                { label: "--- Deductions ---", value: "" },
-                { label: "Sundry Creditors", value: f(parseFloat(creditors)) },
-                { label: "--- Final Eligibility ---", value: "" },
-                { label: "Total Drawing Power", value: f(dp) }
+                { label: "--- Inventory Assets (Stock) ---", value: "" },
+                { label: "Gross Stock Value", value: f(parseFloat(stock)) },
+                { label: "Prescribed Stock Margin", value: `${stockMargin}%` },
+                { label: "Net Margin-Adjusted Stock", value: f(parseFloat(stock) * (1 - parseFloat(stockMargin) / 100)) },
+                { label: "--- Receivables (Book Debts) ---", value: "" },
+                { label: "Eligible Debtor Balance", value: f(parseFloat(debtors)) },
+                { label: "Prescribed Debtor Margin", value: `${debtorMargin}%` },
+                { label: "Net Margin-Adjusted Debtors", value: f(parseFloat(debtors) * (1 - parseFloat(debtorMargin) / 100)) },
+                { label: "--- Liabilities & Deductions ---", value: "" },
+                { label: "Sundry Creditors (Deduction)", value: f(parseFloat(creditors)) },
+                { label: "--- Terminal Eligibility ---", value: "" },
+                { label: "Final Bank Drawing Power", value: f(dp) }
             ]
-        }, `Drawing_Power_Summary.pdf`);
+        }, `Drawing_Power_Assessment.pdf`);
     };
 
     return (
@@ -119,11 +119,11 @@ export const DrawingPowerCalculator: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1 share-row">
+                                <div className="space-y-1 share-row" data-share-key="grossStock" data-share-type="input">
                                     <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Stock Value (₹)</Label>
                                     <Input value={stock} onChange={(e) => setStock(e.target.value)} type="number" className="h-10 bg-accent font-black border-none px-3 text-xl share-value" />
                                 </div>
-                                <div className="space-y-1 share-row">
+                                <div className="space-y-1 share-row" data-share-key="stockMargin" data-share-type="input">
                                     <Label className="text-[10px] font-bold uppercase text-emerald-800 opacity-70 share-label">Stock Margin (%)</Label>
                                     <Input value={stockMargin} onChange={(e) => setStockMargin(e.target.value)} type="number" className="h-10 bg-emerald-500/10 font-black text-emerald-700 border-none px-3 text-xl share-value" />
                                 </div>
@@ -138,11 +138,11 @@ export const DrawingPowerCalculator: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1 share-row">
+                                <div className="space-y-1 share-row" data-share-key="grossDebtors" data-share-type="input">
                                     <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Eligible Debtors (₹)</Label>
                                     <Input value={debtors} onChange={(e) => setDebtors(e.target.value)} type="number" className="h-10 bg-accent font-black border-none px-3 text-xl share-value" />
                                 </div>
-                                <div className="space-y-1 share-row">
+                                <div className="space-y-1 share-row" data-share-key="debtorMargin" data-share-type="input">
                                     <Label className="text-[10px] font-bold uppercase text-blue-800 opacity-70 share-label">Debtor Margin (%)</Label>
                                     <Input value={debtorMargin} onChange={(e) => setDebtorMargin(e.target.value)} type="number" className="h-10 bg-blue-500/10 font-black text-blue-700 border-none px-3 text-xl share-value" />
                                 </div>
@@ -151,7 +151,7 @@ export const DrawingPowerCalculator: React.FC = () => {
 
                         {/* Liab Section */}
                         <div className="pt-3 border-t border-border/50">
-                            <div className="space-y-1 share-row">
+                            <div className="space-y-1 share-row" data-share-key="creditors" data-share-type="input">
                                 <Label className="text-[10px] font-bold uppercase text-amber-700 opacity-70 share-label">Sundry Creditors (₹)</Label>
                                 <Input value={creditors} onChange={(e) => setCreditors(e.target.value)} type="number" className="h-10 bg-amber-500/10 font-black border-none text-amber-700 text-xl px-3 share-value" />
                             </div>
@@ -160,7 +160,7 @@ export const DrawingPowerCalculator: React.FC = () => {
 
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                        <div className="space-y-1 share-row">
+                        <div className="space-y-1 share-row" data-share-key="drawingPower" data-share-type="result">
                             <span className="result-label text-amber-700 share-label">Total DP Eligibility</span>
                             <div className="hero-result-value text-amber-600 leading-tight share-value">
                                 {formatCurrency(dp)}
@@ -168,19 +168,19 @@ export const DrawingPowerCalculator: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 gap-2">
-                            <div className="stat-card border-none bg-emerald-500/5 p-3 flex justify-between items-center">
+                            <div className="stat-card border-none bg-emerald-500/5 p-3 flex justify-between items-center share-row" data-share-key="netStock" data-share-type="result">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Net Stock</span>
-                                    <span className="text-base font-black text-emerald-600 leading-none">
+                                    <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest share-label">Net Stock</span>
+                                    <span className="text-base font-black text-emerald-600 leading-none share-value">
                                         {formatCurrency(Math.max(0, (parseFloat(stock) * (1 - parseFloat(stockMargin) / 100)) - parseFloat(creditors)))}
                                     </span>
                                 </div>
                                 <Package className="w-4 h-4 text-emerald-600/20" />
                             </div>
-                            <div className="stat-card border-none bg-blue-500/5 p-3 flex justify-between items-center">
+                            <div className="stat-card border-none bg-blue-500/5 p-3 flex justify-between items-center share-row" data-share-key="netDebtors" data-share-type="result">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-black text-blue-800 uppercase tracking-widest">Net Debtors</span>
-                                    <span className="text-base font-black text-blue-600 leading-none">
+                                    <span className="text-[10px] font-black text-blue-800 uppercase tracking-widest share-label">Net Debtors</span>
+                                    <span className="text-base font-black text-blue-600 leading-none share-value">
                                         {formatCurrency(parseFloat(debtors) * (1 - parseFloat(debtorMargin) / 100))}
                                     </span>
                                 </div>

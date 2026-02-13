@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Calculator, FileDown, RotateCcw } from 'lucide-react';
 import { calculateEMI, type RepaymentMethod } from '../../lib/calculations';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportAmortizationToPDF } from '../../lib/pdf-export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
 import { AmortizationModal } from '../../components/AmortizationModal';
 import { generateAmortizationSchedule } from '../../lib/amortization';
@@ -76,9 +76,9 @@ export const EMICalculator: React.FC = () => {
     const downloadPDF = () => {
         const f = formatPdfCurrency;
 
-        exportToPDF({
-            title: "EMI Calculation Summary",
-            subtitle: `${method.toUpperCase()} Repayment Method`,
+        exportAmortizationToPDF({
+            title: "EMI Assessment Report",
+            subtitle: `${method.toUpperCase()} Repayment Method | Professional Loan Analysis`,
             details: [
                 { label: "Loan Amount", value: f(parseFloat(amount)) },
                 { label: "ROI (p.a.)", value: `${rate}%` },
@@ -88,8 +88,9 @@ export const EMICalculator: React.FC = () => {
                 { label: method === 'bullet' ? "Final Payment" : "Monthly EMI", value: f(method === 'bullet' ? results.finalPayment : results.emi) },
                 { label: "Total Interest", value: f(results.totalInterest) },
                 { label: "Total Payable", value: f(results.totalPayable) }
-            ]
-        }, `EMI_Summary_${method}.pdf`);
+            ],
+            schedule: schedule
+        }, `EMI_Report_${method}.pdf`);
     };
 
     return (
@@ -130,7 +131,7 @@ export const EMICalculator: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
                     {/* Inputs Section */}
                     <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
-                        <div className="space-y-1 share-row">
+                        <div className="space-y-1 share-row" data-share-key="repaymentStrategy" data-share-type="option">
                             <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Repayment Strategy</Label>
                             <div className="flex p-1 bg-accent/50 dark:bg-slate-800/50 rounded-xl shadow-inner share-value">
                                 {(['reducing', 'flat', 'fixed', 'bullet'] as RepaymentMethod[]).map((m) => (
@@ -151,7 +152,7 @@ export const EMICalculator: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-1 share-row">
+                            <div className="space-y-1 share-row" data-share-key="loanAmount" data-share-type="input">
                                 <Label htmlFor="amount" className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Loan Amount (₹)</Label>
                                 <Input
                                     id="amount"
@@ -161,7 +162,7 @@ export const EMICalculator: React.FC = () => {
                                     className="h-12 text-2xl font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-1 share-row">
+                            <div className="space-y-1 share-row" data-share-key="roi" data-share-type="input">
                                 <Label htmlFor="rate" className="text-[10px] font-black text-slate-950 dark:text-muted-foreground uppercase tracking-widest share-label">ROI (% p.a)</Label>
                                 <Input
                                     id="rate"
@@ -174,7 +175,7 @@ export const EMICalculator: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-1 share-row">
+                        <div className="space-y-1 share-row" data-share-key="tenure" data-share-type="input">
                             <Label htmlFor="tenure" className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Tenure (Months)</Label>
                             <div className="flex gap-4 items-center">
                                 <Input
@@ -196,7 +197,7 @@ export const EMICalculator: React.FC = () => {
 
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-6">
-                        <div className="space-y-1 share-row">
+                        <div className="space-y-1 share-row" data-share-key="emi" data-share-type="result">
                             <span className="result-label share-label text-slate-950 dark:text-muted-foreground">
                                 {method === 'bullet' ? 'Final Payment' : (method === 'fixed' ? 'EMI (Annual)' : 'Monthly EMI')}
                             </span>
@@ -206,7 +207,7 @@ export const EMICalculator: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 gap-4">
-                            <div className="p-4 bg-background dark:bg-slate-900/40 rounded-2xl border border-border/50 share-row">
+                            <div className="p-4 bg-background dark:bg-slate-900/40 rounded-2xl border border-border/50 share-row" data-share-key="totalInterest" data-share-type="result">
                                 <div className="flex justify-between items-center">
                                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-950 dark:text-muted-foreground share-label">Total Interest</span>
                                     <span className="text-xl font-black text-black dark:text-white share-value">
@@ -214,7 +215,7 @@ export const EMICalculator: React.FC = () => {
                                     </span>
                                 </div>
                             </div>
-                            <div className="p-4 bg-background dark:bg-slate-900/40 rounded-2xl border border-border/50 space-y-2 share-row">
+                            <div className="p-4 bg-background dark:bg-slate-900/40 rounded-2xl border border-border/50 space-y-2 share-row" data-share-key="totalPayable" data-share-type="result">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-950 dark:text-muted-foreground share-label">Total Payable</span>
                                 <div className="text-2xl font-black text-black dark:text-white share-value">
                                     {formatCurrency(results.totalPayable)}
