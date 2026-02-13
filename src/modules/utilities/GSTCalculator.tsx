@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../..
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Calculator, Plus, Minus, FileDown } from 'lucide-react';
+import { Calculator, Plus, Minus, FileDown, RotateCcw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { exportToPDF } from '../../lib/pdf-export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
@@ -13,6 +13,12 @@ export const GSTCalculator: React.FC = () => {
     const [mode, setMode] = useLocalStorage<string>('gst_mode', 'exclusive'); // exclusive, inclusive
     const [amount, setAmount] = useLocalStorage<string>('gst_amount', '1000');
     const [rate, setRate] = useLocalStorage<string>('gst_rate', '18');
+
+    const handleReset = () => {
+        setMode('exclusive');
+        setAmount('1000');
+        setRate('18');
+    };
 
     const [gstAmount, setGstAmount] = useState<number>(0);
     const [totalAmount, setTotalAmount] = useState<number>(0);
@@ -88,10 +94,21 @@ export const GSTCalculator: React.FC = () => {
                             Precise Tax Calculations for Indian Norms
                         </CardDescription>
                     </div>
-                    <Button onClick={downloadPDF} size="sm" className="h-10 gap-2 bg-white text-slate-950 hover:bg-slate-100 hidden md:flex text-xs font-black px-4 shadow-xl border-none">
-                        <FileDown className="w-5 h-5" />
-                        EXPORT PDF
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={handleReset}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 px-4 rounded-xl border border-border/50 bg-card/60 hover:bg-accent/50 text-sm font-semibold flex items-center gap-2 transition"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset
+                        </Button>
+                        <Button onClick={downloadPDF} size="sm" className="h-10 gap-2 bg-white text-slate-950 hover:bg-slate-100 hidden md:flex text-xs font-black px-4 shadow-xl border-none">
+                            <FileDown className="w-5 h-5" />
+                            EXPORT PDF
+                        </Button>
+                    </div>
                 </div>
             </CardHeader>
             <CardContent className="p-0">

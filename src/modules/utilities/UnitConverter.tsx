@@ -4,7 +4,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Scale, Maximize, Ruler, Weight, ArrowRightLeft, Sparkles, FileDown } from 'lucide-react';
+import { Scale, Maximize, Ruler, Weight, ArrowRightLeft, Sparkles, FileDown, RotateCcw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { exportToPDF } from '../../lib/pdf-export';
 import { cn } from '../../lib/utils';
@@ -50,6 +50,13 @@ export const UnitConverter: React.FC = () => {
     const [fromUnit, setFromUnit] = useLocalStorage<string>('unit_from', 'sqft');
     const [toUnit, setToUnit] = useLocalStorage<string>('unit_to', 'sqmt');
     const [value, setValue] = useLocalStorage<string>('unit_val', '1000');
+
+    const handleReset = () => {
+        setType('area');
+        setFromUnit('sqft');
+        setToUnit('sqmt');
+        setValue('1000');
+    };
     const [result, setResult] = useState<string>('');
 
     useEffect(() => {
@@ -115,10 +122,21 @@ export const UnitConverter: React.FC = () => {
                             Multi-Dimensional Constant Conversion
                         </CardDescription>
                     </div>
-                    <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-cyan-500/30 hover:bg-cyan-500/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                        <FileDown className="w-5 h-5 text-cyan-600" />
-                        EXPORT PDF
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={handleReset}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 px-4 rounded-xl border border-border/50 bg-card/60 hover:bg-accent/50 text-sm font-semibold flex items-center gap-2 transition"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset
+                        </Button>
+                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-cyan-500/30 hover:bg-cyan-500/10 hidden md:flex text-xs font-black px-4 shadow-sm">
+                            <FileDown className="w-5 h-5 text-cyan-600" />
+                            EXPORT PDF
+                        </Button>
+                    </div>
                 </div>
             </CardHeader>
             <CardContent className="p-0">

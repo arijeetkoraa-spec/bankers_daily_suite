@@ -4,7 +4,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Percent, TrendingUp, Droplets, Scale, Activity, FileDown } from 'lucide-react';
+import { Percent, TrendingUp, Droplets, Scale, Activity, FileDown, RotateCcw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { exportToPDF } from '../../lib/pdf-export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
@@ -30,6 +30,21 @@ export const RatioCalculator: React.FC = () => {
     const [tol, setTol] = useLocalStorage<string>('ratio_tol', '4000000');
     const [tnw, setTnw] = useLocalStorage<string>('ratio_tnw', '1000000');
     const [leverage, setLeverage] = useState<number>(0);
+
+    const handleReset = () => {
+        setPat('500000');
+        setDep('100000');
+        setInterest('200000');
+        setObligation('300000');
+        setCa('2000000');
+        setCl('1500000');
+        setInventory('500000');
+        setTol('4000000');
+        setTnw('1000000');
+        setFixedCost('1000000');
+        setVarCost('3000000');
+        setSales('5000000');
+    };
 
     // BEP Inputs
     const [fixedCost, setFixedCost] = useLocalStorage<string>('ratio_fc', '1000000');
@@ -129,10 +144,21 @@ export const RatioCalculator: React.FC = () => {
                             </CardDescription>
                         </div>
                     </div>
-                    <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                        <FileDown className="w-5 h-5 text-primary" />
-                        EXPORT PDF
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={handleReset}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 px-4 rounded-xl border border-border/50 bg-card/60 hover:bg-accent/50 text-sm font-semibold flex items-center gap-2 transition"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset
+                        </Button>
+                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
+                            <FileDown className="w-5 h-5 text-primary" />
+                            EXPORT PDF
+                        </Button>
+                    </div>
                 </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -201,10 +227,12 @@ export const RatioCalculator: React.FC = () => {
                         <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
                             {activeTab === 'dscr' && (
                                 <div className="space-y-4">
-                                    <div className="space-y-1 share-row">
-                                        <span className="result-label share-label">DSCR Ratio</span>
-                                        <div className={cn("hero-result-value h-12 flex items-center share-value", dscr >= 1.25 ? "text-emerald-500" : "text-amber-500")}>
-                                            {dscr.toFixed(2)}
+                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row">
+                                        <div className="space-y-1 text-center">
+                                            <span className="result-label share-label">DSCR Ratio</span>
+                                            <div className={cn("hero-result-value h-12 flex items-center justify-center share-value", dscr >= 1.25 ? "text-emerald-500" : "text-amber-500")}>
+                                                {dscr.toFixed(2)}
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex items-center justify-between">
@@ -221,10 +249,12 @@ export const RatioCalculator: React.FC = () => {
 
                             {activeTab === 'liquidity' && (
                                 <div className="space-y-4">
-                                    <div className="space-y-1 share-row">
-                                        <span className="result-label share-label">Current Ratio</span>
-                                        <div className={cn("hero-result-value h-12 flex items-center share-value", currentRatio >= 1.33 ? "text-emerald-500" : "text-amber-500")}>
-                                            {currentRatio.toFixed(2)}
+                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row">
+                                        <div className="space-y-1 text-center">
+                                            <span className="result-label share-label">Current Ratio</span>
+                                            <div className={cn("hero-result-value h-12 flex items-center justify-center share-value", currentRatio >= 1.33 ? "text-emerald-500" : "text-amber-500")}>
+                                                {currentRatio.toFixed(2)}
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="stat-card p-3 rounded-xl border-none flex items-center justify-between">
@@ -238,10 +268,12 @@ export const RatioCalculator: React.FC = () => {
 
                             {activeTab === 'leverage' && (
                                 <div className="space-y-4">
-                                    <div className="space-y-1 share-row">
-                                        <span className="result-label share-label">TOL/TNW</span>
-                                        <div className={cn("hero-result-value h-12 flex items-center share-value", leverage <= 3 ? "text-emerald-500" : "text-red-500")}>
-                                            {leverage.toFixed(2)}
+                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row">
+                                        <div className="space-y-1 text-center">
+                                            <span className="result-label share-label">TOL/TNW</span>
+                                            <div className={cn("hero-result-value h-12 flex items-center justify-center share-value", leverage <= 3 ? "text-emerald-500" : "text-red-500")}>
+                                                {leverage.toFixed(2)}
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="stat-card p-3 rounded-xl border-none flex items-center justify-between">
@@ -254,12 +286,14 @@ export const RatioCalculator: React.FC = () => {
 
                             {activeTab === 'bep' && (
                                 <div className="space-y-4">
-                                    <div className="space-y-1 share-row">
-                                        <span className="result-label share-label">Break-Even Point</span>
-                                        <div className="hero-result-value h-12 flex items-center text-emerald-500 share-value">
-                                            {bep.toFixed(1)}%
+                                    <div className="bg-card/60 dark:bg-card/40 border border-border/40 rounded-xl p-4 shadow-sm dark:shadow-none share-row">
+                                        <div className="space-y-1 text-center">
+                                            <span className="result-label share-label">Break-Even Point</span>
+                                            <div className="hero-result-value h-12 flex items-center justify-center text-emerald-500 share-value">
+                                                {bep.toFixed(1)}%
+                                            </div>
+                                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">of Sales</span>
                                         </div>
-                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">of Sales</span>
                                     </div>
                                     <div className="w-full h-2 bg-accent/50 rounded-full overflow-hidden">
                                         <div

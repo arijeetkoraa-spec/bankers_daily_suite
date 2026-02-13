@@ -246,11 +246,18 @@ export const KCCCalculator: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button onClick={reset} variant="outline" size="sm" className="h-9 gap-2 text-xs font-black text-green-700">
-                            <RotateCcw className="w-4 h-4" /> RESET
+                        <Button
+                            onClick={reset}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 px-4 rounded-xl border border-border/50 bg-card/60 hover:bg-accent/50 text-sm font-semibold flex items-center gap-2 transition"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-9 gap-2 hidden md:flex text-xs font-black">
-                            <FileDown className="w-4 h-4" /> EXPORT PDF
+                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-green-600/30 hover:bg-green-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
+                            <FileDown className="w-5 h-5 text-green-700" />
+                            EXPORT PDF
                         </Button>
                     </div>
                 </div>

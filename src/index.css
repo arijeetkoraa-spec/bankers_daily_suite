@@ -23,6 +23,15 @@
     --input: 215 30% 88%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.75rem;
+
+    /* Semantic Tokens - Light Mode */
+    --brand-bg: 215 40% 88%;
+    --brand-card: 215 30% 94%;
+    --brand-text-primary: 222 47% 11%;
+    --brand-text-secondary: 215.4 25% 27%;
+    --brand-accent-primary: 262.1 83.3% 57.8%; /* Purple */
+    --brand-accent-success: 142.1 70.6% 45.3%; /* Green */
+    --brand-accent-warning: 38 92% 50%; /* Amber/Orange */
   }
 
   .dark {
@@ -43,6 +52,15 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
+
+    /* Semantic Tokens - Dark Mode */
+    --brand-bg: 222 47% 4%;
+    --brand-card: 222 47% 6%;
+    --brand-text-primary: 210 40% 98%;
+    --brand-text-secondary: 215 20.2% 85%;
+    --brand-accent-primary: 263.4 70% 50.4%;
+    --brand-accent-success: 142.1 70.6% 45.3%;
+    --brand-accent-warning: 37.9 92.1% 50.2%;
   }
 }
 

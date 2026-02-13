@@ -20,8 +20,10 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const mailtoLink = `mailto:arijit.kora.in@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`From: ${fromEmail}\n\n${message}`)}`;
-        window.open(mailtoLink, '_blank');
+        const body = `From: ${fromEmail}\n\nMessage:\n${message}`;
+        const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=arijit.kora.in@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+        window.open(gmailLink, '_blank');
         onClose();
     };
 

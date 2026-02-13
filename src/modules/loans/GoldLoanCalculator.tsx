@@ -228,11 +228,18 @@ export const GoldLoanCalculator: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button onClick={reset} variant="outline" size="sm" className="h-9 gap-2 text-xs font-black">
-                            <RotateCcw className="w-4 h-4" /> RESET
+                        <Button
+                            onClick={reset}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 px-4 rounded-xl border border-border/50 bg-card/60 hover:bg-accent/50 text-sm font-semibold flex items-center gap-2 transition"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset
                         </Button>
-                        <Button onClick={downloadPDF} size="sm" className="h-9 gap-2 text-xs font-black bg-primary text-primary-foreground hover:bg-primary/90">
-                            <FileDown className="w-4 h-4" /> EXPORT PDF
+                        <Button onClick={downloadPDF} size="sm" className="h-10 gap-2 text-xs font-black border-yellow-600/30 hover:bg-yellow-600/10 hidden md:flex px-4 shadow-sm" variant="outline">
+                            <FileDown className="w-5 h-5 text-yellow-700" />
+                            EXPORT PDF
                         </Button>
                     </div>
                 </div>

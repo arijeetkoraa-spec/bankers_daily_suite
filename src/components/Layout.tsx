@@ -13,6 +13,8 @@ import { cn } from '../lib/utils';
 import { Button } from './ui/button';
 import { ThemeToggle } from './ThemeToggle';
 import { FeedbackModal } from './FeedbackModal';
+import { AboutModal } from './AboutModal';
+import { Info } from 'lucide-react';
 
 interface SidebarItem {
     id: string;
@@ -85,6 +87,7 @@ export const Layout: React.FC<LayoutProps> = ({
 }) => {
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
     const [isFeedbackOpen, setIsFeedbackOpen] = React.useState(false);
+    const [isAboutOpen, setIsAboutOpen] = React.useState(false);
 
     const getCalcColor = (id: string, isMobile: boolean = false) => {
         switch (id) {
@@ -177,16 +180,16 @@ export const Layout: React.FC<LayoutProps> = ({
                 )}
             >
                 {/* Sidebar Header - Fixed */}
-                <div className="p-6 border-b border-border/50 bg-background/80 backdrop-blur-md">
+                <div className="p-6 border-b border-border/50 bg-background/40">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.3)] border-2 border-white/20">
-                            <span className="text-2xl font-black text-white italic tracking-tighter">B</span>
+                        <div className="w-12 h-12 rounded-xl bg-accent/40 dark:bg-accent/20 border border-border/40 flex items-center justify-center shadow-sm">
+                            <span className="text-2xl font-black text-foreground italic tracking-tighter">B</span>
                         </div>
                         <div className="flex flex-col">
-                            <h1 className="text-2xl font-black tracking-tighter leading-none text-blue-600 uppercase">
+                            <h1 className="text-2xl font-black tracking-tighter leading-none text-primary uppercase">
                                 BANKER'S
                             </h1>
-                            <span className="text-[11px] font-black tracking-[0.4em] text-slate-400 dark:text-slate-500 leading-none mt-2 uppercase">
+                            <span className="text-[11px] font-black tracking-[0.4em] text-muted-foreground leading-none mt-2 uppercase">
                                 DAILY SUITE
                             </span>
                         </div>
@@ -236,13 +239,12 @@ export const Layout: React.FC<LayoutProps> = ({
                     </ul>
                 </nav>
 
-                {/* Sidebar Footer */}
-                <div className="p-6 border-t border-border/50 bg-background/50">
+                <div className="p-6 border-t border-border/50 bg-background/20">
                     <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Fintech Solution By</span>
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Fintech Solution By</span>
                         <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-                            <span className="text-sm font-black text-blue-600 tracking-tight uppercase italic">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                            <span className="text-sm font-black text-primary tracking-tight uppercase italic">
                                 Arijit Kora
                             </span>
                         </div>
@@ -252,7 +254,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-                <header className="bg-background/80 backdrop-blur-xl border-b border-border/30 p-2 md:px-8 flex items-center justify-between shadow-sm z-10 sticky top-0 h-14">
+                <header className="bg-background/80 backdrop-blur-xl border-b border-border/10 p-2 md:px-8 flex items-center justify-between shadow-sm z-10 sticky top-0 h-14">
                     <div className="flex items-center gap-4">
                         <Button
                             variant="ghost"
@@ -266,12 +268,20 @@ export const Layout: React.FC<LayoutProps> = ({
                             <span className="text-[11px] uppercase font-display font-black tracking-widest text-primary/70">
                                 {modules.find(m => m.id === activeModule)?.label || 'Dashboard'}
                             </span>
-                            <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
+                            <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 text-foreground">
                                 {modules.find(m => m.id === activeModule)?.items?.find(i => i.id === activeCalculator)?.label || 'Suite'}
                             </h2>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setIsAboutOpen(true)}
+                            className="h-9 w-9 rounded-xl border border-border/50 bg-card/60 hover:bg-accent/50 md:hidden"
+                        >
+                            <Info className="w-4 h-4 text-primary" />
+                        </Button>
                         <ThemeToggle />
                     </div>
                 </header>
@@ -284,16 +294,19 @@ export const Layout: React.FC<LayoutProps> = ({
                     </div>
 
                     {/* Global Calculation Footer */}
-                    <footer className="mt-8 pt-6 border-t border-border/30 max-w-6xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-4">
+                    <footer className="mt-8 pt-6 border-t border-border/10 max-w-6xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
                                 <Landmark className="w-5 h-5 text-primary" />
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Architect & Developer</span>
-                                <span className="text-4xl font-black text-blue-600 tracking-tighter italic">
+                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-1">Architect & Developer</span>
+                                <button
+                                    onClick={() => setIsAboutOpen(true)}
+                                    className="text-4xl font-black text-primary tracking-tighter italic hover:opacity-80 transition bg-transparent text-left"
+                                >
                                     ARIJIT KORA
-                                </span>
+                                </button>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
@@ -335,6 +348,11 @@ export const Layout: React.FC<LayoutProps> = ({
             <FeedbackModal
                 isOpen={isFeedbackOpen}
                 onClose={() => setIsFeedbackOpen(false)}
+            />
+
+            <AboutModal
+                open={isAboutOpen}
+                onClose={() => setIsAboutOpen(false)}
             />
         </div >
     );

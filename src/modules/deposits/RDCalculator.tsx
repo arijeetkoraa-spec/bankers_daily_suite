@@ -4,7 +4,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { TrendingUp, AlertTriangle, FileDown } from 'lucide-react';
+import { TrendingUp, AlertTriangle, FileDown, RotateCcw } from 'lucide-react';
 import { calculateMaturity, calculatePrematurePayout } from '../../lib/deposit_calculations';
 import { exportToPDF } from '../../lib/pdf-export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
@@ -21,6 +21,16 @@ export const RDCalculator: React.FC = () => {
     const [penalty, setPenalty] = useLocalStorage<string>('rd_penalty', '1.00');
     const [runMonths, setRunMonths] = useLocalStorage<string>('rd_run_months', '6');
     const [prematureResult, setPrematureResult] = useState<any>(null);
+
+    const handleReset = () => {
+        setMonthlyInstallment('5000');
+        setRate('7.00');
+        setMonths('12');
+        setIsPremature(false);
+        setCardRate('6.00');
+        setPenalty('1.00');
+        setRunMonths('6');
+    };
 
     const calculate = React.useCallback(() => {
         const P = parseFloat(monthlyInstallment);
@@ -102,10 +112,21 @@ export const RDCalculator: React.FC = () => {
                             </CardDescription>
                         </div>
                     </div>
-                    <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-emerald-600/30 hover:bg-emerald-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                        <FileDown className="w-5 h-5 text-emerald-600" />
-                        EXPORT PDF
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={handleReset}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 px-4 rounded-xl border border-border/50 bg-card/60 hover:bg-accent/50 text-sm font-semibold flex items-center gap-2 transition"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset
+                        </Button>
+                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-emerald-600/30 hover:bg-emerald-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
+                            <FileDown className="w-5 h-5 text-emerald-600" />
+                            EXPORT PDF
+                        </Button>
+                    </div>
                 </div>
             </CardHeader>
             <CardContent className="p-0">

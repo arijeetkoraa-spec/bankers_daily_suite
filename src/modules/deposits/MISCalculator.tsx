@@ -4,7 +4,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Coins, AlertTriangle, FileDown } from 'lucide-react';
+import { Coins, AlertTriangle, FileDown, RotateCcw } from 'lucide-react';
 import { calculatePrematurePayout } from '../../lib/deposit_calculations';
 import { exportToPDF } from '../../lib/pdf-export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
@@ -22,6 +22,16 @@ export const MISCalculator: React.FC = () => {
     const [runMonths, setRunMonths] = useLocalStorage<string>('mis_run_months', '6');
     const [interestAlreadyPaid, setInterestAlreadyPaid] = useLocalStorage<string>('mis_paid_interest', '0');
     const [prematureResult, setPrematureResult] = useState<any>(null);
+
+    const handleReset = () => {
+        setPrincipal('500000');
+        setRate('7.50');
+        setIsPremature(false);
+        setCardRate('6.50');
+        setPenalty('1.00');
+        setRunMonths('6');
+        setInterestAlreadyPaid('0');
+    };
 
     const calculate = React.useCallback(() => {
         const P = parseFloat(principal);
@@ -105,10 +115,21 @@ export const MISCalculator: React.FC = () => {
                             </CardDescription>
                         </div>
                     </div>
-                    <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-purple-600/30 hover:bg-purple-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                        <FileDown className="w-5 h-5 text-purple-600" />
-                        EXPORT PDF
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={handleReset}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 px-4 rounded-xl border border-border/50 bg-card/60 hover:bg-accent/50 text-sm font-semibold flex items-center gap-2 transition"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset
+                        </Button>
+                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-purple-600/30 hover:bg-purple-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
+                            <FileDown className="w-5 h-5 text-purple-600" />
+                            EXPORT PDF
+                        </Button>
+                    </div>
                 </div>
             </CardHeader>
             <CardContent className="p-0">

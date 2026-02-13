@@ -40,6 +40,19 @@ export default {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
+                brand: {
+                    bg: "hsl(var(--brand-bg))",
+                    card: "hsl(var(--brand-card))",
+                    text: {
+                        primary: "hsl(var(--brand-text-primary))",
+                        secondary: "hsl(var(--brand-text-secondary))",
+                    },
+                    accent: {
+                        primary: "hsl(var(--brand-accent-primary))",
+                        success: "hsl(var(--brand-accent-success))",
+                        warning: "hsl(var(--brand-accent-warning))",
+                    },
+                },
             },
             borderRadius: {
                 lg: `var(--radius)`,
