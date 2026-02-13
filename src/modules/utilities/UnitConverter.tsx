@@ -123,7 +123,8 @@ export const UnitConverter: React.FC = () => {
             </CardHeader>
             <CardContent className="p-0">
                 <Tabs defaultValue={type} value={type} onValueChange={(v) => setType(v as UnitType)} className="w-full">
-                    <div className="p-4 bg-muted/30 border-b border-border/50">
+                    <div className="p-4 bg-muted/30 border-b border-border/50 share-row">
+                        <span className="sr-only share-label">Category</span>
                         <TabsList className="grid w-full grid-cols-3 gap-2 bg-transparent h-auto p-0">
                             {(['area', 'length', 'weight'] as UnitType[]).map((t) => (
                                 <TabsTrigger
@@ -132,7 +133,8 @@ export const UnitConverter: React.FC = () => {
                                     className={cn(
                                         "flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-black uppercase tracking-widest text-[11px] shadow-sm",
                                         "data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20",
-                                        "hover:bg-accent/80 text-foreground opacity-60 data-[state=active]:opacity-100 hover:opacity-100"
+                                        "hover:bg-accent/80 text-foreground opacity-60 data-[state=active]:opacity-100 hover:opacity-100",
+                                        type === t ? "share-value" : ""
                                     )}
                                 >
                                     {unitIcons[t]}
@@ -146,14 +148,14 @@ export const UnitConverter: React.FC = () => {
                         {/* Inputs Section */}
                         <div className="lg:col-span-7 p-6 md:p-8 space-y-8 border-r border-border/50">
                             <div className="grid grid-cols-1 md:grid-cols-11 gap-4 items-center">
-                                <div className="md:col-span-5 space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase text-cyan-700 opacity-70">From Amount ({unitLabels[fromUnit]})</Label>
+                                <div className="md:col-span-5 space-y-1 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-cyan-700 opacity-70 share-label">From ({unitLabels[fromUnit]})</Label>
                                     <div className="relative group">
                                         <Input
                                             type="number"
                                             value={value}
                                             onChange={(e) => setValue(e.target.value)}
-                                            className="h-12 text-2xl font-black bg-accent border-none focus-visible:ring-cyan-500 px-6 transition-all group-hover:bg-accent/80"
+                                            className="h-12 text-2xl font-black bg-accent border-none focus-visible:ring-cyan-500 px-6 transition-all group-hover:bg-accent/80 share-value"
                                         />
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-500 opacity-60">
                                             {unitIcons[type]}
@@ -174,9 +176,9 @@ export const UnitConverter: React.FC = () => {
                                     <ArrowRightLeft className="w-6 h-6 rotate-90 md:rotate-0" />
                                 </div>
 
-                                <div className="md:col-span-5 space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase text-cyan-700 opacity-70">Target Result ({unitLabels[toUnit]})</Label>
-                                    <div className="h-12 flex items-center px-6 rounded-2xl bg-cyan-600/10 border border-cyan-600/20 text-xl font-black text-cyan-700 overflow-hidden text-ellipsis whitespace-nowrap shadow-inner">
+                                <div className="md:col-span-5 space-y-1 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-cyan-700 opacity-70 share-label">To ({unitLabels[toUnit]})</Label>
+                                    <div className="h-12 flex items-center px-6 rounded-2xl bg-cyan-600/10 border border-cyan-600/20 text-xl font-black text-cyan-700 overflow-hidden text-ellipsis whitespace-nowrap shadow-inner share-value">
                                         {result}
                                     </div>
                                     <select

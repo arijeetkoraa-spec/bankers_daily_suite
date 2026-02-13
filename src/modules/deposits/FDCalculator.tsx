@@ -131,19 +131,19 @@ export const FDCalculator: React.FC = () => {
                     {/* Inputs Section */}
                     <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="principal" className="result-label text-primary">Investment (₹)</Label>
+                            <div className="space-y-2 share-row">
+                                <Label htmlFor="principal" className="result-label text-primary share-label">Investment (₹)</Label>
                                 <Input
                                     id="principal"
                                     type="number"
                                     value={principal}
                                     onChange={(e) => setPrincipal(e.target.value)}
-                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 shadow-inner"
+                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 shadow-inner share-value"
                                 />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2 share-row">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="rate" className="result-label text-primary">Interest (%)</Label>
+                                    <Label htmlFor="rate" className="result-label text-primary share-label">Interest (%)</Label>
                                     <button
                                         onClick={() => setIsPremature(!isPremature)}
                                         className={cn(
@@ -160,7 +160,7 @@ export const FDCalculator: React.FC = () => {
                                     step="0.01"
                                     value={rate}
                                     onChange={(e) => setRate(e.target.value)}
-                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 text-primary shadow-inner"
+                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 text-primary shadow-inner share-value"
                                 />
                             </div>
                         </div>
@@ -172,13 +172,14 @@ export const FDCalculator: React.FC = () => {
                                     Premature Closure Active
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1">
+                                    <div className="space-y-1 share-row">
+                                        <Label className="hidden share-label">Actual Run ({runTenureType})</Label>
                                         <div className="flex gap-1 bg-background rounded-lg border border-border p-0.5">
                                             <Input
                                                 type="number"
                                                 value={runTenure}
                                                 onChange={e => setRunTenure(e.target.value)}
-                                                className="border-none bg-transparent h-7 text-xs font-black focus-visible:ring-0 px-2"
+                                                className="border-none bg-transparent h-7 text-xs font-black focus-visible:ring-0 px-2 share-value"
                                             />
                                             <select
                                                 value={runTenureType}
@@ -191,32 +192,32 @@ export const FDCalculator: React.FC = () => {
                                             </select>
                                         </div>
                                     </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Months Run</Label>
+                                    <div className="space-y-1 share-row">
+                                        <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Months Run</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
                                             value={cardRate}
                                             onChange={e => setCardRate(e.target.value)}
-                                            className="h-8 bg-background font-black text-xs border-border text-red-600 rounded-lg"
+                                            className="h-8 bg-background font-black text-xs border-border text-red-600 rounded-lg share-value"
                                         />
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 shrink-0">Penalty (%)</Label>
+                                <div className="flex items-center gap-2 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 shrink-0 share-label">Penalty (%)</Label>
                                     <Input
                                         type="number"
                                         step="0.01"
                                         value={penalty}
                                         onChange={e => setPenalty(e.target.value)}
-                                        className="h-7 bg-background font-black text-xs border-border text-red-600 rounded-lg max-w-[80px]"
+                                        className="h-7 bg-background font-black text-xs border-border text-red-600 rounded-lg max-w-[80px] share-value"
                                     />
                                 </div>
                             </div>
                         )}
 
-                        <div className="space-y-3 pt-2">
-                            <Label className="result-label text-primary">Investment Tenure</Label>
+                        <div className="space-y-3 pt-2 share-row">
+                            <Label className="result-label text-primary share-label">Investment Tenure ({tenureType})</Label>
                             <div className="flex flex-col md:flex-row gap-3">
                                 <div className="flex p-1 bg-accent/50 rounded-xl gap-1 flex-1 shadow-inner">
                                     {['years', 'months', 'days'].map((type) => (
@@ -241,20 +242,20 @@ export const FDCalculator: React.FC = () => {
                                     type="number"
                                     value={tenure}
                                     onChange={(e) => setTenure(e.target.value)}
-                                    className="h-12 text-2xl font-black bg-background border-dashed border-2 max-w-[120px] text-center rounded-xl"
+                                    className="h-12 text-2xl font-black bg-background border-dashed border-2 max-w-[120px] text-center rounded-xl share-value"
                                 />
                             </div>
                         </div>
 
                         <div className="p-4 rounded-xl glass-panel bg-accent/50 border-2 border-primary/10 shadow-inner space-y-3">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col">
-                                    <span className="text-[9px] font-black text-foreground uppercase tracking-widest">Effective Yield</span>
-                                    <span className="text-sm font-black text-primary">{yieldRate.toFixed(2)}%</span>
+                                <div className="flex flex-col share-row">
+                                    <span className="text-[9px] font-black text-foreground uppercase tracking-widest share-label">Effective Yield</span>
+                                    <span className="text-sm font-black text-primary share-value">{yieldRate.toFixed(2)}%</span>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[9px] font-black text-foreground uppercase tracking-widest">Compounding</span>
-                                    <span className="text-sm font-black text-foreground uppercase">Quarterly</span>
+                                <div className="flex flex-col share-row">
+                                    <span className="text-[9px] font-black text-foreground uppercase tracking-widest share-label">Compounding</span>
+                                    <span className="text-sm font-black text-foreground uppercase share-value">Quarterly</span>
                                 </div>
                             </div>
                         </div>
@@ -262,26 +263,26 @@ export const FDCalculator: React.FC = () => {
 
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                        <div className="space-y-1">
-                            <span className="result-label">
+                        <div className="space-y-1 share-row">
+                            <span className="result-label share-label">
                                 {isPremature ? "Net Payout" : "Expected Maturity"}
                             </span>
-                            <div className={cn("hero-result-value leading-tight", isPremature && "text-red-600")}>
+                            <div className={cn("hero-result-value leading-tight share-value", isPremature && "text-red-600")}>
                                 {formatCurrency(isPremature ? prematureResult?.netPayout : maturityValue)}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-3">
-                            <div className="stat-card">
-                                <span className="result-label text-foreground">Principal Invested</span>
-                                <span className="text-lg font-black text-foreground leading-none">
+                            <div className="stat-card share-row">
+                                <span className="result-label text-foreground share-label">Principal Invested</span>
+                                <span className="text-lg font-black text-foreground leading-none share-value">
                                     {formatCurrency(parseFloat(principal) || 0)}
                                 </span>
                             </div>
-                            <div className="stat-card">
-                                <span className="result-label">Interest Accrued</span>
+                            <div className="stat-card share-row">
+                                <span className="result-label share-label">Interest Accrued</span>
                                 <span className={cn(
-                                    "text-lg font-black leading-none",
+                                    "text-lg font-black leading-none share-value",
                                     isPremature ? "text-red-600" : "text-emerald-600"
                                 )}>
                                     {formatCurrency(isPremature ? prematureResult?.interestEarned : interestEarned)}

@@ -125,30 +125,30 @@ export const DateCalculator: React.FC = () => {
                         <div className="lg:col-span-7 p-6 md:p-8 space-y-8 border-r border-border/50">
                             {mode === 'maturity' && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
-                                    <div className="space-y-1">
-                                        <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70">Base Start Date</Label>
+                                    <div className="space-y-1 share-row">
+                                        <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70 share-label">Start Date</Label>
                                         <div className="relative">
                                             <Input
                                                 type="date"
                                                 value={startDate}
                                                 onChange={(e) => setStartDate(e.target.value)}
-                                                className="h-12 text-xl font-black bg-accent border-none focus-visible:ring-blue-500 px-6"
+                                                className="h-12 text-xl font-black bg-accent border-none focus-visible:ring-blue-500 px-6 share-value"
                                             />
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-1">
-                                            <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70">Tenure Duration</Label>
+                                        <div className="space-y-1 share-row">
+                                            <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70 share-label">Tenure</Label>
                                             <Input
                                                 type="number"
                                                 value={tenure}
                                                 onChange={(e) => setTenure(e.target.value)}
-                                                className="h-12 text-2xl font-black bg-accent border-none px-6"
+                                                className="h-12 text-2xl font-black bg-accent border-none px-6 share-value"
                                             />
                                         </div>
-                                        <div className="space-y-1">
-                                            <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70">Calculated Unit</Label>
+                                        <div className="space-y-1 share-row">
+                                            <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70 share-label">Unit</Label>
                                             <div className="grid grid-cols-3 gap-1 p-1 bg-accent border-none rounded-xl h-12">
                                                 {['days', 'months', 'years'].map(t => (
                                                     <button
@@ -157,7 +157,7 @@ export const DateCalculator: React.FC = () => {
                                                         className={cn(
                                                             "py-1 rounded-lg text-[10px] font-black uppercase transition-all shadow-sm border",
                                                             tenureType === t
-                                                                ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20"
+                                                                ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20 share-value"
                                                                 : "bg-background border-transparent text-foreground hover:bg-accent opacity-60 hover:opacity-100"
                                                         )}
                                                     >
@@ -172,22 +172,22 @@ export const DateCalculator: React.FC = () => {
 
                             {mode === 'diff' && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
-                                    <div className="space-y-1">
-                                        <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70">From Reference Date</Label>
+                                    <div className="space-y-1 share-row">
+                                        <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70 share-label">Reference Start Date</Label>
                                         <Input
                                             type="date"
                                             value={startDate}
                                             onChange={(e) => setStartDate(e.target.value)}
-                                            className="h-12 text-xl font-black bg-accent border-none focus-visible:ring-blue-500 px-6"
+                                            className="h-12 text-xl font-black bg-accent border-none focus-visible:ring-blue-500 px-6 share-value"
                                         />
                                     </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70">To Target Date</Label>
+                                    <div className="space-y-1 share-row">
+                                        <Label className="text-[10px] font-bold uppercase text-blue-700 opacity-70 share-label">Target End Date</Label>
                                         <Input
                                             type="date"
                                             value={endDate}
                                             onChange={(e) => setEndDate(e.target.value)}
-                                            className="h-12 text-xl font-black bg-accent border-none focus-visible:ring-blue-500 px-6"
+                                            className="h-12 text-xl font-black bg-accent border-none focus-visible:ring-blue-500 px-6 share-value"
                                         />
                                     </div>
                                 </div>
@@ -197,11 +197,11 @@ export const DateCalculator: React.FC = () => {
                         {/* Results Section */}
                         <div className="lg:col-span-5 p-6 md:p-8 bg-muted/40 flex flex-col justify-center">
                             <div className="space-y-8 text-center lg:text-left">
-                                <div className="space-y-2">
-                                    <span className="result-label">
+                                <div className="space-y-2 share-row">
+                                    <span className="result-label share-label">
                                         {mode === 'maturity' ? 'Forecasted Maturity' : 'Elapsed Duration'}
                                     </span>
-                                    <div className="hero-result-value text-blue-600 leading-tight">
+                                    <div className="hero-result-value text-blue-600 leading-tight share-value">
                                         {mode === 'maturity' ? maturityDate : `${diffDays} Days`}
                                     </div>
                                 </div>

@@ -127,8 +127,8 @@ export const GSTCalculator: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            <div className="space-y-3">
-                                <Label htmlFor="gst-amount" className="text-[10px] font-black uppercase text-slate-950 tracking-widest leading-none">
+                            <div className="space-y-3 share-row">
+                                <Label htmlFor="gst-amount" className="text-[10px] font-black uppercase text-slate-950 tracking-widest leading-none share-label">
                                     {mode === 'exclusive' ? 'Net Base Amount (₹)' : 'Total Amount (₹)'}
                                 </Label>
                                 <Input
@@ -136,12 +136,12 @@ export const GSTCalculator: React.FC = () => {
                                     type="number"
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
-                                    className="h-14 text-4xl font-black bg-slate-50 border-2 border-slate-200 px-6 text-slate-950 focus:border-slate-950 focus:ring-4 focus:ring-slate-950/5 transition-all shadow-inner"
+                                    className="h-14 text-4xl font-black bg-slate-50 border-2 border-slate-200 px-6 text-slate-950 focus:border-slate-950 focus:ring-4 focus:ring-slate-950/5 transition-all shadow-inner share-value"
                                 />
                             </div>
 
-                            <div className="space-y-3">
-                                <Label htmlFor="gst-rate" className="text-[10px] font-black uppercase text-slate-950 tracking-widest leading-none">GST Tax Rate (%)</Label>
+                            <div className="space-y-3 share-row">
+                                <Label htmlFor="gst-rate" className="text-[10px] font-black uppercase text-slate-950 tracking-widest leading-none share-label">GST Tax Rate (%)</Label>
                                 <div className="grid grid-cols-4 gap-2">
                                     {[5, 12, 18, 28].map((r) => (
                                         <button
@@ -163,7 +163,7 @@ export const GSTCalculator: React.FC = () => {
                                         type="number"
                                         value={rate}
                                         onChange={(e) => setRate(e.target.value)}
-                                        className="h-10 font-black bg-slate-50 border-2 border-slate-100 text-center text-xs text-slate-950"
+                                        className="h-10 font-black bg-slate-50 border-2 border-slate-100 text-center text-xs text-slate-950 share-value"
                                         placeholder="Custom Rate"
                                     />
                                     <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[8px] font-black pointer-events-none text-slate-500 uppercase tracking-widest">
@@ -177,40 +177,40 @@ export const GSTCalculator: React.FC = () => {
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-6 md:p-8 bg-slate-50 flex flex-col justify-center space-y-8">
                         <div className="space-y-8">
-                            <div className="bg-slate-950 rounded-2xl p-8 shadow-2xl border-2 border-slate-900 relative overflow-hidden">
+                            <div className="bg-slate-950 rounded-2xl p-8 shadow-2xl border-2 border-slate-900 relative overflow-hidden share-row">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-slate-500/10 rounded-full -mr-16 -mt-16" />
                                 <div className="relative z-10 space-y-2 text-center">
-                                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em]">Final Gross Total</span>
-                                    <div className="text-4xl font-black text-white leading-tight">
+                                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] share-label">Final Gross Total</span>
+                                    <div className="text-4xl font-black text-white leading-tight share-value">
                                         {formatCurrency(totalAmount)}
                                     </div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 gap-4">
-                                <div className="bg-white border-2 border-slate-200 p-5 rounded-2xl shadow-sm space-y-1">
+                                <div className="bg-white border-2 border-slate-200 p-5 rounded-2xl shadow-sm space-y-1 share-row">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest">GST Portion ({rate}%)</span>
+                                        <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest share-label">GST Tax ({rate}%)</span>
                                         <div className="px-2 py-0.5 rounded-md bg-red-100 text-red-700 text-[8px] font-black uppercase tracking-widest">
                                             Tax Liability
                                         </div>
                                     </div>
-                                    <div className="text-2xl font-black text-red-600">
+                                    <div className="text-2xl font-black text-red-600 share-value">
                                         {formatCurrency(gstAmount)}
                                     </div>
                                 </div>
 
-                                <div className="bg-white border-2 border-slate-200 p-5 rounded-2xl shadow-sm space-y-1">
-                                    <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest">Net Basic Amount</span>
-                                    <div className="text-2xl font-black text-emerald-600">
+                                <div className="bg-white border-2 border-slate-200 p-5 rounded-2xl shadow-sm space-y-1 share-row">
+                                    <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest share-label">Net Basic Amount</span>
+                                    <div className="text-2xl font-black text-emerald-600 share-value">
                                         {formatCurrency(netAmount)}
                                     </div>
                                 </div>
 
-                                <div className="p-4 rounded-xl bg-slate-950 text-white flex items-center justify-between shadow-xl ring-2 ring-white/5">
+                                <div className="p-4 rounded-xl bg-slate-950 text-white flex items-center justify-between shadow-xl ring-2 ring-white/5 share-row">
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-black uppercase tracking-widest opacity-60">CGST / SGST (50/50)</span>
-                                        <span className="text-base font-black text-slate-300">{formatCurrency(gstAmount / 2)} <span className="text-[10px] opacity-60">EACH</span></span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest opacity-60 share-label">CGST / SGST (50/50)</span>
+                                        <span className="text-base font-black text-slate-300 share-value">{formatCurrency(gstAmount / 2)} <span className="text-[10px] opacity-60">EACH</span></span>
                                     </div>
                                     <Calculator className="w-5 h-5 text-slate-500" />
                                 </div>

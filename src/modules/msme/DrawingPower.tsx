@@ -100,13 +100,13 @@ export const DrawingPowerCalculator: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Stock Value (₹)</Label>
-                                    <Input value={stock} onChange={(e) => setStock(e.target.value)} type="number" className="h-10 bg-accent font-black border-none px-3 text-xl" />
+                                <div className="space-y-1 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Stock Value (₹)</Label>
+                                    <Input value={stock} onChange={(e) => setStock(e.target.value)} type="number" className="h-10 bg-accent font-black border-none px-3 text-xl share-value" />
                                 </div>
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase text-emerald-800 opacity-70">Margin (%)</Label>
-                                    <Input value={stockMargin} onChange={(e) => setStockMargin(e.target.value)} type="number" className="h-10 bg-emerald-500/10 font-black text-emerald-700 border-none px-3 text-xl" />
+                                <div className="space-y-1 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-emerald-800 opacity-70 share-label">Stock Margin (%)</Label>
+                                    <Input value={stockMargin} onChange={(e) => setStockMargin(e.target.value)} type="number" className="h-10 bg-emerald-500/10 font-black text-emerald-700 border-none px-3 text-xl share-value" />
                                 </div>
                             </div>
                         </div>
@@ -119,31 +119,31 @@ export const DrawingPowerCalculator: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Eligible Debtors (₹)</Label>
-                                    <Input value={debtors} onChange={(e) => setDebtors(e.target.value)} type="number" className="h-10 bg-accent font-black border-none px-3 text-xl" />
+                                <div className="space-y-1 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Eligible Debtors (₹)</Label>
+                                    <Input value={debtors} onChange={(e) => setDebtors(e.target.value)} type="number" className="h-10 bg-accent font-black border-none px-3 text-xl share-value" />
                                 </div>
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase text-blue-800 opacity-70">Margin (%)</Label>
-                                    <Input value={debtorMargin} onChange={(e) => setDebtorMargin(e.target.value)} type="number" className="h-10 bg-blue-500/10 font-black text-blue-700 border-none px-3 text-xl" />
+                                <div className="space-y-1 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-blue-800 opacity-70 share-label">Debtor Margin (%)</Label>
+                                    <Input value={debtorMargin} onChange={(e) => setDebtorMargin(e.target.value)} type="number" className="h-10 bg-blue-500/10 font-black text-blue-700 border-none px-3 text-xl share-value" />
                                 </div>
                             </div>
                         </div>
 
                         {/* Liab Section */}
                         <div className="pt-3 border-t border-border/50">
-                            <div className="space-y-1">
-                                <Label className="text-[10px] font-bold uppercase text-amber-700 opacity-70">Sundry Creditors (₹)</Label>
-                                <Input value={creditors} onChange={(e) => setCreditors(e.target.value)} type="number" className="h-10 bg-amber-500/10 font-black border-none text-amber-700 text-xl px-3" />
+                            <div className="space-y-1 share-row">
+                                <Label className="text-[10px] font-bold uppercase text-amber-700 opacity-70 share-label">Sundry Creditors (₹)</Label>
+                                <Input value={creditors} onChange={(e) => setCreditors(e.target.value)} type="number" className="h-10 bg-amber-500/10 font-black border-none text-amber-700 text-xl px-3 share-value" />
                             </div>
                         </div>
                     </div>
 
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                        <div className="space-y-1">
-                            <span className="result-label text-amber-700">Total DP Eligibility</span>
-                            <div className="hero-result-value text-amber-600 leading-tight">
+                        <div className="space-y-1 share-row">
+                            <span className="result-label text-amber-700 share-label">Total DP Eligibility</span>
+                            <div className="hero-result-value text-amber-600 leading-tight share-value">
                                 {formatCurrency(dp)}
                             </div>
                         </div>

@@ -133,51 +133,51 @@ export const LoanCompare: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="md:col-span-2 space-y-1">
-                                <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Loan Amount (₹)</Label>
+                            <div className="md:col-span-2 space-y-1 share-row">
+                                <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Alpha Principal</Label>
                                 <Input
                                     value={amountA}
                                     onChange={(e) => setAmountA(e.target.value)}
                                     type="number"
-                                    className="h-10 text-xl font-black bg-accent border-none px-4"
+                                    className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <Label className="text-[8px] font-black uppercase text-foreground">Rate (%)</Label>
+                            <div className="space-y-1 share-row">
+                                <Label className="text-[8px] font-black uppercase text-foreground share-label">Alpha Rate (%)</Label>
                                 <Input
                                     value={rateA}
                                     onChange={(e) => setRateA(e.target.value)}
                                     type="number"
                                     step="0.01"
-                                    className="h-10 text-xl font-black bg-accent border-none px-4"
+                                    className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <Label className="text-[8px] font-black uppercase text-foreground">Months</Label>
+                            <div className="space-y-1 share-row">
+                                <Label className="text-[8px] font-black uppercase text-foreground share-label">Alpha Months</Label>
                                 <Input
                                     value={tenureA}
                                     onChange={(e) => setTenureA(e.target.value)}
                                     type="number"
-                                    className="h-10 text-xl font-black bg-accent border-none px-4"
+                                    className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-3 pt-2">
-                            <div className="stat-card bg-indigo-500/5 p-3">
-                                <span className="result-label text-indigo-600">Monthly EMI</span>
-                                <div className="text-xl font-black text-foreground">
+                            <div className="stat-card bg-indigo-500/5 p-3 share-row">
+                                <span className="result-label text-indigo-600 share-label">Alpha Monthly EMI</span>
+                                <div className="text-xl font-black text-foreground share-value">
                                     {formatCurrency(resultA.emi)}
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
-                                <div className="stat-card bg-accent/20 p-2">
-                                    <span className="result-label">Interest</span>
-                                    <span className="text-xs font-black text-foreground">{formatCurrency(resultA.interest)}</span>
+                                <div className="stat-card bg-accent/20 p-2 share-row">
+                                    <span className="result-label share-label">Alpha Interest</span>
+                                    <span className="text-xs font-black text-foreground share-value">{formatCurrency(resultA.interest)}</span>
                                 </div>
-                                <div className="stat-card bg-accent/20 p-2">
-                                    <span className="result-label">Total</span>
-                                    <span className="text-xs font-black text-foreground">{formatCurrency(resultA.total)}</span>
+                                <div className="stat-card bg-accent/20 p-2 share-row">
+                                    <span className="result-label share-label">Alpha Total</span>
+                                    <span className="text-xs font-black text-foreground share-value">{formatCurrency(resultA.total)}</span>
                                 </div>
                             </div>
                         </div>
@@ -206,51 +206,51 @@ export const LoanCompare: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="md:col-span-2 space-y-1">
-                                <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Principal (₹)</Label>
+                            <div className="md:col-span-2 space-y-1 share-row">
+                                <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Beta Principal</Label>
                                 <Input
                                     value={amountB}
                                     onChange={(e) => setAmountB(e.target.value)}
                                     type="number"
-                                    className="h-10 text-xl font-black bg-accent border-none px-4"
+                                    className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <Label className="text-[8px] font-black uppercase text-foreground">Rate (%)</Label>
+                            <div className="space-y-1 share-row">
+                                <Label className="text-[8px] font-black uppercase text-foreground share-label">Beta Rate (%)</Label>
                                 <Input
                                     value={rateB}
                                     onChange={(e) => setRateB(e.target.value)}
                                     type="number"
                                     step="0.01"
-                                    className="h-10 text-xl font-black bg-accent border-none px-4"
+                                    className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <Label className="text-[8px] font-black uppercase text-foreground">Months</Label>
+                            <div className="space-y-1 share-row">
+                                <Label className="text-[8px] font-black uppercase text-foreground share-label">Beta Months</Label>
                                 <Input
                                     value={tenureB}
                                     onChange={(e) => setTenureB(e.target.value)}
                                     type="number"
-                                    className="h-10 text-xl font-black bg-accent border-none px-4"
+                                    className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-3 pt-2">
-                            <div className="stat-card bg-emerald-500/5 p-3">
-                                <span className="result-label text-emerald-600">Monthly EMI</span>
-                                <div className="text-xl font-black text-foreground">
+                            <div className="stat-card bg-emerald-500/5 p-3 share-row">
+                                <span className="result-label text-emerald-600 share-label">Beta Monthly EMI</span>
+                                <div className="text-xl font-black text-foreground share-value">
                                     {formatCurrency(resultB.emi)}
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
-                                <div className="stat-card bg-accent/20 p-2">
-                                    <span className="result-label">Interest</span>
-                                    <span className="text-xs font-black text-foreground">{formatCurrency(resultB.interest)}</span>
+                                <div className="stat-card bg-accent/20 p-2 share-row">
+                                    <span className="result-label share-label">Beta Interest</span>
+                                    <span className="text-xs font-black text-foreground share-value">{formatCurrency(resultB.interest)}</span>
                                 </div>
-                                <div className="stat-card bg-accent/20 p-2">
-                                    <span className="result-label">Total</span>
-                                    <span className="text-xs font-black text-foreground">{formatCurrency(resultB.total)}</span>
+                                <div className="stat-card bg-accent/20 p-2 share-row">
+                                    <span className="result-label share-label">Beta Total</span>
+                                    <span className="text-xs font-black text-foreground share-value">{formatCurrency(resultB.total)}</span>
                                 </div>
                             </div>
                         </div>
@@ -267,13 +267,13 @@ export const LoanCompare: React.FC = () => {
                             <h4 className="text-[13px] font-black uppercase text-foreground mt-2">Comparative Advantage Analysis</h4>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="p-2 px-3 rounded-xl glass-panel border-emerald-600/20 bg-accent/40">
-                                <span className="text-[8px] font-black text-foreground uppercase">Monthly Saving</span>
-                                <div className="text-lg font-black text-emerald-600">{formatCurrency(Math.abs(resultA.emi - resultB.emi))}</div>
+                            <div className="p-2 px-3 rounded-xl glass-panel border-emerald-600/20 bg-accent/40 share-row">
+                                <span className="text-[8px] font-black text-foreground uppercase share-label">Monthly Saving</span>
+                                <div className="text-lg font-black text-emerald-600 share-value">{formatCurrency(Math.abs(resultA.emi - resultB.emi))}</div>
                             </div>
-                            <div className="p-2 px-3 rounded-xl glass-panel border-emerald-600/20 bg-accent/40">
-                                <span className="text-[8px] font-black text-foreground uppercase">Interest Delta</span>
-                                <div className="text-lg font-black text-emerald-600">{formatCurrency(Math.abs(resultA.interest - resultB.interest))}</div>
+                            <div className="p-2 px-3 rounded-xl glass-panel border-emerald-600/20 bg-accent/40 share-row">
+                                <span className="text-[8px] font-black text-foreground uppercase share-label">Interest Delta</span>
+                                <div className="text-lg font-black text-emerald-600 share-value">{formatCurrency(Math.abs(resultA.interest - resultB.interest))}</div>
                             </div>
                         </div>
                     </div>

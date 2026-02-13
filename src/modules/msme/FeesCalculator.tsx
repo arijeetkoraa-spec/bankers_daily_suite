@@ -107,7 +107,7 @@ export const FeesCalculator: React.FC = () => {
                             </CardDescription>
                         </div>
                     </div>
-                    <Button onClick={downloadPDF} size="sm" className="h-10 gap-2 bg-white text-slate-950 hover:bg-slate-100 hidden md:flex text-xs font-black px-4 shadow-xl border-none">
+                    <Button onClick={downloadPDF} size="sm" className="h-10 gap-2 bg-primary text-primary-foreground hover:bg-primary/90 hidden md:flex text-xs font-black px-4 shadow-xl border-none">
                         <FileDown className="w-5 h-5" />
                         EXPORT PDF
                     </Button>
@@ -116,32 +116,32 @@ export const FeesCalculator: React.FC = () => {
             <CardContent className="p-0">
                 <div className="grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
                     {/* Inputs Section */}
-                    <div className="lg:col-span-7 p-4 md:p-6 space-y-6 border-r-2 border-slate-100 bg-white">
+                    <div className="lg:col-span-7 p-4 md:p-6 space-y-6 border-r-2 border-border/20 bg-background dark:bg-slate-950">
                         <div className="space-y-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="cgtmse-loan" className="text-[10px] font-black text-slate-950 uppercase tracking-widest">Loan Amount (₹)</Label>
+                            <div className="space-y-2 share-row">
+                                <Label htmlFor="cgtmse-loan" className="text-[10px] font-black text-foreground uppercase tracking-widest share-label">Loan Amount (₹)</Label>
                                 <Input
                                     id="cgtmse-loan"
                                     type="number"
                                     value={loanAmount}
                                     onChange={(e) => setLoanAmount(e.target.value)}
-                                    className="text-3xl font-black h-14 bg-slate-50 border-2 border-slate-200 px-4 text-slate-950 focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 transition-all shadow-inner"
+                                    className="text-3xl font-black h-14 bg-accent/30 dark:bg-slate-900 border-2 border-border/50 px-4 text-foreground focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 transition-all shadow-inner share-value"
                                 />
                             </div>
 
-                            <div className="p-5 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-between group transition-all duration-300 hover:border-purple-200 shadow-sm">
+                            <div className="p-5 bg-card border-2 border-border/50 rounded-2xl flex items-center justify-between group transition-all duration-300 hover:border-purple-200 shadow-sm share-row">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="social-toggle" className="text-[10px] font-black uppercase text-slate-950 flex items-center gap-1.5 leading-none tracking-widest">
+                                    <Label htmlFor="social-toggle" className="text-[10px] font-black uppercase text-foreground flex items-center gap-1.5 leading-none tracking-widest share-label">
                                         Special Category
                                         <Info className="w-4 h-4 text-purple-600" />
                                     </Label>
-                                    <p className="text-[10px] font-black text-purple-900 uppercase tracking-tighter leading-none bg-purple-50 px-2 py-1 rounded inline-block">
+                                    <p className="text-[10px] font-black text-purple-700 dark:text-purple-400 uppercase tracking-tighter leading-none bg-purple-50 dark:bg-purple-950/30 px-2 py-1 rounded inline-block">
                                         Women / SC / ST / Aspirational
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <span className={cn("text-[10px] font-black px-3 py-1.5 rounded-xl transition-all shadow-md uppercase tracking-widest", isSocialCategory ? "bg-purple-600 text-white" : "bg-slate-100 text-slate-600 border-2 border-slate-200")}>
-                                        -10% Benefit
+                                    <span className={cn("text-[10px] font-black px-3 py-1.5 rounded-xl transition-all shadow-md uppercase tracking-widest share-value", isSocialCategory ? "bg-purple-600 text-white" : "bg-accent text-muted-foreground border-2 border-border/50")}>
+                                        {isSocialCategory ? "YES (-10% Benefit)" : "NO"}
                                     </span>
                                     <SimpleSwitch
                                         id="social-toggle"
@@ -153,49 +153,49 @@ export const FeesCalculator: React.FC = () => {
                         </div>
 
                         <div className="pt-2">
-                            <div className="flex items-center gap-3 text-[11px] font-black text-slate-900 uppercase tracking-widest bg-slate-50 p-3 rounded-xl border-2 border-slate-100">
+                            <div className="flex items-center gap-3 text-[11px] font-black text-foreground uppercase tracking-widest bg-accent/30 p-3 rounded-xl border-2 border-border/50">
                                 <ShieldCheck className="w-5 h-5 text-emerald-600" /> Standard MSE Coverage norms applied
                             </div>
                         </div>
                     </div>
 
                     {/* Results Section */}
-                    <div className="lg:col-span-5 p-4 md:p-6 bg-slate-50 flex flex-col justify-center space-y-6">
+                    <div className="lg:col-span-5 p-4 md:p-6 bg-accent/20 dark:bg-slate-900/50 flex flex-col justify-center space-y-6">
                         <div className="space-y-6">
-                            <div className="bg-slate-950 rounded-2xl p-6 shadow-2xl border-2 border-slate-900 relative overflow-hidden ring-4 ring-purple-600/5">
+                            <div className="bg-slate-950 rounded-2xl p-6 shadow-2xl border-2 border-slate-900 relative overflow-hidden ring-4 ring-purple-600/5 share-row">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full -mr-16 -mt-16" />
                                 <div className="relative z-10 space-y-2 text-center">
-                                    <span className="text-[10px] font-black uppercase text-purple-400 tracking-[0.3em]">Annual Fee</span>
-                                    <div className="text-4xl font-black text-white leading-tight">
+                                    <span className="text-[10px] font-black uppercase text-purple-400 tracking-[0.3em] share-label">Annual Fee</span>
+                                    <div className="text-4xl font-black text-white leading-tight share-value">
                                         {formatCurrency(fee)}
                                     </div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 gap-4">
-                                <div className="bg-white border-2 border-slate-200 p-5 rounded-2xl flex justify-between items-center group shadow-sm">
+                                <div className="bg-card border-2 border-border/50 p-5 rounded-2xl flex justify-between items-center group shadow-sm share-row">
                                     <div className="flex flex-col">
-                                        <span className="text-[11px] font-black text-slate-950 uppercase tracking-widest">Fee Rate</span>
-                                        <span className="text-2xl font-black text-purple-700">
+                                        <span className="text-[11px] font-black text-foreground uppercase tracking-widest share-label">Fee Rate</span>
+                                        <span className="text-2xl font-black text-purple-600 dark:text-purple-400 share-value">
                                             {rate.toFixed(3)}%
                                         </span>
                                     </div>
-                                    <div className="bg-purple-100 p-3 rounded-xl">
-                                        <Percent className="w-6 h-6 text-purple-700" />
+                                    <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
+                                        <Percent className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                                     </div>
                                 </div>
 
-                                <div className="p-5 rounded-2xl bg-emerald-600 text-white shadow-xl shadow-emerald-600/20 flex items-center justify-between">
+                                <div className="p-5 rounded-2xl bg-emerald-600 text-white shadow-xl shadow-emerald-600/20 flex items-center justify-between share-row">
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80">Quarterly Payout</span>
-                                        <span className="text-xl font-black">{formatCurrency(fee / 4)}</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80 share-label">Quarterly Equivalent</span>
+                                        <span className="text-xl font-black share-value">{formatCurrency(fee / 4)}</span>
                                     </div>
                                     <ArrowRight className="w-6 h-6" />
                                 </div>
                             </div>
                         </div>
 
-                        <p className="text-[10px] text-slate-900 font-black text-center uppercase tracking-widest italic bg-slate-200 py-3 rounded-xl border border-slate-300">
+                        <p className="text-[10px] text-foreground font-black text-center uppercase tracking-widest italic bg-accent/30 py-3 rounded-xl border border-border/50">
                             *Upfront on sanction, then annual on balance.
                         </p>
                     </div>

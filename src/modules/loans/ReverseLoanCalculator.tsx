@@ -110,7 +110,7 @@ export const ReverseLoanCalculator: React.FC = () => {
                         <RotateCcw className="w-6 h-6 text-cyan-600" />
                         <div>
                             <CardTitle className="text-xl font-black">Inverse Modeling</CardTitle>
-                            <CardDescription className="text-[10px] font-bold uppercase tracking-wider text-foreground opacity-70">
+                            <CardDescription className="text-[10px] font-black uppercase tracking-wider text-cyan-600/80 dark:text-foreground/70">
                                 Debt Structure Reverse engineering
                             </CardDescription>
                         </div>
@@ -131,30 +131,30 @@ export const ReverseLoanCalculator: React.FC = () => {
                         {/* Inputs Section */}
                         <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
                             <TabsList className="grid w-full grid-cols-3 bg-accent/50 p-1.5 h-11 rounded-xl shadow-inner">
-                                <TabsTrigger value="principal" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">Amount</TabsTrigger>
-                                <TabsTrigger value="tenure" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">Tenure</TabsTrigger>
-                                <TabsTrigger value="rate" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">ROI</TabsTrigger>
+                                <TabsTrigger value="principal" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">Amount</TabsTrigger>
+                                <TabsTrigger value="tenure" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">Tenure</TabsTrigger>
+                                <TabsTrigger value="rate" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">ROI</TabsTrigger>
                             </TabsList>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Monthly EMI (₹)</Label>
+                                <div className="space-y-1 share-row">
+                                    <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">Monthly EMI (₹)</Label>
                                     <Input
                                         type="number"
                                         value={emi}
                                         onChange={(e) => setEmi(e.target.value)}
-                                        className="h-10 text-xl font-black bg-accent border-none px-4"
+                                        className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                     />
                                 </div>
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Principal (₹)</Label>
+                                <div className="space-y-1 share-row">
+                                    <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">Principal (₹)</Label>
                                     <Input
                                         type="number"
                                         value={principal}
                                         onChange={(e) => setPrincipal(e.target.value)}
                                         disabled={target === 'principal'}
                                         className={cn(
-                                            "h-10 text-xl font-black border-none px-4",
+                                            "h-10 text-xl font-black border-none px-4 share-value",
                                             target === 'principal' ? "bg-cyan-600/10 text-cyan-700" : "bg-accent"
                                         )}
                                     />
@@ -162,8 +162,8 @@ export const ReverseLoanCalculator: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Rate (%)</Label>
+                                <div className="space-y-1 share-row">
+                                    <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">ROI (%)</Label>
                                     <Input
                                         type="number"
                                         step="0.01"
@@ -171,20 +171,20 @@ export const ReverseLoanCalculator: React.FC = () => {
                                         onChange={(e) => setRate(e.target.value)}
                                         disabled={target === 'rate'}
                                         className={cn(
-                                            "h-10 text-xl font-black border-none px-4",
+                                            "h-10 text-xl font-black border-none px-4 share-value",
                                             target === 'rate' ? "bg-cyan-600/10 text-cyan-700" : "bg-accent"
                                         )}
                                     />
                                 </div>
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Tenure (Mos)</Label>
+                                <div className="space-y-1 share-row">
+                                    <Label className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground share-label">Tenure (Months)</Label>
                                     <Input
                                         type="number"
                                         value={tenure}
                                         onChange={(e) => setTenure(e.target.value)}
                                         disabled={target === 'tenure'}
                                         className={cn(
-                                            "h-10 text-xl font-black border-none px-4",
+                                            "h-10 text-xl font-black border-none px-4 share-value",
                                             target === 'tenure' ? "bg-cyan-600/10 text-cyan-700" : "bg-accent"
                                         )}
                                     />
@@ -198,9 +198,9 @@ export const ReverseLoanCalculator: React.FC = () => {
 
                         {/* Results Section */}
                         <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                            <div className="space-y-1">
-                                <span className="result-label">Computed {target}</span>
-                                <div className="hero-result-value text-cyan-700 leading-tight">
+                            <div className="space-y-1 share-row">
+                                <span className="result-label share-label">Computed {target}</span>
+                                <div className="hero-result-value text-cyan-700 leading-tight share-value">
                                     {result || "0"}
                                 </div>
                             </div>

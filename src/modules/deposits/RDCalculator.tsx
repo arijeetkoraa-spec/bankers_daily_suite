@@ -113,19 +113,19 @@ export const RDCalculator: React.FC = () => {
                     {/* Inputs Section */}
                     <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="rd-amount" className="result-label text-emerald-600">Monthly Savings (₹)</Label>
+                            <div className="space-y-2 share-row">
+                                <Label htmlFor="rd-amount" className="result-label text-emerald-600 share-label">Monthly Savings (₹)</Label>
                                 <Input
                                     id="rd-amount"
                                     type="number"
                                     value={monthlyInstallment}
                                     onChange={(e) => setMonthlyInstallment(e.target.value)}
-                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4"
+                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2 share-row">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="rd-rate" className="result-label text-emerald-700 dark:text-emerald-300">Interest (%)</Label>
+                                    <Label htmlFor="rd-rate" className="result-label text-emerald-700 dark:text-emerald-300 share-label">Interest (%)</Label>
                                     <button
                                         onClick={() => setIsPremature(!isPremature)}
                                         className={cn(
@@ -142,19 +142,19 @@ export const RDCalculator: React.FC = () => {
                                     step="0.01"
                                     value={rate}
                                     onChange={(e) => setRate(e.target.value)}
-                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 text-emerald-600 shadow-inner"
+                                    className="h-12 text-2xl font-black bg-accent/30 border-none px-4 text-emerald-600 shadow-inner share-value"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2 pt-2">
-                            <Label htmlFor="rd-months" className="result-label text-emerald-600">Period (Months)</Label>
+                        <div className="space-y-2 pt-2 share-row">
+                            <Label htmlFor="rd-months" className="result-label text-emerald-600 share-label">Period (Months)</Label>
                             <Input
                                 id="rd-months"
                                 type="number"
                                 value={months}
                                 onChange={(e) => setMonths(e.target.value)}
-                                className="h-12 text-2xl font-black bg-background border-dashed border-2 max-w-[120px] text-center rounded-xl"
+                                className="h-12 text-2xl font-black bg-background border-dashed border-2 max-w-[120px] text-center rounded-xl share-value"
                             />
                         </div>
 
@@ -165,34 +165,34 @@ export const RDCalculator: React.FC = () => {
                                     Premature Closure Active
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1">
-                                        <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Months Run</Label>
+                                    <div className="space-y-1 share-row">
+                                        <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Months Run</Label>
                                         <Input
                                             type="number"
                                             value={runMonths}
                                             onChange={e => setRunMonths(e.target.value)}
-                                            className="bg-background border-red-600/20 h-7 text-xs font-bold"
+                                            className="bg-background border-red-600/20 h-7 text-xs font-bold share-value"
                                         />
                                     </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Card Rate (%)</Label>
+                                    <div className="space-y-1 share-row">
+                                        <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Card Rate (%)</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
                                             value={cardRate}
                                             onChange={e => setCardRate(e.target.value)}
-                                            className="bg-background border-red-600/20 h-7 text-xs font-bold"
+                                            className="bg-background border-red-600/20 h-7 text-xs font-bold share-value"
                                         />
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 shrink-0">Penalty (%)</Label>
+                                <div className="flex items-center gap-2 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 shrink-0 share-label">Penalty (%)</Label>
                                     <Input
                                         type="number"
                                         step="0.01"
                                         value={penalty}
                                         onChange={e => setPenalty(e.target.value)}
-                                        className="bg-background border-red-600/30 h-7 text-xs font-bold text-red-600 max-w-[80px]"
+                                        className="bg-background border-red-600/30 h-7 text-xs font-bold text-red-600 max-w-[80px] share-value"
                                     />
                                 </div>
                             </div>
@@ -201,26 +201,26 @@ export const RDCalculator: React.FC = () => {
 
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                        <div className="space-y-1">
-                            <span className="result-label">
+                        <div className="space-y-1 share-row">
+                            <span className="result-label share-label">
                                 {isPremature ? "Net Payout" : "Expected Maturity"}
                             </span>
-                            <div className={cn("hero-result-value leading-tight", isPremature && "text-red-600")}>
+                            <div className={cn("hero-result-value leading-tight share-value", isPremature && "text-red-600")}>
                                 {formatCurrency(isPremature ? prematureResult?.netPayout : maturityValue)}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-3">
-                            <div className="stat-card">
-                                <span className="result-label">Principal Invested</span>
-                                <span className="text-lg font-black text-foreground leading-none">
+                            <div className="stat-card share-row">
+                                <span className="result-label share-label">Principal Invested</span>
+                                <span className="text-lg font-black text-foreground leading-none share-value">
                                     {formatCurrency(parseFloat(monthlyInstallment) * parseInt(months) || 0)}
                                 </span>
                             </div>
-                            <div className="stat-card">
-                                <span className="result-label">Interest Accrued</span>
+                            <div className="stat-card share-row">
+                                <span className="result-label share-label">Interest Accrued</span>
                                 <span className={cn(
-                                    "text-lg font-black leading-none",
+                                    "text-lg font-black leading-none share-value",
                                     isPremature ? "text-red-600" : "text-emerald-600"
                                 )}>
                                     {formatCurrency(isPremature ? prematureResult?.interestEarned : interestEarned)}

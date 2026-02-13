@@ -88,7 +88,7 @@ export const WorkingCapitalCalculator: React.FC = () => {
                             <Briefcase className="w-8 h-8 text-amber-500" />
                             Working Capital
                         </CardTitle>
-                        <CardDescription className="text-[10px] font-bold uppercase tracking-wider text-foreground opacity-70">
+                        <CardDescription className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground opacity-70">
                             Nayak & Tandon Assessment Engines
                         </CardDescription>
                     </div>
@@ -127,17 +127,17 @@ export const WorkingCapitalCalculator: React.FC = () => {
                         <div className="lg:col-span-7 p-6 md:p-8 space-y-8 border-r border-border/50">
                             {method === 'turnover' && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-left-4">
-                                    <div className="space-y-1">
-                                        <Label htmlFor="wc-sales" className="text-[10px] font-bold uppercase text-amber-700 opacity-70">Projected Annual Turnover (₹)</Label>
+                                    <div className="space-y-1 share-row">
+                                        <Label htmlFor="wc-sales" className="text-[10px] font-bold uppercase text-amber-600 dark:text-amber-500 opacity-70 tracking-widest share-label">Projected Annual Turnover (₹)</Label>
                                         <div className="relative">
                                             <Input
                                                 id="wc-sales"
                                                 type="number"
                                                 value={sales}
                                                 onChange={(e) => setSales(e.target.value)}
-                                                className="text-3xl font-black h-14 bg-accent border-none focus-visible:ring-amber-500 px-6"
+                                                className="text-3xl font-black h-14 bg-accent/50 dark:bg-slate-900 border-none focus-visible:ring-amber-500 px-6 text-foreground share-value"
                                             />
-                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-amber-800/40 bg-background/50 px-2 py-1 rounded-md tracking-widest">
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-amber-800/60 dark:text-amber-500 bg-background/50 dark:bg-slate-950/50 px-2 py-1 rounded-md tracking-widest">
                                                 PROJECTED
                                             </div>
                                         </div>
@@ -145,14 +145,14 @@ export const WorkingCapitalCalculator: React.FC = () => {
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="stat-card border-none bg-emerald-600/10">
-                                            <span className="text-[10px] font-bold uppercase text-emerald-800 opacity-70">WC Requirement (25%)</span>
-                                            <span className="text-xl font-black text-emerald-600">
+                                            <span className="text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 opacity-80">WC Requirement (25%)</span>
+                                            <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
                                                 {formatCurrency(parseFloat(sales) * 0.25)}
                                             </span>
                                         </div>
                                         <div className="stat-card border-none bg-red-600/10">
-                                            <span className="text-[10px] font-bold uppercase text-red-800 opacity-70">Min. Margin (5%)</span>
-                                            <span className="text-xl font-black text-red-600">
+                                            <span className="text-[10px] font-bold uppercase text-red-600 dark:text-red-400 opacity-80">Min. Margin (5%)</span>
+                                            <span className="text-xl font-black text-red-600 dark:text-red-400">
                                                 {formatCurrency(parseFloat(sales) * 0.05)}
                                             </span>
                                         </div>
@@ -163,32 +163,32 @@ export const WorkingCapitalCalculator: React.FC = () => {
                             {method === 'mpbf' && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-left-4">
                                     <div className="grid grid-cols-1 gap-6">
-                                        <div className="space-y-1">
-                                            <Label htmlFor="wc-ca" className="text-[10px] font-bold uppercase text-amber-700 opacity-70">Total Current Assets (₹)</Label>
+                                        <div className="space-y-1 share-row">
+                                            <Label htmlFor="wc-ca" className="text-[10px] font-bold uppercase text-amber-700 opacity-70 share-label">Total Current Assets (₹)</Label>
                                             <Input
                                                 id="wc-ca"
                                                 type="number"
                                                 value={ca}
                                                 onChange={(e) => setCa(e.target.value)}
-                                                className="text-2xl font-black h-12 bg-accent border-none focus-visible:ring-amber-500 px-6"
+                                                className="text-2xl font-black h-12 bg-accent/50 dark:bg-slate-900 border-none focus-visible:ring-amber-500 px-6 text-foreground share-value"
                                             />
                                         </div>
-                                        <div className="space-y-1">
-                                            <Label htmlFor="wc-cl" className="text-[10px] font-bold uppercase text-amber-700 opacity-70">Other Current Liabilities (₹)</Label>
+                                        <div className="space-y-1 share-row">
+                                            <Label htmlFor="wc-cl" className="text-[10px] font-bold uppercase text-amber-600 dark:text-amber-500 opacity-70 tracking-widest share-label">Other Current Liabilities (₹)</Label>
                                             <Input
                                                 id="wc-cl"
                                                 type="number"
                                                 value={cl}
                                                 onChange={(e) => setCl(e.target.value)}
-                                                className="text-2xl font-black h-12 bg-accent border-none focus-visible:ring-amber-500 px-6"
+                                                className="text-2xl font-black h-12 bg-accent/50 dark:bg-slate-900 border-none focus-visible:ring-amber-500 px-6 text-foreground share-value"
                                             />
-                                            <p className="text-[10px] font-black text-amber-800 uppercase tracking-tight">Excluding Short Term Bank Borrowings</p>
+                                            <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-tight">Excluding Short Term Bank Borrowings</p>
                                         </div>
                                     </div>
 
-                                    <div className="stat-card border-none bg-amber-500/5">
-                                        <span className="result-label text-amber-700">Working Capital Gap</span>
-                                        <span className="text-xl font-black text-amber-600">
+                                    <div className="stat-card border-none bg-amber-500/10">
+                                        <span className="result-label text-amber-600 dark:text-amber-500">Working Capital Gap</span>
+                                        <span className="text-xl font-black text-amber-600 dark:text-amber-500">
                                             {formatCurrency(parseFloat(ca) - parseFloat(cl))}
                                         </span>
                                     </div>
@@ -199,11 +199,11 @@ export const WorkingCapitalCalculator: React.FC = () => {
                         {/* Results Section */}
                         <div className="lg:col-span-5 p-6 md:p-8 bg-muted/30 flex flex-col justify-between">
                             <div className="space-y-8 flex-1 flex flex-col justify-center">
-                                <div className="space-y-2">
-                                    <span className="result-label">
+                                <div className="space-y-2 share-row">
+                                    <span className="result-label share-label">
                                         Max Permissible Finance
                                     </span>
-                                    <div className="hero-result-value text-amber-600">
+                                    <div className="hero-result-value text-amber-600 dark:text-amber-500 share-value">
                                         {formatCurrency(method === 'turnover' ? turnoverLimit : mpbf)}
                                     </div>
                                 </div>
@@ -211,8 +211,8 @@ export const WorkingCapitalCalculator: React.FC = () => {
                                 <div className="stat-card bg-amber-500/10 border-amber-500/20">
                                     <div className="flex justify-between items-center">
                                         <div className="flex flex-col">
-                                            <span className="result-label text-amber-700">Bank Share</span>
-                                            <span className="text-2xl font-black text-amber-600">
+                                            <span className="result-label text-amber-600 dark:text-amber-500">Bank Share</span>
+                                            <span className="text-2xl font-black text-amber-600 dark:text-amber-500">
                                                 {method === 'turnover' ? '20%' : '75%'}
                                             </span>
                                         </div>

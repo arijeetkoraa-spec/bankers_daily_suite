@@ -121,8 +121,47 @@ export const Layout: React.FC<LayoutProps> = ({
     };
 
     // Auto-close sidebar on mobile after navigation
-    const handleNavigate = (moduleId: string, calculatorId: string) => {
-        onNavigate(moduleId, calculatorId);
+    const handleWhatsAppShare = () => {
+        const rows = document.querySelectorAll('.share-row');
+        let message = `*Calculation Details from Bankers' Daily Suite*\n\n`;
+        let hasDetails = false;
+
+        rows.forEach(row => {
+            // Only scrape visible elements (e.g., skip hidden tabs)
+            if ((row as HTMLElement).offsetParent === null) return;
+
+            const labelEl = row.querySelector('.share-label');
+            const valueEl = row.querySelector('.share-value');
+
+            if (labelEl && valueEl) {
+                const label = labelEl.textContent?.trim().replace(/:$/, '') || '';
+                let value = '';
+
+                if (valueEl.tagName === 'INPUT' || valueEl.tagName === 'SELECT') {
+                    value = (valueEl as HTMLInputElement).value;
+                } else {
+                    value = valueEl.textContent?.trim() || '';
+                }
+
+                if (label && value) {
+                    message += `*${label}:* ${value}\n`;
+                    hasDetails = true;
+                }
+            }
+        });
+
+        if (!hasDetails) {
+            message = `Check out this Calculator on Banker's Daily!`;
+        } else {
+            message += `\n*Bankers' Daily Suite App Developed By Arijit Kora*`;
+        }
+
+        const encodedMessage = encodeURIComponent(message + "\n\nLink: " + window.location.href);
+        window.open(`https://api.whatsapp.com/send?text=${encodedMessage}`, '_blank');
+    };
+
+    const handleNavigate = (moduleId: string, calcId: string) => {
+        onNavigate(moduleId, calcId);
         if (window.innerWidth < 768) {
             setIsSidebarOpen(false);
         }
@@ -237,7 +276,7 @@ export const Layout: React.FC<LayoutProps> = ({
                     </div>
                 </header>
 
-                <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-background flex flex-col pb-20 md:pb-6 relative">
+                <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-background flex flex-col pb-6 relative">
                     <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col justify-center">
                         <div className="animate-in-up w-full">
                             {children}
@@ -259,10 +298,7 @@ export const Layout: React.FC<LayoutProps> = ({
                         </div>
                         <div className="flex items-center gap-3">
                             <Button
-                                onClick={() => {
-                                    const text = `Check out this Calculator on Banker's Daily!`;
-                                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + window.location.href)}`, '_blank');
-                                }}
+                                onClick={handleWhatsAppShare}
                                 variant="outline"
                                 size="sm"
                                 className="h-9 px-4 rounded-xl gap-2 border-green-500/20 hover:bg-green-500/5 text-green-600 font-bold"
@@ -283,29 +319,6 @@ export const Layout: React.FC<LayoutProps> = ({
                     </footer>
                 </div>
 
-                {/* Mobile Bottom Navigation */}
-                <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-card/80 backdrop-blur-2xl border border-border/50 flex items-center justify-around p-2 rounded-2xl shadow-2xl z-40 pb-safe ring-1 ring-white/10">
-                    {modules.map((module) => (
-                        <button
-                            key={module.id}
-                            onClick={() => handleNavigate(module.id, module.items?.[0]?.id || '')}
-                            className={cn(
-                                "flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all duration-300",
-                                activeModule === module.id ? "text-primary scale-110" : "text-muted-foreground/60"
-                            )}
-                        >
-                            <div className={cn(
-                                "p-2 rounded-xl transition-all duration-300",
-                                activeModule === module.id
-                                    ? cn("text-white shadow-lg", getCalcColor(activeCalculator, true))
-                                    : "hover:bg-accent"
-                            )}>
-                                {React.isValidElement(module.icon) && React.cloneElement(module.icon as React.ReactElement<any>, { className: "w-5 h-5" })}
-                            </div>
-                            <span className="text-[9px] font-black uppercase tracking-tighter">{module.label.split(' ')[0]}</span>
-                        </button>
-                    ))}
-                </nav>
             </main>
 
 

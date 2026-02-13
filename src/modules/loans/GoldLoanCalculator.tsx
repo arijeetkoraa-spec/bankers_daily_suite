@@ -221,8 +221,8 @@ export const GoldLoanCalculator: React.FC = () => {
                     <div className="flex items-center gap-3">
                         <Coins className="w-6 h-6 text-yellow-700" />
                         <div>
-                            <CardTitle className="text-xl font-black text-slate-800">Advanced Gold Loan</CardTitle>
-                            <CardDescription className="text-[10px] font-bold uppercase tracking-wider text-foreground opacity-70">
+                            <CardTitle className="text-xl font-black text-foreground">Advanced Gold Loan</CardTitle>
+                            <CardDescription className="text-[10px] font-black uppercase tracking-wider text-primary/80 dark:text-foreground/70">
                                 Dynamic Multi-Case Calculator • Indian Banking Standard
                             </CardDescription>
                         </div>
@@ -231,7 +231,7 @@ export const GoldLoanCalculator: React.FC = () => {
                         <Button onClick={reset} variant="outline" size="sm" className="h-9 gap-2 text-xs font-black">
                             <RotateCcw className="w-4 h-4" /> RESET
                         </Button>
-                        <Button onClick={downloadPDF} size="sm" className="h-9 gap-2 text-xs font-black bg-slate-900 text-white hover:bg-slate-800">
+                        <Button onClick={downloadPDF} size="sm" className="h-9 gap-2 text-xs font-black bg-primary text-primary-foreground hover:bg-primary/90">
                             <FileDown className="w-4 h-4" /> EXPORT PDF
                         </Button>
                     </div>
@@ -245,68 +245,68 @@ export const GoldLoanCalculator: React.FC = () => {
                     <div className="xl:col-span-7 p-4 md:p-6 space-y-6 border-r border-border/50 h-full overflow-y-auto max-h-[850px]">
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                                <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Loan Scheme</Label>
-                                <select
-                                    value={loanType}
-                                    onChange={(e) => setLoanType(e.target.value as LoanType)}
-                                    className="w-full h-10 text-xs font-black bg-slate-50 border-2 border-slate-200 rounded-lg px-3 appearance-none cursor-pointer focus:ring-2 focus:ring-yellow-500/20 transition-all"
-                                >
-                                    <option value="EMI">Compound Interest (EMI)</option>
-                                    <option value="Bullet">Bullet Repayment (Simple)</option>
-                                    <option value="Overdraft">Overdraft Facility (Daily)</option>
-                                </select>
-                            </div>
-                            <div className="space-y-1">
-                                <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Gold Rate (₹/gm 22K)</Label>
-                                <div className="relative">
-                                    <Input
-                                        type="number"
-                                        value={goldRate}
-                                        onChange={(e) => setGoldRate(e.target.value)}
-                                        className="h-10 font-black bg-slate-50 border-2 border-slate-200 focus:border-yellow-600 pl-8 text-slate-950"
-                                    />
-                                    <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <div className="space-y-1 share-row">
+                                <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Loan Scheme</Label>
+                                <div className="flex p-1 bg-accent/50 dark:bg-slate-800/50 rounded-lg shadow-inner">
+                                    {[
+                                        { id: 'EMI', label: 'EMI' },
+                                        { id: 'Bullet', label: 'Bullet' },
+                                        { id: 'Overdraft', label: 'OD' }
+                                    ].map(scheme => (
+                                        <button
+                                            key={scheme.id}
+                                            onClick={() => setLoanType(scheme.id as LoanType)}
+                                            className={`flex-1 text-[11px] py-1.5 rounded-md font-black uppercase tracking-wider transition-all ${loanType === scheme.id ? 'bg-white shadow dark:bg-slate-700 text-yellow-700 dark:text-yellow-500' : 'text-muted-foreground hover:text-foreground'}`}
+                                        >
+                                            {scheme.label}
+                                        </button>
+                                    ))}
                                 </div>
+                            </div>
+                            <div className="space-y-1 share-row">
+                                <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Gold Rate (₹/gm 22K)</Label>
+                                <Input
+                                    type="number"
+                                    value={goldRate}
+                                    onChange={(e) => setGoldRate(e.target.value)}
+                                    className="h-10 text-lg font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 text-foreground share-value"
+                                />
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <div className="flex justify-between items-center px-1">
-                                <Label className="text-xs font-black text-slate-700 uppercase tracking-wider">Collateral Details</Label>
-                                <Button onClick={addOrnament} variant="ghost" size="sm" className="h-7 text-[10px] font-black text-yellow-700 hover:bg-yellow-50">
+                                <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-wider">Collateral Details</Label>
+                                <Button onClick={addOrnament} variant="ghost" size="sm" className="h-7 text-[10px] font-black text-yellow-700 hover:bg-yellow-50 dark:hover:bg-yellow-900/20">
                                     <Plus className="w-3.5 h-3.5 mr-1" /> ADD ITEM
                                 </Button>
                             </div>
 
                             <div className="space-y-4">
                                 {ornaments.map((item) => (
-                                    <div key={item.id} className="p-4 bg-white border-2 border-slate-100 rounded-2xl shadow-sm space-y-4 group transition-all hover:border-slate-300">
+                                    <div key={item.id} className="p-5 bg-slate-100/50 dark:bg-slate-900/40 rounded-2xl border border-border/50 space-y-4 group transition-all share-row">
                                         <div className="flex flex-col md:flex-row gap-4">
                                             <div className="flex-1 space-y-1.5">
-                                                <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Item Description</Label>
+                                                <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Ornament Description</Label>
                                                 <Input
                                                     value={item.description}
                                                     onChange={(e) => updateOrnament(item.id, 'description', e.target.value)}
-                                                    className="h-10 text-xs font-black border-slate-200 focus:border-yellow-600 bg-slate-50/50"
-                                                    placeholder="Ornament Name"
+                                                    className="h-10 text-xs font-black bg-accent/50 dark:bg-slate-800/50 border-none px-3 share-value"
+                                                    placeholder="e.g. Necklace, Ring"
                                                 />
                                             </div>
-                                            <div className="w-full md:w-32 space-y-1.5">
-                                                <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Purity</Label>
+                                            <div className="w-full md:w-40 space-y-1.5">
+                                                <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest">Purity</Label>
                                                 <select
                                                     value={item.purity}
                                                     onChange={(e) => updateOrnament(item.id, 'purity', parseFloat(e.target.value))}
-                                                    className="w-full h-10 text-xs font-black bg-yellow-50 border-2 border-yellow-200 rounded-lg px-3 focus:border-yellow-600"
+                                                    className="w-full h-10 text-xs font-black bg-accent/50 dark:bg-slate-800/50 border-none rounded-md px-3 text-foreground"
                                                 >
-                                                    <option value="18">18K (Purity)</option>
-                                                    <option value="20">20K (Purity)</option>
-                                                    <option value="22">22K (Purity)</option>
-                                                    <option value="24">24K (Purity)</option>
+                                                    {[18, 20, 22, 24].map(k => <option key={k} value={k} className="bg-background">{k} Karat</option>)}
                                                 </select>
                                             </div>
                                             <div className="flex items-end pb-0.5">
-                                                <Button onClick={() => removeOrnament(item.id)} variant="ghost" size="icon" className="h-10 w-10 text-red-500 hover:bg-red-50 hover:text-red-700 transition-all rounded-lg">
+                                                <Button onClick={() => removeOrnament(item.id)} variant="ghost" size="icon" className="h-10 w-10 text-red-500 hover:bg-red-500/10 rounded-xl">
                                                     <Trash2 className="w-4 h-4" />
                                                 </Button>
                                             </div>
@@ -314,21 +314,21 @@ export const GoldLoanCalculator: React.FC = () => {
 
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-end">
                                             <div className="space-y-1.5">
-                                                <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest flex justify-between items-center">
+                                                <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest flex justify-between items-center">
                                                     Gross Wt
-                                                    <span className={`cursor-pointer px-1.5 py-0.5 rounded text-[8px] border-2 ${item.isNetEntry ? 'bg-yellow-100 border-yellow-400 text-yellow-800' : 'bg-slate-100 border-slate-300 text-slate-700'}`} onClick={() => updateOrnament(item.id, 'isNetEntry', !item.isNetEntry)}>
+                                                    <span className={`cursor-pointer px-1.5 py-0.5 rounded text-[8px] font-black border-2 transition-all ${item.isNetEntry ? 'bg-yellow-500/10 border-yellow-500/50 text-yellow-700' : 'bg-slate-500/10 border-slate-500/50 text-slate-600'}`} onClick={() => updateOrnament(item.id, 'isNetEntry', !item.isNetEntry)}>
                                                         {item.isNetEntry ? 'NET' : 'DEDUCT'}
                                                     </span>
                                                 </Label>
-                                                <Input type="number" value={item.grossWeight || ''} onChange={(e) => updateOrnament(item.id, 'grossWeight', parseFloat(e.target.value) || 0)} className="h-10 text-xs font-black border-slate-200" />
+                                                <Input type="number" value={item.grossWeight || ''} onChange={(e) => updateOrnament(item.id, 'grossWeight', parseFloat(e.target.value) || 0)} className="h-12 text-xl font-black bg-accent/50 dark:bg-slate-800/50 border-none px-3 text-foreground" />
                                             </div>
                                             <div className="space-y-1.5">
-                                                <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Deductions</Label>
-                                                <Input type="number" disabled={item.isNetEntry} value={item.deductions || ''} onChange={(e) => updateOrnament(item.id, 'deductions', parseFloat(e.target.value) || 0)} className={`h-10 text-xs font-black border-slate-200 ${item.isNetEntry ? 'bg-slate-50 opacity-50' : ''}`} />
+                                                <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest">Deductions</Label>
+                                                <Input type="number" disabled={item.isNetEntry} value={item.deductions || ''} onChange={(e) => updateOrnament(item.id, 'deductions', parseFloat(e.target.value) || 0)} className={`h-12 text-xl font-black bg-accent/50 dark:bg-slate-800/50 border-none px-3 text-foreground ${item.isNetEntry ? 'opacity-30' : ''}`} />
                                             </div>
-                                            <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center col-span-2 shadow-lg ring-1 ring-white/5">
-                                                <div className="text-[9px] font-black uppercase text-slate-400 tracking-[0.2em] mb-0.5">Valuation Weight</div>
-                                                <div className="text-xl font-black text-white">
+                                            <div className="bg-slate-900 dark:bg-slate-950 p-4 rounded-2xl border border-white/5 text-center col-span-2 shadow-lg glassmorphism-dark">
+                                                <div className="text-[9px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">Valuation Weight</div>
+                                                <div className="text-2xl font-black text-white">
                                                     {item.isNetEntry ? item.grossWeight.toFixed(2) : Math.max(0, item.grossWeight - item.deductions).toFixed(2)}<span className="text-yellow-500 ml-1 text-sm font-bold uppercase">g</span>
                                                 </div>
                                             </div>
@@ -339,32 +339,32 @@ export const GoldLoanCalculator: React.FC = () => {
                         </div>
 
                         {/* Loan Selection & Repayment Params */}
-                        <div className="bg-slate-50 dark:bg-slate-900/30 p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
-                            <div className="space-y-2">
-                                <Label className="text-xs font-black text-slate-700 flex items-center gap-2">
-                                    <Landmark className="w-4 h-4 text-emerald-600" /> DESIRED LOAN AMOUNT
+                        <div className="p-6 bg-slate-100/50 dark:bg-slate-900/40 rounded-2xl border border-border/50 space-y-6">
+                            <div className="space-y-2 share-row">
+                                <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label flex items-center gap-2">
+                                    <Landmark className="w-4 h-4 text-emerald-600" /> Desired Loan Amount
                                 </Label>
                                 <Input
                                     type="number"
-                                    placeholder={`MAX: ${formatIndianCurrency(maxEligibleLoan)}`}
+                                    placeholder={`Max: ${formatIndianCurrency(maxEligibleLoan)}`}
                                     value={requestedLoanAmount}
                                     onChange={(e) => setRequestedLoanAmount(e.target.value)}
-                                    className="h-10 font-black border-2 border-emerald-100 focus:border-emerald-500 text-emerald-700"
+                                    className="h-12 text-2xl font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 text-emerald-700 dark:text-emerald-500 share-value"
                                 />
                                 {isAmountCapped && (
-                                    <p className="text-[10px] text-red-600 font-bold flex items-center gap-1">
-                                        <AlertCircle className="w-3 h-3" /> Amount capped at Maximum LTV Limit.
+                                    <p className="text-[10px] text-red-600 dark:text-red-400 font-bold flex items-center gap-1 uppercase tracking-tighter">
+                                        <AlertCircle className="w-3 h-3" /> Capped at Max LTV Limit
                                     </p>
                                 )}
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold">ROI (% p.a)</Label>
-                                    <Input type="number" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} className="h-8 text-xs font-black" />
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2 share-row">
+                                    <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">ROI (% p.a)</Label>
+                                    <Input type="number" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} className="h-10 text-lg font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 share-value" />
                                 </div>
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold">Tenure (Months)</Label>
-                                    <Input type="number" value={tenureMonths} onChange={(e) => setTenureMonths(e.target.value)} className="h-8 text-xs font-black" />
+                                <div className="space-y-2 share-row">
+                                    <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Tenure (Months)</Label>
+                                    <Input type="number" value={tenureMonths} onChange={(e) => setTenureMonths(e.target.value)} className="h-10 text-lg font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 share-value" />
                                 </div>
                             </div>
                         </div>
@@ -372,53 +372,53 @@ export const GoldLoanCalculator: React.FC = () => {
                         {/* Dynamic Service Charges */}
                         <div className="space-y-4">
                             <div className="flex justify-between items-center px-1">
-                                <Label className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                                <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest flex items-center gap-2">
                                     <ReceiptText className="w-3.5 h-3.5" /> Service Charges
                                 </Label>
-                                <Button onClick={addCharge} variant="ghost" size="sm" className="h-7 text-[10px] font-black text-emerald-600 hover:bg-emerald-50">
+                                <Button onClick={addCharge} variant="ghost" size="sm" className="h-7 text-[10px] font-black text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20">
                                     <Plus className="w-3.5 h-3.5 mr-1" /> ADD CHARGE
                                 </Button>
                             </div>
 
                             <div className="grid grid-cols-1 gap-4">
                                 {charges.map((charge) => (
-                                    <div key={charge.id} className="relative p-5 bg-white border-2 border-slate-100 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-center group transition-all hover:border-slate-300">
+                                    <div key={charge.id} className="relative p-5 bg-slate-100/30 dark:bg-slate-900/40 border border-border/50 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-center group transition-all share-row">
                                         <div className="flex-1 w-full space-y-1.5">
-                                            <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Charge Name</Label>
+                                            <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">{charge.name}</Label>
                                             <Input
                                                 value={charge.name}
                                                 onChange={(e) => updateCharge(charge.id, 'name', e.target.value)}
-                                                className="h-10 text-xs font-black border-slate-200 bg-slate-50/50"
+                                                className="h-10 text-xs font-black bg-accent/50 dark:bg-slate-800/50 border-none px-3"
                                             />
                                         </div>
                                         <div className="w-full md:w-36 space-y-1.5">
-                                            <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Type</Label>
-                                            <div className="flex bg-slate-100 border-2 border-slate-200 rounded-xl p-1 h-10">
+                                            <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest">Type</Label>
+                                            <div className="flex bg-accent/50 dark:bg-slate-800/50 rounded-xl p-1 h-10 shadow-inner">
                                                 <button
                                                     onClick={() => updateCharge(charge.id, 'type', 'percentage')}
-                                                    className={`flex-1 flex items-center justify-center rounded-lg transition-all ${charge.type === 'percentage' ? 'bg-white shadow-md text-emerald-700 font-black' : 'text-slate-500 hover:text-slate-700'}`}
+                                                    className={`flex-1 flex items-center justify-center rounded-lg transition-all ${charge.type === 'percentage' ? 'bg-white shadow dark:bg-slate-700 text-emerald-700 dark:text-emerald-400 font-black' : 'text-slate-500 hover:text-slate-700'}`}
                                                 >
-                                                    <Percent className="w-4 h-4 mr-1" /> <span className="text-[10px] uppercase">LTV%</span>
+                                                    <Percent className="w-4 h-4 mr-0.5" /> <span className="text-[9px] uppercase tracking-tighter">LTV%</span>
                                                 </button>
                                                 <button
                                                     onClick={() => updateCharge(charge.id, 'type', 'fixed')}
-                                                    className={`flex-1 flex items-center justify-center rounded-lg transition-all ${charge.type === 'fixed' ? 'bg-white shadow-md text-emerald-700 font-black' : 'text-slate-500 hover:text-slate-700'}`}
+                                                    className={`flex-1 flex items-center justify-center rounded-lg transition-all ${charge.type === 'fixed' ? 'bg-white shadow dark:bg-slate-700 text-emerald-700 dark:text-emerald-400 font-black' : 'text-slate-500 hover:text-slate-700'}`}
                                                 >
-                                                    <IndianRupee className="w-4 h-4 mr-1" /> <span className="text-[10px] uppercase">Flat</span>
+                                                    <IndianRupee className="w-4 h-4 mr-0.5" /> <span className="text-[9px] uppercase tracking-tighter">Flat</span>
                                                 </button>
                                             </div>
                                         </div>
                                         <div className="w-full md:w-32 space-y-1.5">
-                                            <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{charge.type === 'percentage' ? 'Value (%)' : 'Amount (₹)'}</Label>
+                                            <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest">{charge.type === 'percentage' ? 'Value (%)' : 'Amount (₹)'}</Label>
                                             <Input
                                                 type="number"
                                                 value={charge.value || ''}
                                                 onChange={(e) => updateCharge(charge.id, 'value', parseFloat(e.target.value) || 0)}
-                                                className="h-10 text-xs font-black text-right border-slate-200"
+                                                className="h-10 text-xs font-black text-right bg-accent/50 dark:bg-slate-800/50 border-none px-3 share-value"
                                             />
                                         </div>
                                         <div className="flex items-end pb-0.5">
-                                            <Button onClick={() => removeCharge(charge.id)} variant="ghost" size="icon" className="h-10 w-10 text-red-500 hover:bg-red-50 hover:text-red-700 transition-all rounded-lg">
+                                            <Button onClick={() => removeCharge(charge.id)} variant="ghost" size="icon" className="h-10 w-10 text-red-500 hover:bg-red-500/10 rounded-xl">
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
                                         </div>
@@ -428,20 +428,20 @@ export const GoldLoanCalculator: React.FC = () => {
                         </div>
 
                         {/* Assessment Parameters */}
-                        <div className="border-2 border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:border-slate-300">
-                            <button onClick={() => setShowParams(!showParams)} className="w-full flex justify-between items-center p-4 text-[10px] font-black uppercase text-slate-900 bg-slate-50 hover:bg-slate-100 transition-colors">
-                                <span className="flex items-center gap-2 tracking-widest"><ShieldCheck className="w-4 h-4 text-emerald-600" /> Assessment Parameters (Internal)</span>
+                        <div className="border border-border/50 rounded-2xl overflow-hidden bg-background dark:bg-slate-900/40">
+                            <button onClick={() => setShowParams(!showParams)} className="w-full flex justify-between items-center p-4 bg-muted/40 hover:bg-muted/60 transition-colors">
+                                <span className="text-[10px] font-black uppercase text-foreground dark:text-muted-foreground tracking-widest flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600" /> Assessment Parameters (Internal)</span>
                                 {showParams ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                             </button>
                             {showParams && (
-                                <div className="p-5 grid grid-cols-2 gap-5 border-t-2 border-slate-100 animate-in slide-in-from-top-2">
+                                <div className="p-5 grid grid-cols-2 gap-5 bg-muted/10 animate-in slide-in-from-top-2 border-t border-border/50">
                                     <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">CIBIL Score</Label>
-                                        <Input type="number" value={cibilScore} onChange={(e) => setCibilScore(e.target.value)} className="h-10 text-xs font-black border-slate-200" />
+                                        <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest">CIBIL Score</Label>
+                                        <Input type="number" value={cibilScore} onChange={(e) => setCibilScore(e.target.value)} className="h-10 text-lg font-black bg-accent/30 dark:bg-slate-800/30 border-none px-3" />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">LTV Override (%)</Label>
-                                        <Input type="number" value={customLTV} placeholder="System Auto" onChange={(e) => setCustomLTV(e.target.value)} className="h-10 text-xs font-black border-slate-200 placeholder:text-slate-400" />
+                                        <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest">LTV Override (%)</Label>
+                                        <Input type="number" value={customLTV} placeholder="Auto" onChange={(e) => setCustomLTV(e.target.value)} className="h-10 text-lg font-black bg-accent/30 dark:bg-slate-800/30 border-none px-3 placeholder:opacity-30" />
                                     </div>
                                 </div>
                             )}
@@ -449,77 +449,77 @@ export const GoldLoanCalculator: React.FC = () => {
                     </div>
 
                     {/* RESULTS SECTION */}
-                    <div className="xl:col-span-5 bg-yellow-50/20 dark:bg-yellow-950/5 flex flex-col h-full border-l border-border/10">
+                    <div className="xl:col-span-5 bg-muted/30 flex flex-col h-full border-l border-border/10">
                         <div className="p-6 space-y-6 flex-1 overflow-y-auto">
 
-                            <div className="bg-slate-950 rounded-2xl p-6 mb-6 shadow-2xl relative overflow-hidden border border-slate-800">
+                            <div className="bg-slate-900 dark:bg-slate-950 rounded-2xl p-6 shadow-2xl relative overflow-hidden border border-white/5 share-row">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full -mr-16 -mt-16" />
                                 <div className="relative z-10 space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-yellow-500 tracking-[0.2em]">Sanctioned Loan Amount</Label>
-                                    <div className="text-4xl font-black text-white tracking-tighter">
+                                    <span className="result-label share-label text-yellow-500 font-black">Sanctioned Loan Amount</span>
+                                    <div className="hero-result-value text-white share-value">
                                         {formatIndianCurrency(actualLoanAmount)}
                                     </div>
-                                    <div className="text-[10px] font-bold text-slate-400 italic">{actualLoanWords}</div>
-                                    <div className="flex gap-2 text-[10px] mt-2">
-                                        <span className="bg-yellow-500 text-slate-950 px-2 py-0.5 rounded shadow-sm font-black uppercase">Net Wt: {totalNetWeight.toFixed(2)}g</span>
-                                        {detailedValuation.length > 0 && <span className="bg-white/10 text-white px-2 py-0.5 rounded shadow-sm font-black uppercase ring-1 ring-white/20">Items: {detailedValuation.length}</span>}
+                                    <div className="text-[10px] font-bold text-slate-400 italic lowercase tracking-tighter opacity-70">{actualLoanWords}</div>
+                                    <div className="flex gap-2 text-[9px] mt-3">
+                                        <span className="bg-yellow-500 text-slate-950 px-2 py-0.5 rounded shadow-sm font-black uppercase tracking-tighter">Net Wt: {totalNetWeight.toFixed(2)}g</span>
+                                        {detailedValuation.length > 0 && <span className="bg-white/10 text-white px-2 py-0.5 rounded shadow-sm font-black uppercase tracking-tighter ring-1 ring-white/20">Items: {detailedValuation.length}</span>}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="bg-white border-2 border-slate-200 p-5 rounded-2xl shadow-sm space-y-4">
+                            <div className="bg-background dark:bg-slate-900/40 border border-border/50 p-5 rounded-2xl shadow-sm space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Collateral Value</div>
-                                        <div className="text-xl font-black text-slate-950">{formatIndianCurrency(totalValuation)}</div>
+                                    <div className="space-y-1 share-row">
+                                        <div className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Collateral Value</div>
+                                        <div className="text-xl font-black text-foreground share-value">{formatIndianCurrency(totalValuation)}</div>
                                     </div>
-                                    <div className="space-y-1 text-right">
-                                        <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Applied LTV</div>
-                                        <div className="text-xl font-black text-yellow-700">{totalValuation > 0 ? ((actualLoanAmount / totalValuation) * 100).toFixed(1) : applicableLTV}%</div>
+                                    <div className="space-y-1 text-right share-row">
+                                        <div className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Applied LTV</div>
+                                        <div className="text-xl font-black text-yellow-600 dark:text-yellow-500 share-value">{totalValuation > 0 ? ((actualLoanAmount / totalValuation) * 100).toFixed(1) : applicableLTV}%</div>
                                     </div>
                                 </div>
-                                <div className="h-[2px] bg-slate-200" />
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="font-black text-slate-900">Gross Loan:</span>
-                                        <span className="font-black text-slate-950 text-sm">{formatIndianCurrency(actualLoanAmount)}</span>
+                                <div className="h-px bg-border/50" />
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center text-[10px] uppercase font-black share-row">
+                                        <span className="text-foreground dark:text-muted-foreground share-label">Gross Loan:</span>
+                                        <span className="text-foreground share-value">{formatIndianCurrency(actualLoanAmount)}</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="font-bold text-slate-900">Total Deductions:</span>
-                                        <span className="font-black text-red-700">-{formatIndianCurrency(totalUpfrontCharges)}</span>
+                                    <div className="flex justify-between items-center text-[10px] uppercase font-black share-row">
+                                        <span className="text-foreground dark:text-muted-foreground share-label">Total Deductions:</span>
+                                        <span className="text-red-600 dark:text-red-400 share-value">-{formatIndianCurrency(totalUpfrontCharges)}</span>
                                     </div>
-                                    <div className="flex justify-between items-center p-4 bg-emerald-600 rounded-xl text-white shadow-xl shadow-emerald-600/30">
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Net Disbursement</span>
-                                        <span className="text-xl font-black">{formatIndianCurrency(netDisbursement)}</span>
+                                    <div className="flex justify-between items-center p-4 bg-emerald-600 dark:bg-emerald-700 rounded-2xl text-white shadow-xl shadow-emerald-600/20 share-row">
+                                        <span className="text-[10px] font-black uppercase tracking-widest share-label">Net Disbursement</span>
+                                        <span className="text-xl font-black share-value">{formatIndianCurrency(netDisbursement)}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-4 bg-slate-900 dark:bg-slate-800 rounded-xl border border-slate-800 text-center shadow-md">
-                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly EMI</div>
-                                        <div className="text-xl font-black text-white">{loanType === 'EMI' ? formatIndianCurrency(emi) : 'N/A'}</div>
+                                    <div className="p-4 bg-slate-900 dark:bg-slate-800 rounded-xl border border-slate-800 text-center shadow-md share-row">
+                                        <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 share-label">Monthly EMI</div>
+                                        <div className="text-xl font-black text-white share-value">{loanType === 'EMI' ? formatIndianCurrency(emi) : 'N/A'}</div>
                                     </div>
-                                    <div className="p-4 bg-slate-900 dark:bg-slate-800 rounded-xl border border-slate-800 text-center shadow-md">
-                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Interest</div>
-                                        <div className="text-xl font-black text-white">{formatIndianCurrency(totalInterest)}</div>
+                                    <div className="p-4 bg-slate-900 dark:bg-slate-800 rounded-xl border border-slate-800 text-center shadow-md share-row">
+                                        <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 share-label">Total Interest</div>
+                                        <div className="text-xl font-black text-white share-value">{formatIndianCurrency(totalInterest)}</div>
                                     </div>
                                 </div>
 
-                                <div className="bg-slate-900 rounded-2xl p-5 text-white shadow-xl relative overflow-hidden group">
+                                <div className="bg-slate-900 rounded-2xl p-5 text-white shadow-xl relative overflow-hidden group border border-white/5">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-full -mr-16 -mt-16 group-hover:bg-yellow-500/20 transition-all duration-500" />
                                     <div className="space-y-1 relative z-10">
                                         <div className="text-[10px] font-black uppercase text-yellow-500 tracking-widest">Total Cost of Loan</div>
-                                        <div className="text-3xl font-black text-white">{formatIndianCurrency(totalInterest + totalUpfrontCharges)}</div>
+                                        <div className="text-3xl font-black text-white tracking-tighter">{formatIndianCurrency(totalInterest + totalUpfrontCharges)}</div>
 
-                                        <div className="flex flex-col gap-1.5 pt-2 border-t border-white/10 mt-2">
-                                            <div className="flex justify-between text-[10px] font-bold">
-                                                <span className="opacity-60 uppercase">Interest Only:</span>
-                                                <span className="text-yellow-400 font-black">{formatIndianCurrency(totalInterest)} paid for interest only</span>
+                                        <div className="flex flex-col gap-1.5 pt-3 border-t border-white/10 mt-3">
+                                            <div className="flex justify-between text-[10px] font-black uppercase tracking-tighter">
+                                                <span className="text-white dark:text-slate-400 font-black">Interest Component:</span>
+                                                <span className="text-yellow-400">{formatIndianCurrency(totalInterest)}</span>
                                             </div>
-                                            <div className="flex justify-between text-[10px] font-bold">
-                                                <span className="opacity-60 uppercase">Total Repayment:</span>
+                                            <div className="flex justify-between text-[10px] font-black uppercase tracking-tighter">
+                                                <span className="text-white dark:text-slate-400 font-black">Total Repayment:</span>
                                                 <span className="text-white">{formatIndianCurrency(totalPayment)}</span>
                                             </div>
                                         </div>
@@ -545,23 +545,23 @@ export const GoldLoanCalculator: React.FC = () => {
                             </div>
 
                             {showSchedule && (
-                                <div className="rounded-2xl border-2 border-slate-300 shadow-xl bg-white overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
-                                    <table className="w-full text-left text-[11px]">
-                                        <thead className="bg-slate-950 px-4">
+                                <div className="rounded-2xl border border-border/50 shadow-xl bg-background overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
+                                    <table className="w-full text-left text-[10px]">
+                                        <thead className="bg-muted">
                                             <tr>
-                                                <th className="p-4 font-black text-white uppercase tracking-widest">Month</th>
-                                                <th className="p-4 text-right font-black text-white uppercase tracking-widest">Principal</th>
-                                                <th className="p-4 text-right font-black text-white uppercase tracking-widest">Interest</th>
-                                                <th className="p-4 text-right font-black text-white uppercase tracking-widest">Balance</th>
+                                                <th className="p-3 font-black uppercase tracking-widest text-foreground dark:text-muted-foreground">Month</th>
+                                                <th className="p-3 text-right font-black uppercase tracking-widest text-foreground dark:text-muted-foreground">Principal</th>
+                                                <th className="p-3 text-right font-black uppercase tracking-widest text-foreground dark:text-muted-foreground">Interest</th>
+                                                <th className="p-3 text-right font-black uppercase tracking-widest text-foreground dark:text-muted-foreground">Balance</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y-2 divide-slate-100">
+                                        <tbody className="divide-y border-t border-border/50">
                                             {schedule.slice(0, 12).map((s) => (
-                                                <tr key={s.month} className="hover:bg-slate-50 transition-colors">
-                                                    <td className="p-4 font-black text-slate-900 border-r-2 border-slate-50">{s.month}</td>
-                                                    <td className="p-4 text-right font-bold text-slate-800">{formatIndianCurrency(s.principal)}</td>
-                                                    <td className="p-4 text-right font-bold text-red-600">{formatIndianCurrency(s.interest)}</td>
-                                                    <td className="p-4 text-right font-black text-slate-950 bg-slate-50/50">{formatIndianCurrency(s.balance)}</td>
+                                                <tr key={s.month} className="hover:bg-accent/30 transition-colors">
+                                                    <td className="p-3 font-black text-foreground">{s.month}</td>
+                                                    <td className="p-3 text-right font-bold text-foreground/80">{formatIndianCurrency(s.principal)}</td>
+                                                    <td className="p-3 text-right font-bold text-red-600 dark:text-red-400">{formatIndianCurrency(s.interest)}</td>
+                                                    <td className="p-3 text-right font-black text-foreground bg-accent/20">{formatIndianCurrency(s.balance)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

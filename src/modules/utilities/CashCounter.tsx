@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../..
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { ClipboardCopy, RotateCcw, Banknote } from 'lucide-react';
-import { formatIndianCurrency, numberToIndianWords } from '../../lib/utils';
+import { formatIndianCurrency, numberToIndianWords, cn } from '../../lib/utils';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 
 // Denominations
@@ -74,15 +74,15 @@ export const CashCounter: React.FC = () => {
                     {/* Input Section */}
                     <div className="md:col-span-7 p-4 space-y-3 bg-muted/20">
                         {denoms.map(denom => (
-                            <div key={denom} className="flex items-center gap-4 group">
-                                <div className="w-16 text-right font-black text-slate-600 text-sm">₹ {denom}</div>
+                            <div key={denom} className={cn("flex items-center gap-4 group", counts[denom] && parseInt(counts[denom]) > 0 ? "share-row" : "")}>
+                                <div className="w-16 text-right font-black text-slate-600 text-sm share-label">₹ {denom}</div>
                                 <div className="text-muted-foreground text-xs">x</div>
                                 <Input
                                     type="number"
                                     placeholder="0"
                                     value={counts[denom] || ''}
                                     onChange={(e) => handleCountChange(denom, e.target.value)}
-                                    className="h-10 text-lg font-bold text-center w-24 bg-white border-slate-200 focus:border-slate-400 focus:ring-slate-400"
+                                    className="h-10 text-lg font-bold text-center w-24 bg-white border-slate-200 focus:border-slate-400 focus:ring-slate-400 share-value"
                                 />
                                 <div className="text-muted-foreground text-xs">=</div>
                                 <div className="flex-1 text-right font-bold text-slate-800">
@@ -94,9 +94,9 @@ export const CashCounter: React.FC = () => {
 
                     {/* Total Section */}
                     <div className="md:col-span-5 bg-slate-900 text-white p-6 flex flex-col justify-center items-center text-center space-y-4">
-                        <div className="space-y-1">
-                            <div className="text-[10px] font-bold uppercase tracking-widest opacity-70">Grand Total</div>
-                            <div className="text-4xl font-black tracking-tight text-emerald-400">
+                        <div className="space-y-1 share-row">
+                            <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 share-label">Grand Total</div>
+                            <div className="text-4xl font-black tracking-tight text-emerald-400 share-value">
                                 {formatIndianCurrency(total)}
                             </div>
                         </div>

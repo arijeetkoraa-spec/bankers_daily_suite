@@ -93,7 +93,7 @@ export const EMICalculator: React.FC = () => {
                         <Calculator className="w-6 h-6 text-primary" />
                         <div>
                             <CardTitle className="text-xl font-black">EMI Calculator</CardTitle>
-                            <CardDescription className="text-[10px] font-bold uppercase tracking-wider text-foreground opacity-70">
+                            <CardDescription className="text-[10px] font-black uppercase tracking-wider text-primary/80 dark:text-foreground/70">
                                 Equal Monthly Installment Protocol
                             </CardDescription>
                         </div>
@@ -112,101 +112,98 @@ export const EMICalculator: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
                     {/* Inputs Section */}
                     <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
-                        <div className="space-y-2">
-                            <Label className="result-label text-primary">Repayment Strategy</Label>
-                            <div className="grid grid-cols-4 gap-1 p-1 bg-accent/30 rounded-xl">
+                        <div className="space-y-1 share-row">
+                            <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Repayment Strategy</Label>
+                            <div className="flex p-1 bg-accent/50 dark:bg-slate-800/50 rounded-xl shadow-inner share-value">
                                 {(['reducing', 'flat', 'fixed', 'bullet'] as RepaymentMethod[]).map((m) => (
-                                    <Button
+                                    <button
                                         key={m}
-                                        type="button"
-                                        size="sm"
-                                        variant={method === m ? "default" : "ghost"}
                                         onClick={() => setMethod(m)}
                                         className={cn(
-                                            "capitalize text-[11px] font-black transition-all rounded-lg h-10",
+                                            "flex-1 text-[11px] py-2 rounded-lg font-black uppercase tracking-wider transition-all",
                                             method === m
-                                                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
-                                                : "text-foreground bg-accent/20 hover:bg-accent opacity-60 hover:opacity-100"
+                                                ? "bg-white shadow dark:bg-slate-700 text-indigo-700 dark:text-indigo-400"
+                                                : "text-muted-foreground hover:text-foreground"
                                         )}
                                     >
-                                        {m === 'fixed' ? 'Fixed' : m}
-                                    </Button>
+                                        {m}
+                                    </button>
                                 ))}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="amount" className="result-label text-primary">Amount (₹)</Label>
+                            <div className="space-y-1 share-row">
+                                <Label htmlFor="amount" className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Loan Amount (₹)</Label>
                                 <Input
                                     id="amount"
                                     type="number"
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
-                                    className="text-2xl font-black h-12 bg-accent/30 border-none ring-offset-background focus-visible:ring-primary shadow-inner"
+                                    className="h-12 text-2xl font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 share-value"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="rate" className="result-label text-primary">Rate (%)</Label>
+                            <div className="space-y-1 share-row">
+                                <Label htmlFor="rate" className="text-[10px] font-black text-slate-950 dark:text-muted-foreground uppercase tracking-widest share-label">ROI (% p.a)</Label>
                                 <Input
                                     id="rate"
                                     type="number"
                                     step="0.01"
                                     value={rate}
                                     onChange={(e) => setRate(e.target.value)}
-                                    className="text-2xl font-black h-12 bg-accent/30 border-none ring-offset-background focus-visible:ring-primary shadow-inner text-primary"
+                                    className="h-12 text-2xl font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 text-black dark:text-white share-value"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2 pt-2">
-                            <Label htmlFor="tenure" className="result-label text-primary">Tenure (Months)</Label>
-                            <div className="flex gap-3 items-center">
+                        <div className="space-y-1 share-row">
+                            <Label htmlFor="tenure" className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Tenure (Months)</Label>
+                            <div className="flex gap-4 items-center">
                                 <Input
                                     id="tenure"
                                     type="number"
                                     value={tenure}
                                     onChange={(e) => setTenure(e.target.value)}
-                                    className="h-10 text-xl font-black bg-accent border-none px-4"
+                                    className="h-12 text-2xl font-black bg-accent/50 dark:bg-slate-800/50 border-none px-4 share-value flex-1"
                                 />
-                                <div className="text-[12px] font-bold text-foreground w-20 text-right opacity-70">
-                                    {(parseFloat(tenure) / 12).toFixed(1)} YEARS
+                                <div className="text-[10px] font-black text-foreground dark:text-muted-foreground w-20 text-right uppercase leading-tight">
+                                    {(parseFloat(tenure) / 12).toFixed(1)} <br /> Years
                                 </div>
                             </div>
                         </div>
-                        <p className="text-[10px] text-foreground font-black text-center uppercase tracking-tighter italic bg-primary/5 py-2 rounded-lg">
+                        <p className="text-[9px] text-foreground dark:text-muted-foreground font-black text-center uppercase tracking-widest italic opacity-50 dark:opacity-40">
                             *Standard actuarial reducing balance method.
                         </p>
                     </div>
 
                     {/* Results Section */}
-                    <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                        <div className="space-y-1">
-                            <span className="result-label">
+                    <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-6">
+                        <div className="space-y-1 share-row">
+                            <span className="result-label share-label text-slate-950 dark:text-muted-foreground">
                                 {method === 'bullet' ? 'Final Payment' : (method === 'fixed' ? 'EMI (Annual)' : 'Monthly EMI')}
                             </span>
-                            <div className="hero-result-value leading-tight">
+                            <div className="hero-result-value tracking-tighter text-slate-950 dark:text-foreground share-value">
                                 {formatCurrency(method === 'bullet' ? results.finalPayment : results.emi)}
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-3">
-                            <div className="stat-card">
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="p-4 bg-background dark:bg-slate-900/40 rounded-2xl border border-border/50 share-row">
                                 <div className="flex justify-between items-center">
-                                    <span className="result-label">Total Interest</span>
-                                    <span className="text-lg font-black text-emerald-500 leading-none">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-950 dark:text-muted-foreground share-label">Total Interest</span>
+                                    <span className="text-xl font-black text-black dark:text-white share-value">
                                         {formatCurrency(results.totalInterest)}
                                     </span>
                                 </div>
                             </div>
-                            <div className="stat-card p-3">
-                                <span className="result-label">Total Payable</span>
-                                <div className="text-xl font-black text-primary leading-none">
+                            <div className="p-4 bg-background dark:bg-slate-900/40 rounded-2xl border border-border/50 space-y-2 share-row">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-950 dark:text-muted-foreground share-label">Total Payable</span>
+                                <div className="text-2xl font-black text-black dark:text-white share-value">
                                     {formatCurrency(results.totalPayable)}
                                 </div>
-                                <div className="w-full h-3 bg-accent/50 rounded-full overflow-hidden mt-1">
+                                <div className="w-full h-2 bg-accent dark:bg-slate-800 rounded-full overflow-hidden mt-1 shadow-inner">
                                     <div
-                                        className="h-full bg-primary transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                                        className="h-full bg-indigo-600 dark:bg-indigo-500 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(79,70,229,0.3)]"
                                         style={{ width: `${(parseFloat(amount) / (results.totalPayable || 1)) * 100}%` }}
                                     />
                                 </div>

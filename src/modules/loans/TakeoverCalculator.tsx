@@ -150,31 +150,31 @@ export const TakeoverCalculator: React.FC = () => {
                                         <TableProperties className="w-3 h-3" /> Schedule
                                     </button>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">O/S Principal (₹)</Label>
+                                <div className="space-y-2 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">O/S Principal (₹)</Label>
                                     <Input
                                         type="number"
                                         value={principal}
                                         onChange={(e) => setPrincipal(e.target.value)}
-                                        className="h-10 text-xl font-black bg-accent border-none px-4"
+                                        className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Existing Rate (%)</Label>
+                                <div className="space-y-2 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Existing Rate (%)</Label>
                                     <Input
                                         type="number"
                                         value={rate}
                                         onChange={(e) => setRate(e.target.value)}
-                                        className="h-10 text-xl font-black bg-accent border-none px-4"
+                                        className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Tenure (Months)</Label>
+                                <div className="space-y-2 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">Remaining Tenure (Months)</Label>
                                     <Input
                                         type="number"
                                         value={tenure}
                                         onChange={(e) => setTenure(e.target.value)}
-                                        className="h-10 text-xl font-black bg-accent border-none px-4"
+                                        className="h-10 text-xl font-black bg-accent border-none px-4 share-value"
                                     />
                                 </div>
                             </div>
@@ -189,13 +189,13 @@ export const TakeoverCalculator: React.FC = () => {
                                         <TableProperties className="w-3 h-3" /> Schedule
                                     </button>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">New Rate (%)</Label>
+                                <div className="space-y-2 share-row">
+                                    <Label className="text-[10px] font-bold uppercase text-foreground opacity-70 share-label">New Proposed ROI (%)</Label>
                                     <Input
                                         type="number"
                                         value={newRate}
                                         onChange={(e) => setNewRate(e.target.value)}
-                                        className="h-10 text-xl font-black bg-emerald-600/10 border-none px-4 text-emerald-700"
+                                        className="h-10 text-xl font-black bg-emerald-600/10 border-none px-4 text-emerald-700 share-value"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -260,17 +260,17 @@ export const TakeoverCalculator: React.FC = () => {
 
                     {/* Results Section */}
                     <div className="lg:col-span-5 p-4 md:p-6 bg-muted/30 flex flex-col justify-center space-y-4">
-                        <div className="space-y-1">
-                            <span className="result-label">Net Lifetime Savings</span>
-                            <div className={cn("hero-result-value leading-tight", savings > 0 ? "text-emerald-500" : "text-red-500")}>
+                        <div className="space-y-1 share-row">
+                            <span className="result-label share-label">Net Lifetime Savings</span>
+                            <div className={cn("hero-result-value leading-tight share-value", savings > 0 ? "text-emerald-500" : "text-red-500")}>
                                 {formatCurrency(savings)}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-3">
-                            <div className="stat-card">
+                            <div className="stat-card share-row">
                                 <div className="flex justify-between items-center mb-1">
-                                    <span className="result-label">EMI Change</span>
+                                    <span className="result-label share-label">New Proposed EMI</span>
                                     <span className="text-[10px] font-black text-emerald-700 bg-emerald-500/20 px-2 py-1 rounded-lg border border-emerald-500/20 shadow-sm">
                                         SAVE {formatCurrency(monthlySavings)}/mo
                                     </span>
@@ -278,7 +278,7 @@ export const TakeoverCalculator: React.FC = () => {
                                 <div className="flex items-center gap-2">
                                     <span className="text-[10px] font-bold text-muted-foreground line-through opacity-40">{formatCurrency(oldEMI)}</span>
                                     <ArrowRight className="w-2.5 h-2.5 text-muted-foreground/30" />
-                                    <span className="text-lg font-black text-foreground leading-none">{formatCurrency(newEMI)}</span>
+                                    <span className="text-lg font-black text-foreground leading-none share-value">{formatCurrency(newEMI)}</span>
                                 </div>
                             </div>
 
