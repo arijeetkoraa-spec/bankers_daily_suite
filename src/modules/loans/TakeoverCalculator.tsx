@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -23,32 +23,28 @@ export const TakeoverCalculator: React.FC = () => {
         { id: '1', name: 'Processing Fee', value: '5000' }
     ]);
 
-    const [savings, setSavings] = useState<number>(0);
-    const [oldEMI, setOldEMI] = useState<number>(0);
-    const [newEMI, setNewEMI] = useState<number>(0);
-    const [monthlySavings, setMonthlySavings] = useState<number>(0);
-
-    const [isOldScheduleOpen, setIsOldScheduleOpen] = useState(false);
-    const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
-    const [oldSchedule, setOldSchedule] = useState<any[]>([]);
-    const [newSchedule, setNewSchedule] = useState<any[]>([]);
-
     const calculateEMI = (p: number, r: number, n: number) => {
         if (p === 0 || r === 0 || n === 0) return 0;
         const mr = r / (12 * 100);
         return (p * mr * Math.pow(1 + mr, n)) / (Math.pow(1 + mr, n) - 1);
     };
 
-    const calculate = React.useCallback(() => {
+    const results = useMemo(() => {
         const P = parseFloat(principal);
         const Rold = parseFloat(rate);
         const Rnew = parseFloat(newRate);
         const N = parseFloat(tenure);
         const totalCharges = charges.reduce((acc, c) => acc + (parseFloat(c.value) || 0), 0);
 
-        if (isNaN(P) || isNaN(Rold) || isNaN(Rnew) || isNaN(N)) {
-            setSavings(0);
-            return;
+        if (isNaN(P) || isNaN(Rold) || isNaN(Rnew) || isNaN(N) || P <= 0 || N <= 0) {
+            return {
+                savings: 0,
+                oldEMI: 0,
+                newEMI: 0,
+                monthlySavings: 0,
+                oldSchedule: [],
+                newSchedule: []
+            };
         }
 
         const emiOld = calculateEMI(P, Rold, N);
@@ -57,15 +53,20 @@ export const TakeoverCalculator: React.FC = () => {
         const totalOld = emiOld * N;
         const totalNew = (emiNew * N) + totalCharges;
 
-        setOldEMI(emiOld);
-        setNewEMI(emiNew);
-        setMonthlySavings(emiOld - emiNew);
-        setSavings(totalOld - totalNew);
-
-        setOldSchedule(generateAmortizationSchedule(P, Rold, N, 'reducing'));
-        setNewSchedule(generateAmortizationSchedule(P, Rnew, N, 'reducing'));
-
+        return {
+            oldEMI: emiOld,
+            newEMI: emiNew,
+            monthlySavings: emiOld - emiNew,
+            savings: totalOld - totalNew,
+            oldSchedule: generateAmortizationSchedule(P, Rold, N, 'reducing'),
+            newSchedule: generateAmortizationSchedule(P, Rnew, N, 'reducing')
+        };
     }, [principal, rate, tenure, newRate, charges]);
+
+    const [isOldScheduleOpen, setIsOldScheduleOpen] = useState(false);
+    const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
+
+    const { oldEMI, newEMI, monthlySavings, savings, oldSchedule, newSchedule } = results;
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-IN', {
@@ -74,10 +75,6 @@ export const TakeoverCalculator: React.FC = () => {
             maximumFractionDigits: 0
         }).format(val);
     };
-
-    useEffect(() => {
-        calculate();
-    }, [calculate]);
 
     const downloadPDF = () => {
         const f = formatPdfCurrency;

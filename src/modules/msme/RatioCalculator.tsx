@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -17,19 +17,47 @@ export const RatioCalculator: React.FC = () => {
     const [dep, setDep] = useLocalStorage<string>('ratio_dep', '100000');
     const [interest, setInterest] = useLocalStorage<string>('ratio_int', '200000');
     const [obligation, setObligation] = useLocalStorage<string>('ratio_obl', '300000'); // CPLTD + Interest
-    const [dscr, setDscr] = useState<number>(0);
 
     // Liquidity Inputs
     const [ca, setCa] = useLocalStorage<string>('ratio_ca', '2000000');
     const [cl, setCl] = useLocalStorage<string>('ratio_cl', '1500000');
     const [inventory, setInventory] = useLocalStorage<string>('ratio_inventory', '500000');
-    const [currentRatio, setCurrentRatio] = useState<number>(0);
-    const [quickRatio, setQuickRatio] = useState<number>(0);
 
     // Leverage Inputs
     const [tol, setTol] = useLocalStorage<string>('ratio_tol', '4000000');
     const [tnw, setTnw] = useLocalStorage<string>('ratio_tnw', '1000000');
-    const [leverage, setLeverage] = useState<number>(0);
+
+    // BEP Inputs
+    const [fixedCost, setFixedCost] = useLocalStorage<string>('ratio_fc', '1000000');
+    const [varCost, setVarCost] = useLocalStorage<string>('ratio_vc', '3000000');
+    const [sales, setSales] = useLocalStorage<string>('ratio_sales', '5000000');
+
+    const results = useMemo(() => {
+        const patVal = parseFloat(pat) || 0;
+        const depVal = parseFloat(dep) || 0;
+        const intVal = parseFloat(interest) || 0;
+        const oblVal = parseFloat(obligation) || 0;
+        const caVal = parseFloat(ca) || 0;
+        const clVal = parseFloat(cl) || 0;
+        const invVal = parseFloat(inventory) || 0;
+        const tolVal = parseFloat(tol) || 0;
+        const tnwVal = parseFloat(tnw) || 0;
+        const fcVal = parseFloat(fixedCost) || 0;
+        const vcVal = parseFloat(varCost) || 0;
+        const sVal = parseFloat(sales) || 0;
+
+        const contribution = sVal - vcVal;
+
+        return {
+            dscr: oblVal > 0 ? (patVal + depVal + intVal) / oblVal : 0,
+            currentRatio: clVal > 0 ? caVal / clVal : 0,
+            quickRatio: clVal > 0 ? (caVal - invVal) / clVal : 0,
+            leverage: tnwVal > 0 ? tolVal / tnwVal : 0,
+            bep: contribution > 0 ? (fcVal / contribution) * 100 : 0
+        };
+    }, [pat, dep, interest, obligation, ca, cl, inventory, tol, tnw, fixedCost, varCost, sales]);
+
+    const { dscr, currentRatio, quickRatio, leverage, bep } = results;
 
     const handleReset = () => {
         setPat('500000');
@@ -45,63 +73,6 @@ export const RatioCalculator: React.FC = () => {
         setVarCost('3000000');
         setSales('5000000');
     };
-
-    // BEP Inputs
-    const [fixedCost, setFixedCost] = useLocalStorage<string>('ratio_fc', '1000000');
-    const [varCost, setVarCost] = useLocalStorage<string>('ratio_vc', '3000000');
-    const [sales, setSales] = useLocalStorage<string>('ratio_sales', '5000000');
-    const [bep, setBep] = useState<number>(0);
-
-
-    const calculate = React.useCallback(() => {
-        const patVal = parseFloat(pat) || 0;
-        const depVal = parseFloat(dep) || 0;
-        const intVal = parseFloat(interest) || 0;
-        const oblVal = parseFloat(obligation) || 0;
-
-        if (oblVal > 0) {
-            setDscr((patVal + depVal + intVal) / oblVal);
-        } else {
-            setDscr(0);
-        }
-
-        const caVal = parseFloat(ca) || 0;
-        const clVal = parseFloat(cl) || 0;
-        const invVal = parseFloat(inventory) || 0;
-
-        if (clVal > 0) {
-            setCurrentRatio(caVal / clVal);
-            setQuickRatio((caVal - invVal) / clVal);
-        } else {
-            setCurrentRatio(0);
-            setQuickRatio(0);
-        }
-
-        const tolVal = parseFloat(tol) || 0;
-        const tnwVal = parseFloat(tnw) || 0;
-
-        if (tnwVal > 0) {
-            setLeverage(tolVal / tnwVal);
-        } else {
-            setLeverage(0);
-        }
-
-        const fcVal = parseFloat(fixedCost) || 0;
-        const vcVal = parseFloat(varCost) || 0;
-        const sVal = parseFloat(sales) || 0;
-
-        const contribution = sVal - vcVal;
-        if (contribution > 0) {
-            setBep((fcVal / contribution) * 100);
-        } else {
-            setBep(0);
-        }
-
-    }, [pat, dep, interest, obligation, ca, cl, inventory, tol, tnw, fixedCost, varCost, sales]);
-
-    useEffect(() => {
-        calculate();
-    }, [calculate]);
 
     const downloadPDF = () => {
         const f = formatPdfCurrency;
@@ -119,8 +90,8 @@ export const RatioCalculator: React.FC = () => {
                 { label: "--- Liquidity ---", value: "" },
                 { label: "Current Assets", value: f(parseFloat(ca)) },
                 { label: "Current Liabilities", value: f(parseFloat(cl)) },
-                { label: "Current Ratio", value: `${currentRatio.toFixed(2)}x` },
-                { label: "Quick Ratio", value: `${quickRatio.toFixed(2)}x` },
+                { label: "Current Ratio", value: `${currentRatio.toFixed(2)} x` },
+                { label: "Quick Ratio", value: `${quickRatio.toFixed(2)} x` },
                 { label: "--- Leverage ---", value: "" },
                 { label: "Total Outside Lib.", value: f(parseFloat(tol)) },
                 { label: "Tangible Net Worth", value: f(parseFloat(tnw)) },
@@ -298,7 +269,7 @@ export const RatioCalculator: React.FC = () => {
                                     <div className="w-full h-2 bg-accent/50 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-emerald-500 transition-all duration-1000 ease-out"
-                                            style={{ width: `${Math.min(bep, 100)}%` }}
+                                            style={{ width: `${Math.min(bep, 100)}% ` }}
                                         />
                                     </div>
                                 </div>

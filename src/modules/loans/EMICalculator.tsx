@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -18,16 +18,32 @@ export const EMICalculator: React.FC = () => {
     const [tenure, setTenure] = useLocalStorage<string>('loan_tenure', '120'); // months
     const [method, setMethod] = useLocalStorage<RepaymentMethod>('loan_method', 'reducing');
 
-    const [results, setResults] = useState({
-        emi: 0,
-        monthlyInterest: 0,
-        totalInterest: 0,
-        totalPayable: 0,
-        finalPayment: 0
-    });
+    const results = React.useMemo(() => {
+        const P = parseFloat(amount);
+        const R = parseFloat(rate);
+        const N = parseFloat(tenure);
+
+        if (isNaN(P) || isNaN(R) || isNaN(N) || P <= 0 || N <= 0) {
+            return { emi: 0, monthlyInterest: 0, totalInterest: 0, totalPayable: 0, finalPayment: 0 };
+        }
+
+        return calculateEMI({
+            principal: P,
+            annualRate: R,
+            tenureMonths: N,
+            method: method
+        });
+    }, [amount, rate, tenure, method]);
 
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
-    const [schedule, setSchedule] = useState<any[]>([]);
+    const schedule = React.useMemo(() => {
+        const P = parseFloat(amount);
+        const R = parseFloat(rate);
+        const N = parseFloat(tenure);
+
+        if (isNaN(P) || isNaN(R) || isNaN(N) || P <= 0 || N <= 0) return [];
+        return generateAmortizationSchedule(P, R, N, method);
+    }, [amount, rate, tenure, method]);
 
     const handleReset = () => {
         setAmount('1000000');
@@ -35,35 +51,6 @@ export const EMICalculator: React.FC = () => {
         setTenure('120');
         setMethod('reducing');
     };
-
-    const calculate = React.useCallback(() => {
-        const P = parseFloat(amount);
-        const R = parseFloat(rate);
-        const N = parseFloat(tenure);
-
-        if (isNaN(P) || isNaN(R) || isNaN(N) || P <= 0 || N <= 0) {
-            setResults({ emi: 0, monthlyInterest: 0, totalInterest: 0, totalPayable: 0, finalPayment: 0 });
-            return;
-        }
-
-        const output = calculateEMI({
-            principal: P,
-            annualRate: R,
-            tenureMonths: N,
-            method: method
-        });
-
-
-        setResults(output);
-
-        // Update schedule
-        const newSchedule = generateAmortizationSchedule(P, R, N, method);
-        setSchedule(newSchedule);
-    }, [amount, rate, tenure, method]);
-
-    useEffect(() => {
-        calculate();
-    }, [calculate]);
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-IN', {

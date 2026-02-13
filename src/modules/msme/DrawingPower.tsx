@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -26,9 +26,7 @@ export const DrawingPowerCalculator: React.FC = () => {
         setDebtorMargin('40');
     };
 
-    const [dp, setDp] = useState<number>(0);
-
-    const calculate = React.useCallback(() => {
+    const dp = useMemo(() => {
         const S = parseFloat(stock) || 0;
         const C = parseFloat(creditors) || 0;
         const D = parseFloat(debtors) || 0;
@@ -39,12 +37,8 @@ export const DrawingPowerCalculator: React.FC = () => {
         const valStock = paidStock * (1 - SM / 100);
         const valDebtors = D * (1 - DM / 100);
         const calculatedDp = valStock + valDebtors;
-        setDp(calculatedDp > 0 ? calculatedDp : 0);
+        return calculatedDp > 0 ? calculatedDp : 0;
     }, [stock, creditors, stockMargin, debtors, debtorMargin]);
-
-    useEffect(() => {
-        calculate();
-    }, [calculate]);
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-IN', {
@@ -63,11 +57,11 @@ export const DrawingPowerCalculator: React.FC = () => {
             details: [
                 { label: "--- Inventory Assets (Stock) ---", value: "" },
                 { label: "Gross Stock Value", value: f(parseFloat(stock)) },
-                { label: "Prescribed Stock Margin", value: `${stockMargin}%` },
+                { label: "Prescribed Stock Margin", value: `${stockMargin}% ` },
                 { label: "Net Margin-Adjusted Stock", value: f(parseFloat(stock) * (1 - parseFloat(stockMargin) / 100)) },
                 { label: "--- Receivables (Book Debts) ---", value: "" },
                 { label: "Eligible Debtor Balance", value: f(parseFloat(debtors)) },
-                { label: "Prescribed Debtor Margin", value: `${debtorMargin}%` },
+                { label: "Prescribed Debtor Margin", value: `${debtorMargin}% ` },
                 { label: "Net Margin-Adjusted Debtors", value: f(parseFloat(debtors) * (1 - parseFloat(debtorMargin) / 100)) },
                 { label: "--- Liabilities & Deductions ---", value: "" },
                 { label: "Sundry Creditors (Deduction)", value: f(parseFloat(creditors)) },

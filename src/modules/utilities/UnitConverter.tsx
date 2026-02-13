@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -57,39 +57,29 @@ export const UnitConverter: React.FC = () => {
         setToUnit('sqmt');
         setValue('1000');
     };
-    const [result, setResult] = useState<string>('');
-
     useEffect(() => {
         const availableParams = Object.keys(factors[type] || {});
         if (!availableParams.includes(fromUnit)) setFromUnit(availableParams[0]);
         if (!availableParams.includes(toUnit)) setToUnit(availableParams[1] || availableParams[0]);
     }, [type, setFromUnit, setToUnit, fromUnit, toUnit]);
 
-    const calculate = React.useCallback(() => {
+    const result = useMemo(() => {
         const val = parseFloat(value);
-        if (isNaN(val)) {
-            setResult('0');
-            return;
-        }
+        if (isNaN(val)) return '0';
 
         const currentFactors = factors[type];
-        if (!currentFactors) return;
+        if (!currentFactors) return '0';
 
         const factorFrom = currentFactors[fromUnit];
         const factorTo = currentFactors[toUnit];
 
-        if (!factorFrom || !factorTo) return;
+        if (!factorFrom || !factorTo) return '0';
 
         const valInBase = val * factorFrom;
         const valInTarget = valInBase / factorTo;
 
-        setResult(valInTarget.toLocaleString('en-IN', { maximumFractionDigits: 4 }));
-
+        return valInTarget.toLocaleString('en-IN', { maximumFractionDigits: 4 });
     }, [type, fromUnit, toUnit, value]);
-
-    useEffect(() => {
-        calculate();
-    }, [calculate]);
 
     const downloadPDF = () => {
         exportToPDF({
