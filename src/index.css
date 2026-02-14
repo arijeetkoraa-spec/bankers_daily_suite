@@ -4,55 +4,76 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%; /* Very subtle tint #f5f7fa (approx) */
+    --background: 215 40% 88%;
+    /* Muted soft blue background */
     --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
+    --card: 215 30% 94%;
+    /* Softer, non-flashy card */
     --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
+    --popover: 215 30% 94%;
     --popover-foreground: 222 47% 11%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 25% 46.9%;
+    --muted-foreground: 215.4 25% 27%;
+    /* Much darker and clearer */
+    /* Darker for better contrast */
     --accent: 210 40% 96.1%;
     --accent-foreground: 222 47% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84.7% 4.9%;
+    --border: 215 30% 85%;
+    --input: 215 30% 88%;
+    --ring: 221.2 83.2% 53.3%;
     --radius: 0.75rem;
 
     /* Semantic Tokens - Light Mode */
-    --brand-bg: 210 20% 98%;
-    --brand-navy: 222 47% 11%;
-    --brand-muted: 215 20% 65%;
+    --brand-bg: 215 40% 88%;
+    --brand-card: 215 30% 94%;
+    --brand-text-primary: 222 47% 11%;
+    --brand-text-secondary: 215.4 25% 27%;
+    --brand-accent-primary: 262.1 83.3% 57.8%;
+    /* Purple */
+    --brand-accent-success: 142.1 70.6% 45.3%;
+    /* Green */
+    --brand-accent-warning: 38 92% 50%;
+    /* Amber/Orange */
   }
 
   .dark {
-    --background: 222 47% 6%; /* Deep Navy #0f172a (approx) */
+    --background: 222 47% 4%;
+    /* Deeper, richer dark */
     --foreground: 210 40% 98%;
-    --card: 222 47% 8%;
+    --card: 222 47% 6%;
     --card-foreground: 210 40% 98%;
-    --popover: 222 47% 8%;
+    --popover: 222 47% 6%;
     --popover-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted-foreground: 215 20.2% 85%;
+    /* Brighter for dark mode */
+    /* More legible */
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 224.3 76.3% 48%;
+
+    /* Semantic Tokens - Dark Mode */
+    --brand-bg: 222 47% 4%;
+    --brand-card: 222 47% 6%;
+    --brand-text-primary: 210 40% 98%;
+    --brand-text-secondary: 215 20.2% 85%;
+    --brand-accent-primary: 263.4 70% 50.4%;
+    --brand-accent-success: 142.1 70.6% 45.3%;
+    --brand-accent-warning: 37.9 92.1% 50.2%;
   }
 }
 
 @layer components {
   .premium-card {
-    @apply bg-card/80 backdrop-blur-2xl border border-border transition-all duration-500 overflow-hidden shadow-lg dark:shadow-2xl dark:shadow-black/20;
+    @apply bg-card/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-xl transition-all duration-500 overflow-hidden;
   }
 
   .glass-panel {
-    @apply bg-background/60 backdrop-blur-3xl border border-border/50;
+    @apply bg-background/60 backdrop-blur-3xl border border-white/30 dark:border-white/10;
   }
 
   .hero-result-value {
@@ -62,40 +83,47 @@
 
   .result-label {
     font-family: 'Outfit', sans-serif;
-    @apply text-[11px] font-black uppercase tracking-widest text-muted-foreground/70;
+    @apply text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 underline underline-offset-4 decoration-primary/20;
+  }
+
+  .stat-card {
+    @apply p-5 rounded-2xl glass-panel flex flex-col gap-1.5 transition-all duration-300 hover:shadow-lg cursor-default;
   }
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
+    overscroll-behavior-y: none;
     background-image:
-      radial-gradient(at 0% 0%, hsla(215, 60%, 70%, 0.05) 0, transparent 40%),
-      radial-gradient(at 100% 100%, hsla(220, 60%, 60%, 0.05) 0, transparent 40%);
+      radial-gradient(at 0% 0%, hsla(215, 60%, 70%, 0.1) 0, transparent 40%),
+      radial-gradient(at 100% 100%, hsla(220, 60%, 60%, 0.08) 0, transparent 40%),
+      radial-gradient(at 50% 50%, hsla(215, 50%, 80%, 0.03) 0, transparent 60%);
+    background-attachment: fixed;
   }
 }
 
 @layer utilities {
-  .animate-scale-rebound {
-    animation: scaleRebound 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400;
   }
-}
 
-@keyframes scaleRebound {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-  100% { transform: scale(1); }
+  .animate-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
