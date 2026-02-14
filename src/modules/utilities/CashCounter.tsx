@@ -4,17 +4,19 @@ import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { ClipboardCopy, RotateCcw, Banknote, FileDown, Loader2 } from 'lucide-react';
 
-import { formatIndianCurrency, numberToIndianWords, cn, formatPdfCurrency } from '../../lib/utils';
+import { formatIndianCurrency, numberToIndianWords, cn, formatPdfCurrency, formatDate } from '../../lib/utils';
 import { exportToPDF, renderTable } from '../../lib/pdf/export';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 
 // Denominations
-const denoms = [2000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
+const denoms = [500, 200, 100, 50, 20, 10, 5, 2, 1];
 
 export const CashCounter: React.FC = () => {
 
     // State for counts
+    const getTodayISO = () => new Date().toISOString().split("T")[0];
     const [counts, setCounts] = useLocalStorage<Record<number, string>>('cash_counts', {});
+    const [operationDate, setOperationDate] = React.useState(getTodayISO());
     const [isExporting, setIsExporting] = React.useState(false);
 
 
@@ -59,10 +61,10 @@ export const CashCounter: React.FC = () => {
                 title: "Cash Denomination Summary",
                 subtitle: "Physical Cash Verification Report | Professional Audit",
                 details: [
+                    { label: "Operation Date", value: formatDate(operationDate) },
                     { label: "Grand Total Value", value: f(total) },
                     { label: "Amount in Words", value: totalWords },
                     { label: "--- Verification Stamp ---", value: "" },
-                    { label: "Verified Date", value: new Date().toLocaleDateString('en-IN') },
                     { label: "Audit Status", value: "SELF-VERIFIED" }
                 ]
             }, `Cash_Assessment.pdf`, (ctx) => {
@@ -124,10 +126,34 @@ export const CashCounter: React.FC = () => {
                             )}
                             {isExporting ? "..." : "PDF"}
                         </Button>
-
                     </div>
                 </div>
+
+                {/* Responsive Date Selector Row */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4 pt-4 border-t border-border/10">
+                    <div className="flex items-center gap-3 bg-accent/50 px-4 py-2 rounded-xl border border-border/20 shadow-sm grow sm:grow-0">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                            Operation Date
+                        </label>
+                        <input
+                            type="date"
+                            value={operationDate}
+                            onChange={(e) => setOperationDate(e.target.value)}
+                            className="bg-transparent border-none text-xs font-black focus:outline-none focus:ring-0 p-0 h-auto text-primary uppercase cursor-pointer"
+                            style={{ colorScheme: 'light dark' }}
+                        />
+                    </div>
+                    <Button
+                        onClick={() => setOperationDate(getTodayISO())}
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 text-[10px] font-black uppercase tracking-widest text-primary hover:text-primary hover:bg-primary/5 px-4 rounded-lg border border-primary/10"
+                    >
+                        Reset to Today
+                    </Button>
+                </div>
             </CardHeader>
+
             <CardContent className="p-0">
                 <div className="grid grid-cols-1 md:grid-cols-12">
                     {/* Input Section */}
@@ -163,9 +189,15 @@ export const CashCounter: React.FC = () => {
                         <p className="text-xs font-medium opacity-80 leading-relaxed max-w-[200px]">
                             {totalWords}
                         </p>
+
+                        {/* Hidden share field for Date */}
+                        <div className="share-row hidden" data-share-key="operationDate" data-share-type="option">
+                            <span className="share-label">Date</span>
+                            <span className="share-value">{formatDate(operationDate)}</span>
+                        </div>
                     </div>
                 </div>
             </CardContent>
-        </Card>
+        </Card >
     );
 };
