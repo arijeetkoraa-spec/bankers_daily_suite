@@ -3,7 +3,7 @@ import { X, Calendar, ArrowUpRight, TrendingDown, ArrowLeft, MessageCircle, File
 import { Button } from './ui/button';
 import type { AmortizationEntry } from '../lib/amortization';
 import { cn, formatPdfCurrency } from '../lib/utils';
-import { exportAmortizationToPDF } from '../lib/pdf-export';
+import { exportAmortizationToPDF } from '../lib/pdf/export';
 
 interface AmortizationModalProps {
     isOpen: boolean;

@@ -5,7 +5,7 @@ import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Coins, FileDown, RotateCcw, Plus, Trash2, AlertCircle, Info, ChevronDown, ChevronUp, ShieldCheck, Landmark, ReceiptText, Percent, IndianRupee } from 'lucide-react';
-import { exportAmortizationToPDF } from '../../lib/pdf-export';
+import { exportAmortizationToPDF } from '../../lib/pdf/export';
 import { formatIndianCurrency, numberToIndianWords, formatPdfCurrency } from '../../lib/utils';
 
 // -- TYPES --

@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Briefcase, Coins, ShieldCheck, BarChart3, FileDown, RotateCcw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
 
 export const WorkingCapitalCalculator: React.FC = () => {

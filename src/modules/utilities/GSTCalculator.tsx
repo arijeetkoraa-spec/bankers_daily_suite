@@ -5,7 +5,7 @@ import { Label } from '../../components/ui/label';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Calculator, Plus, Minus, FileDown, RotateCcw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
 
 export const GSTCalculator: React.FC = () => {

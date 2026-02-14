@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Coins, AlertTriangle, FileDown, RotateCcw } from 'lucide-react';
 import { calculatePrematurePayout } from '../../lib/deposit_calculations';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
 
 export const MISCalculator: React.FC = () => {

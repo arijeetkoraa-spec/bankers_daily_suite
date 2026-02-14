@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Percent, TrendingUp, Droplets, Scale, Activity, FileDown, RotateCcw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
 
 export const RatioCalculator: React.FC = () => {

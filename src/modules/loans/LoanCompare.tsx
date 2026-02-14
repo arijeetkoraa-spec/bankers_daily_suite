@@ -5,7 +5,7 @@ import { Label } from '../../components/ui/label';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { ArrowRightLeft, Sparkles, TrendingDown, FileDown, RotateCcw } from 'lucide-react';
 import { cn, formatPdfCurrency } from '../../lib/utils';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportToPDF } from '../../lib/pdf/export';
 import { Button } from '../../components/ui/button';
 import { AmortizationModal } from '../../components/AmortizationModal';
 import { generateAmortizationSchedule } from '../../lib/amortization';

@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Calculator, FileDown, RotateCcw } from 'lucide-react';
 import { calculateEMI, type RepaymentMethod } from '../../lib/calculations';
-import { exportAmortizationToPDF } from '../../lib/pdf-export';
+import { exportAmortizationToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
 import { AmortizationModal } from '../../components/AmortizationModal';
 import { generateAmortizationSchedule } from '../../lib/amortization';

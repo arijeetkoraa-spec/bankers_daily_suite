@@ -4,7 +4,7 @@ import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { ClipboardCopy, RotateCcw, Banknote, FileDown } from 'lucide-react';
 import { formatIndianCurrency, numberToIndianWords, cn, formatPdfCurrency } from '../../lib/utils';
-import { exportToPDF, renderTable } from '../../lib/pdf-export';
+import { exportToPDF, renderTable } from '../../lib/pdf/export';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 
 // Denominations

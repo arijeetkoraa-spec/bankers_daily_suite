@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { calculateMaturity, calculatePrematurePayout } from '../../lib/deposit_calculations';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { PieChart, AlertTriangle, FileDown, RotateCcw } from 'lucide-react';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
 
 export const FDCalculator: React.FC = () => {

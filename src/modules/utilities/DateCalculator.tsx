@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { CalendarDays, Clock, ArrowRightLeft, History, FileDown, RotateCcw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportToPDF } from '../../lib/pdf/export';
 import { addDays, addMonths, addYears, format, differenceInDays, parseISO, isValid } from 'date-fns';
 import { cn } from '../../lib/utils';
 

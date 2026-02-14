@@ -5,7 +5,7 @@ import { Label } from '../../components/ui/label';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { TrendingDown, Package, Users, FileDown, RotateCcw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportToPDF } from '../../lib/pdf/export';
 import { formatPdfCurrency } from '../../lib/utils';
 
 export const DrawingPowerCalculator: React.FC = () => {

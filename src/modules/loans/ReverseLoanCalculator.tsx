@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { RotateCcw, Sparkles, FileDown } from 'lucide-react';
 import { cn, formatPdfCurrency } from '../../lib/utils';
-import { exportAmortizationToPDF } from '../../lib/pdf-export';
+import { exportAmortizationToPDF } from '../../lib/pdf/export';
 import { AmortizationModal } from '../../components/AmortizationModal';
 import { generateAmortizationSchedule } from '../../lib/amortization';
 import { TableProperties } from 'lucide-react';

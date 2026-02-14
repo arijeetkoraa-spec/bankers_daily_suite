@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Scale, Maximize, Ruler, Weight, ArrowRightLeft, Sparkles, FileDown, RotateCcw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { exportToPDF } from '../../lib/pdf-export';
+import { exportToPDF } from '../../lib/pdf/export';
 import { cn } from '../../lib/utils';
 
 type UnitType = 'area' | 'length' | 'weight';
