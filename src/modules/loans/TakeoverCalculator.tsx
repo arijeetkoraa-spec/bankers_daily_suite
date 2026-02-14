@@ -3,7 +3,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../..
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Landmark, Sparkles, FileDown, ArrowRight, RotateCcw, Plus, Trash2 } from 'lucide-react';
+import { Landmark, Sparkles, FileDown, ArrowRight, RotateCcw, Plus, Trash2, Loader2 } from 'lucide-react';
+
 import { Button } from '../../components/ui/button';
 import { exportAmortizationToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
@@ -65,6 +66,8 @@ export const TakeoverCalculator: React.FC = () => {
 
     const [isOldScheduleOpen, setIsOldScheduleOpen] = useState(false);
     const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
+
 
     const { oldEMI, newEMI, monthlySavings, savings, oldSchedule, newSchedule } = results;
 
@@ -76,29 +79,36 @@ export const TakeoverCalculator: React.FC = () => {
         }).format(val);
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
 
-        exportAmortizationToPDF({
-            title: "Loan Takeover Analysis",
-            subtitle: "Refinancing Impact & Savings Assessment | Professional Audit",
-            details: [
-                { label: "Principal Outstanding", value: f(parseFloat(principal)) },
-                { label: "--- Current Profile ---", value: "" },
-                { label: "Existing ROI (p.a.)", value: `${rate}%` },
-                { label: "Remaining Tenure", value: `${tenure} Months` },
-                { label: "Current EMI", value: f(oldEMI) },
-                { label: "--- Proposed Profile ---", value: "" },
-                { label: "New ROI (p.a.)", value: `${newRate}%` },
-                { label: "Proposed EMI", value: f(newEMI) },
-                ...charges.map(c => ({ label: c.name || "Charge", value: f(parseFloat(c.value)) })),
-                { label: "--- Impact Analysis ---", value: "" },
-                { label: "Monthly Savings", value: f(monthlySavings) },
-                { label: "Net Lifetime Savings", value: f(savings) }
-            ],
-            schedule: newSchedule // Exporting the proposed schedule by default
-        }, `Takeover_Analysis.pdf`);
+            await exportAmortizationToPDF({
+                title: "Loan Takeover Analysis",
+                subtitle: "Refinancing Impact & Savings Assessment | Professional Audit",
+                details: [
+                    { label: "Principal Outstanding", value: f(parseFloat(principal)) },
+                    { label: "--- Current Profile ---", value: "" },
+                    { label: "Existing ROI (p.a.)", value: `${rate}%` },
+                    { label: "Remaining Tenure", value: `${tenure} Months` },
+                    { label: "Current EMI", value: f(oldEMI) },
+                    { label: "--- Proposed Profile ---", value: "" },
+                    { label: "New ROI (p.a.)", value: `${newRate}%` },
+                    { label: "Proposed EMI", value: f(newEMI) },
+                    ...charges.map(c => ({ label: c.name || "Charge", value: f(parseFloat(c.value)) })),
+                    { label: "--- Impact Analysis ---", value: "" },
+                    { label: "Monthly Savings", value: f(monthlySavings) },
+                    { label: "Net Lifetime Savings", value: f(savings) }
+                ],
+                schedule: newSchedule // Exporting the proposed schedule by default
+            }, `Takeover_Analysis.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     const reset = () => {
         setPrincipal('5000000');
@@ -131,10 +141,21 @@ export const TakeoverCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-primary" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-primary" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

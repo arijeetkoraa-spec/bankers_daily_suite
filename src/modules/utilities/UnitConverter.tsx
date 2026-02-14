@@ -4,7 +4,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Scale, Maximize, Ruler, Weight, ArrowRightLeft, Sparkles, FileDown, RotateCcw } from 'lucide-react';
+import { Scale, Maximize, Ruler, Weight, ArrowRightLeft, Sparkles, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { Button } from '../../components/ui/button';
 import { exportToPDF } from '../../lib/pdf/export';
 import { cn } from '../../lib/utils';
@@ -50,6 +51,7 @@ export const UnitConverter: React.FC = () => {
     const [fromUnit, setFromUnit] = useLocalStorage<string>('unit_from', 'sqft');
     const [toUnit, setToUnit] = useLocalStorage<string>('unit_to', 'sqmt');
     const [value, setValue] = useLocalStorage<string>('unit_val', '1000');
+    const [isExporting, setIsExporting] = React.useState(false);
 
     const handleReset = () => {
         setType('area');
@@ -81,23 +83,30 @@ export const UnitConverter: React.FC = () => {
         return valInTarget.toLocaleString('en-IN', { maximumFractionDigits: 4 });
     }, [type, fromUnit, toUnit, value]);
 
-    const downloadPDF = () => {
-        exportToPDF({
-            title: "Measurement Dynamics Audit",
-            subtitle: `${type.toUpperCase()} Matrix Conversion | Professional Standardized Report`,
-            details: [
-                { label: "Conversion Category", value: type.charAt(0).toUpperCase() + type.slice(1) },
-                { label: "--- Source Specification ---", value: "" },
-                { label: "Input Value", value: value },
-                { label: "Input Metric Unit", value: unitLabels[fromUnit] },
-                { label: "--- Target Matrix Output ---", value: "" },
-                { label: "Conversion Result", value: result },
-                { label: "Output Metric Unit", value: unitLabels[toUnit] },
-                { label: "--- Verification Identity ---", value: "" },
-                { label: "Formula Alignment", value: `${value} ${fromUnit} = ${result} ${toUnit}` }
-            ]
-        }, `Unit_Conversion_${type}.pdf`);
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            await exportToPDF({
+                title: "Measurement Dynamics Audit",
+                subtitle: `${type.toUpperCase()} Matrix Conversion | Professional Standardized Report`,
+                details: [
+                    { label: "Conversion Category", value: type.charAt(0).toUpperCase() + type.slice(1) },
+                    { label: "--- Source Specification ---", value: "" },
+                    { label: "Input Value", value: value },
+                    { label: "Input Metric Unit", value: unitLabels[fromUnit] },
+                    { label: "--- Target Matrix Output ---", value: "" },
+                    { label: "Conversion Result", value: result },
+                    { label: "Output Metric Unit", value: unitLabels[toUnit] },
+                    { label: "--- Verification Identity ---", value: "" },
+                    { label: "Formula Alignment", value: `${value} ${fromUnit} = ${result} ${toUnit}` }
+                ]
+            }, `Unit_Conversion_${type}.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -122,10 +131,21 @@ export const UnitConverter: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-cyan-500/30 hover:bg-cyan-500/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-cyan-600" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            variant="outline"
+                            size="sm"
+                            disabled={isExporting}
+                            className="h-10 gap-2 border-cyan-500/30 hover:bg-cyan-500/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-cyan-600 animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-cyan-600" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

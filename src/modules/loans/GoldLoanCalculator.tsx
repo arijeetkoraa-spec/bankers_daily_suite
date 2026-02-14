@@ -4,7 +4,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Coins, FileDown, RotateCcw, Plus, Trash2, AlertCircle, Info, ChevronDown, ChevronUp, ShieldCheck, Landmark, ReceiptText, Percent, IndianRupee } from 'lucide-react';
+import { Coins, FileDown, RotateCcw, Plus, Trash2, AlertCircle, Info, ChevronDown, ChevronUp, ShieldCheck, Landmark, ReceiptText, Percent, IndianRupee, Loader2 } from 'lucide-react';
+
 import { exportAmortizationToPDF } from '../../lib/pdf/export';
 import { formatIndianCurrency, numberToIndianWords, formatPdfCurrency } from '../../lib/utils';
 
@@ -55,6 +56,8 @@ export const GoldLoanCalculator: React.FC = () => {
     // UI State
     const [showParams, setShowParams] = useState(false);
     const [showSchedule, setShowSchedule] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
+
 
     // -- LOGIC --
     const rate = parseFloat(goldRate) || 0;
@@ -178,33 +181,40 @@ export const GoldLoanCalculator: React.FC = () => {
         ]);
     };
 
-    const downloadPDF = () => {
-        const timestamp = Date.now();
-        const docTitle = `Gold_Loan_Report_${timestamp}.pdf`;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const timestamp = Date.now();
+            const docTitle = `Gold_Loan_Report_${timestamp}.pdf`;
 
-        const f = formatPdfCurrency;
+            const f = formatPdfCurrency;
 
-        exportAmortizationToPDF({
-            title: `Gold Loan Assessment`,
-            subtitle: `${loanType} @ ${interestRate}% for ${tenureMonths}m | Detailed Repayment Roadmap`,
-            details: [
-                { label: "Loan Type", value: loanType },
-                { label: "Gold Rate (22K)", value: `${f(rate)}/g` },
-                { label: "Applied LTV", value: `${applicableLTV}%` },
-                { label: "--- Summary ---", value: "" },
-                { label: "Total Net Weight", value: `${totalNetWeight.toFixed(2)} grams` },
-                { label: "Total Valuation", value: f(totalValuation) },
-                { label: "Max Eligible Loan", value: f(maxEligibleLoan) },
-                { label: "Requested Amount", value: requestedLoanAmount ? f(parseFloat(requestedLoanAmount)) : "Max Eligible" },
-                { label: "Actual Loan Amount", value: f(actualLoanAmount) },
-                { label: "--- Repayment ---", value: "" },
-                { label: "Monthly EMI", value: loanType === 'EMI' ? f(emi) : 'N/A' },
-                { label: "Total Interest", value: f(totalInterest) },
-                { label: "Total Payable", value: f(totalPayment) },
-            ],
-            schedule: schedule
-        }, docTitle);
+            await exportAmortizationToPDF({
+                title: `Gold Loan Assessment`,
+                subtitle: `${loanType} @ ${interestRate}% for ${tenureMonths}m | Detailed Repayment Roadmap`,
+                details: [
+                    { label: "Loan Type", value: loanType },
+                    { label: "Gold Rate (22K)", value: `${f(rate)}/g` },
+                    { label: "Applied LTV", value: `${applicableLTV}%` },
+                    { label: "--- Summary ---", value: "" },
+                    { label: "Total Net Weight", value: `${totalNetWeight.toFixed(2)} grams` },
+                    { label: "Total Valuation", value: f(totalValuation) },
+                    { label: "Max Eligible Loan", value: f(maxEligibleLoan) },
+                    { label: "Requested Amount", value: requestedLoanAmount ? f(parseFloat(requestedLoanAmount)) : "Max Eligible" },
+                    { label: "Actual Loan Amount", value: f(actualLoanAmount) },
+                    { label: "--- Repayment ---", value: "" },
+                    { label: "Monthly EMI", value: loanType === 'EMI' ? f(emi) : 'N/A' },
+                    { label: "Total Interest", value: f(totalInterest) },
+                    { label: "Total Payable", value: f(totalPayment) },
+                ],
+                schedule: schedule
+            }, docTitle);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-5xl mx-auto overflow-hidden">
@@ -229,10 +239,21 @@ export const GoldLoanCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} size="sm" className="h-10 gap-2 text-xs font-black border-yellow-600/30 hover:bg-yellow-600/10 hidden md:flex px-4 shadow-sm" variant="outline">
-                            <FileDown className="w-5 h-5 text-yellow-700" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            size="sm"
+                            className="h-10 gap-2 text-xs font-black border-yellow-600/30 hover:bg-yellow-600/10 hidden md:flex px-4 shadow-sm"
+                            variant="outline"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-yellow-700 animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-yellow-700" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>
@@ -261,7 +282,9 @@ export const GoldLoanCalculator: React.FC = () => {
                                         </button>
                                     ))}
                                 </div>
+                                <span className="share-value hidden">{loanType}</span>
                             </div>
+
                             <div className="space-y-1 share-row" data-share-key="goldRate" data-share-type="input">
                                 <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Gold Rate (₹/gm 22K)</Label>
                                 <Input
@@ -294,6 +317,7 @@ export const GoldLoanCalculator: React.FC = () => {
                                                     placeholder="e.g. Necklace, Ring"
                                                 />
                                             </div>
+
                                             <div className="w-full md:w-40 space-y-1.5">
                                                 <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest">Purity</Label>
                                                 <select

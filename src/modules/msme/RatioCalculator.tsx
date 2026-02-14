@@ -1,16 +1,22 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Percent, TrendingUp, Droplets, Scale, Activity, FileDown, RotateCcw } from 'lucide-react';
+import { Percent, TrendingUp, Droplets, Scale, Activity, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { Button } from '../../components/ui/button';
 import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
+import { calculateFinancialRatios } from '../../core/msmeEngine';
 
 export const RatioCalculator: React.FC = () => {
+
     const [activeTab, setActiveTab] = React.useState('dscr');
+    const [isExporting, setIsExporting] = useState(false);
+
 
     // DSCR Inputs
     const [pat, setPat] = useLocalStorage<string>('ratio_pat', '500000');
@@ -33,31 +39,33 @@ export const RatioCalculator: React.FC = () => {
     const [sales, setSales] = useLocalStorage<string>('ratio_sales', '5000000');
 
     const results = useMemo(() => {
-        const patVal = parseFloat(pat) || 0;
-        const depVal = parseFloat(dep) || 0;
-        const intVal = parseFloat(interest) || 0;
-        const oblVal = parseFloat(obligation) || 0;
-        const caVal = parseFloat(ca) || 0;
-        const clVal = parseFloat(cl) || 0;
-        const invVal = parseFloat(inventory) || 0;
-        const tolVal = parseFloat(tol) || 0;
-        const tnwVal = parseFloat(tnw) || 0;
-        const fcVal = parseFloat(fixedCost) || 0;
-        const vcVal = parseFloat(varCost) || 0;
-        const sVal = parseFloat(sales) || 0;
-
-        const contribution = sVal - vcVal;
+        const res = calculateFinancialRatios({
+            pat,
+            depreciation: dep,
+            interest,
+            obligation,
+            ca,
+            cl,
+            inventory,
+            tol,
+            tnw,
+            fixedCost,
+            variableCost: varCost,
+            sales
+        });
 
         return {
-            dscr: oblVal > 0 ? (patVal + depVal + intVal) / oblVal : 0,
-            currentRatio: clVal > 0 ? caVal / clVal : 0,
-            quickRatio: clVal > 0 ? (caVal - invVal) / clVal : 0,
-            leverage: tnwVal > 0 ? tolVal / tnwVal : 0,
-            bep: contribution > 0 ? (fcVal / contribution) * 100 : 0
+            dscr: res.dscr.toNumber(),
+            currentRatio: res.currentRatio.toNumber(),
+            quickRatio: res.quickRatio.toNumber(),
+            leverage: res.leverage.toNumber(),
+            bep: res.bep.toNumber()
         };
     }, [pat, dep, interest, obligation, ca, cl, inventory, tol, tnw, fixedCost, varCost, sales]);
 
+
     const { dscr, currentRatio, quickRatio, leverage, bep } = results;
+
 
     const handleReset = () => {
         setPat('500000');
@@ -74,33 +82,40 @@ export const RatioCalculator: React.FC = () => {
         setSales('5000000');
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
 
-        exportToPDF({
-            title: "Financial Ratio Analysis",
-            subtitle: "Credit Health Diagnostic Report | Professional Banking Protocol",
-            details: [
-                { label: "--- DSCR Analysis ---", value: "" },
-                { label: "Net Profit After Tax", value: f(parseFloat(pat)) },
-                { label: "Depreciation", value: f(parseFloat(dep)) },
-                { label: "Interest Expense", value: f(parseFloat(interest)) },
-                { label: "Total Obligation", value: f(parseFloat(obligation)) },
-                { label: "Computed DSCR Ratio", value: dscr.toFixed(2) },
-                { label: "--- Liquidity ---", value: "" },
-                { label: "Current Assets", value: f(parseFloat(ca)) },
-                { label: "Current Liabilities", value: f(parseFloat(cl)) },
-                { label: "Current Ratio", value: `${currentRatio.toFixed(2)} x` },
-                { label: "Quick Ratio", value: `${quickRatio.toFixed(2)} x` },
-                { label: "--- Leverage ---", value: "" },
-                { label: "Total Outside Lib.", value: f(parseFloat(tol)) },
-                { label: "Tangible Net Worth", value: f(parseFloat(tnw)) },
-                { label: "TOL/TNW Ratio", value: leverage.toFixed(2) },
-                { label: "--- Profitability (BEP) ---", value: "" },
-                { label: "Break-Even Point", value: `${bep.toFixed(1)}% of Sales` }
-            ]
-        }, `Ratio_Analysis.pdf`);
+            await exportToPDF({
+                title: "Financial Ratio Analysis",
+                subtitle: "Credit Health Diagnostic Report | Professional Banking Protocol",
+                details: [
+                    { label: "--- DSCR Analysis ---", value: "" },
+                    { label: "Net Profit After Tax", value: f(parseFloat(pat)) },
+                    { label: "Depreciation", value: f(parseFloat(dep)) },
+                    { label: "Interest Expense", value: f(parseFloat(interest)) },
+                    { label: "Total Obligation", value: f(parseFloat(obligation)) },
+                    { label: "Computed DSCR Ratio", value: dscr.toFixed(2) },
+                    { label: "--- Liquidity ---", value: "" },
+                    { label: "Current Assets", value: f(parseFloat(ca)) },
+                    { label: "Current Liabilities", value: f(parseFloat(cl)) },
+                    { label: "Current Ratio", value: `${currentRatio.toFixed(2)} x` },
+                    { label: "Quick Ratio", value: `${quickRatio.toFixed(2)} x` },
+                    { label: "--- Leverage ---", value: "" },
+                    { label: "Total Outside Lib.", value: f(parseFloat(tol)) },
+                    { label: "Tangible Net Worth", value: f(parseFloat(tnw)) },
+                    { label: "TOL/TNW Ratio", value: leverage.toFixed(2) },
+                    { label: "--- Profitability (BEP) ---", value: "" },
+                    { label: "Break-Even Point", value: `${bep.toFixed(1)}% of Sales` }
+                ]
+            }, `Ratio_Analysis.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-5xl mx-auto overflow-hidden">
@@ -125,10 +140,21 @@ export const RatioCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-primary" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-primary" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>
@@ -156,7 +182,9 @@ export const RatioCalculator: React.FC = () => {
                                 </TabsTrigger>
                             ))}
                         </TabsList>
+                        <span className="share-value hidden">{activeTab}</span>
                     </div>
+
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
                         {/* Inputs Section */}

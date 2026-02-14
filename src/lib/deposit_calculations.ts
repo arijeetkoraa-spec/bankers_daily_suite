@@ -1,60 +1,29 @@
-import {
-    calculateFDMaturity,
-    calculateRDMaturity,
-    calculatePrematurePayout as coreCalculatePrematurePayout
-} from '../core/depositEngine';
-import type { PrematureInput as CorePrematureInput } from '../core/depositEngine';
-
-export type DepositProduct = 'FD' | 'RD' | 'MIS' | 'QIS';
-
-export interface PrematureInput {
-    product: DepositProduct;
-    principal: number;
-    bookedRate: number;
-    cardRateForTenure: number;
-    penalty: number;
-    completedMonths: number;
-    completedInstallments?: number;
-    interestAlreadyPaid?: number;
-}
-
-export interface PrematureOutput {
-    effectiveRate: number;
-    interestEarned: number;
-    interestRecovery: number;
-    netPayout: number;
-    maturityBeforeRecovery: number;
-}
+import { calculateFDMaturity, calculateRDMaturity, calculatePrematurePayout as corePrematurePayout, type PrematureInput } from '../core/depositEngine';
 
 /**
- * WRAPPER: Maturity Calculation
+ * Legacy wrapper for maturity calculations
  */
-export const calculateMaturity = (product: DepositProduct, principal: number, rate: number, months: number): number => {
-    if (product === 'RD') {
-        return calculateRDMaturity({ principal, annualRate: rate, tenureMonths: months }).maturityValue.toNumber();
-    } else if (product === 'FD' || product === 'MIS' || product === 'QIS') {
-        if (product === 'MIS' || product === 'QIS') return principal;
-        return calculateFDMaturity({ principal, annualRate: rate, tenureMonths: months }).maturityValue.toNumber();
+export const calculateMaturity = (product: 'FD' | 'RD', principal: number, rate: number, tenureMonths: number) => {
+    if (product === 'FD') {
+        const res = calculateFDMaturity({ principal, annualRate: rate, tenureMonths });
+        return res.maturityValue.toNumber();
+    } else {
+        const res = calculateRDMaturity({ principal, annualRate: rate, tenureMonths });
+        return res.maturityValue.toNumber();
     }
-    return 0;
 };
 
 /**
- * WRAPPER: Premature Payout
+ * Legacy wrapper for premature payout
  */
-export const calculatePrematurePayout = (input: PrematureInput): PrematureOutput => {
-    const coreInput: CorePrematureInput = {
-        ...input,
-        product: input.product
-    };
-
-    const result = coreCalculatePrematurePayout(coreInput);
-
+export const calculatePrematurePayout = (input: PrematureInput) => {
+    const res = corePrematurePayout(input);
     return {
-        effectiveRate: result.effectiveRate.toNumber(),
-        interestEarned: result.interestEarned.toNumber(),
-        interestRecovery: result.interestRecovery.toNumber(),
-        netPayout: result.netPayout.toNumber(),
-        maturityBeforeRecovery: result.maturityBeforeRecovery.toNumber()
+        ...res,
+        effectiveRate: res.effectiveRate.toNumber(),
+        interestEarned: res.interestEarned.toNumber(),
+        interestRecovery: res.interestRecovery.toNumber(),
+        netPayout: res.netPayout.toNumber(),
+        maturityBeforeRecovery: res.maturityBeforeRecovery.toNumber()
     };
 };

@@ -3,7 +3,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../..
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { ArrowRightLeft, Sparkles, TrendingDown, FileDown, RotateCcw } from 'lucide-react';
+import { ArrowRightLeft, Sparkles, TrendingDown, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { cn, formatPdfCurrency } from '../../lib/utils';
 import { exportToPDF } from '../../lib/pdf/export';
 import { Button } from '../../components/ui/button';
@@ -38,6 +39,8 @@ export const LoanCompare: React.FC = () => {
     const [isScheduleBOpen, setIsScheduleBOpen] = useState(false);
     const [scheduleA, setScheduleA] = useState<any[]>([]);
     const [scheduleB, setScheduleB] = useState<any[]>([]);
+    const [isExporting, setIsExporting] = useState(false);
+
 
     const calculateLoan = (p: number, r: number, n: number) => {
         if (isNaN(p) || isNaN(r) || isNaN(n) || p <= 0 || n <= 0) return { emi: 0, interest: 0, total: 0 };
@@ -69,34 +72,41 @@ export const LoanCompare: React.FC = () => {
     const isAWinner = resultA.total < resultB.total && resultA.total > 0;
     const isBWinner = resultB.total < resultA.total && resultB.total > 0;
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
 
-        exportToPDF({
-            title: "Loan Comparison Matrix",
-            subtitle: "Multi-Entity Arbitrage Report | Professional Financial Review",
-            details: [
-                { label: "--- Scenario ALPHA ---", value: "" },
-                { label: "Principal Corpus", value: f(parseFloat(amountA)) },
-                { label: "Rate of Interest", value: `${rateA}% p.a.` },
-                { label: "Tenure (Months)", value: `${tenureA}` },
-                { label: "Monthly EMI", value: f(resultA.emi) },
-                { label: "Total Cost of Borrowing", value: f(resultA.interest) },
-                { label: "Aggregate Cash Outflow", value: f(resultA.total) },
-                { label: "--- Scenario BETA ---", value: "" },
-                { label: "Principal Corpus", value: f(parseFloat(amountB)) },
-                { label: "Rate of Interest", value: `${rateB}% p.a.` },
-                { label: "Tenure (Months)", value: `${tenureB}` },
-                { label: "Monthly EMI", value: f(resultB.emi) },
-                { label: "Total Cost of Borrowing", value: f(resultB.interest) },
-                { label: "Aggregate Cash Outflow", value: f(resultB.total) },
-                { label: "--- Multi-Entity Delta ---", value: "" },
-                { label: "Monthly Liquidity Saving", value: f(Math.abs(resultA.emi - resultB.emi)) },
-                { label: "Interest Outflow Saving", value: f(Math.abs(resultA.interest - resultB.interest)) },
-                { label: "Optimal Strategic Choice", value: isAWinner ? "Scenario ALPHA" : (isBWinner ? "Scenario BETA" : "Statistically Neutral") }
-            ]
-        }, `Loan_Comparison_Analysis.pdf`);
+            await exportToPDF({
+                title: "Loan Comparison Matrix",
+                subtitle: "Multi-Entity Arbitrage Report | Professional Financial Review",
+                details: [
+                    { label: "--- Scenario ALPHA ---", value: "" },
+                    { label: "Principal Corpus", value: f(parseFloat(amountA)) },
+                    { label: "Rate of Interest", value: `${rateA}% p.a.` },
+                    { label: "Tenure (Months)", value: `${tenureA}` },
+                    { label: "Monthly EMI", value: f(resultA.emi) },
+                    { label: "Total Cost of Borrowing", value: f(resultA.interest) },
+                    { label: "Aggregate Cash Outflow", value: f(resultA.total) },
+                    { label: "--- Scenario BETA ---", value: "" },
+                    { label: "Principal Corpus", value: f(parseFloat(amountB)) },
+                    { label: "Rate of Interest", value: `${rateB}% p.a.` },
+                    { label: "Tenure (Months)", value: `${tenureB}` },
+                    { label: "Monthly EMI", value: f(resultB.emi) },
+                    { label: "Total Cost of Borrowing", value: f(resultB.interest) },
+                    { label: "Aggregate Cash Outflow", value: f(resultB.total) },
+                    { label: "--- Multi-Entity Delta ---", value: "" },
+                    { label: "Monthly Liquidity Saving", value: f(Math.abs(resultA.emi - resultB.emi)) },
+                    { label: "Interest Outflow Saving", value: f(Math.abs(resultA.interest - resultB.interest)) },
+                    { label: "Optimal Strategic Choice", value: isAWinner ? "Scenario ALPHA" : (isBWinner ? "Scenario BETA" : "Statistically Neutral") }
+                ]
+            }, `Loan_Comparison_Analysis.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-6xl mx-auto overflow-hidden">
@@ -121,10 +131,21 @@ export const LoanCompare: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-primary" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-primary" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

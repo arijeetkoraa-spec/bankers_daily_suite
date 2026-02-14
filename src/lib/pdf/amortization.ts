@@ -1,4 +1,4 @@
-import { RenderContext, PDF_LAYOUT, ensurePageSpace, AmortizationRow, renderPageBase, renderFooter } from './layout';
+import { type RenderContext, PDF_LAYOUT, ensurePageSpace, type AmortizationRow } from './layout';
 
 /**
  * ENGINE: Render Amortization Table
@@ -9,7 +9,7 @@ export const renderAmortizationTable = (
     schedule: AmortizationRow[]
 ): RenderContext => {
     let currentCtx = ctx;
-    const { doc, pageWidth } = currentCtx;
+    const { pageWidth } = currentCtx;
     const tableWidth = pageWidth - (PDF_LAYOUT.margin * 2);
 
     // Columns: Month | EMI | Principal | Interest | Balance

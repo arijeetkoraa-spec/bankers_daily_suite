@@ -4,8 +4,11 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Calculator, FileDown, RotateCcw } from 'lucide-react';
-import { calculateEMI, type RepaymentMethod } from '../../lib/calculations';
+import { Calculator, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
+import { calculateLoanTotals as calculateEMI, type RepaymentMethod } from '../../core/loanEngine';
+
+
 import { exportAmortizationToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
 import { AmortizationModal } from '../../components/AmortizationModal';
@@ -17,6 +20,8 @@ export const EMICalculator: React.FC = () => {
     const [rate, setRate] = useLocalStorage<string>('loan_rate', '9.50');
     const [tenure, setTenure] = useLocalStorage<string>('loan_tenure', '120'); // months
     const [method, setMethod] = useLocalStorage<RepaymentMethod>('loan_method', 'reducing');
+    const [isExporting, setIsExporting] = useState(false);
+
 
     const results = React.useMemo(() => {
         const P = parseFloat(amount);
@@ -27,13 +32,23 @@ export const EMICalculator: React.FC = () => {
             return { emi: 0, monthlyInterest: 0, totalInterest: 0, totalPayable: 0, finalPayment: 0 };
         }
 
-        return calculateEMI({
+        const res = calculateEMI({
             principal: P,
             annualRate: R,
             tenureMonths: N,
             method: method
         });
+
+        return {
+            emi: res.emi.toNumber(),
+            monthlyInterest: res.monthlyInterest.toNumber(),
+            totalInterest: res.totalInterest.toNumber(),
+            totalPayable: res.totalPayable.toNumber(),
+            finalPayment: res.finalPayment.toNumber()
+        };
+
     }, [amount, rate, tenure, method]);
+
 
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
     const schedule = React.useMemo(() => {
@@ -60,25 +75,32 @@ export const EMICalculator: React.FC = () => {
         }).format(val);
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
 
-        exportAmortizationToPDF({
-            title: "EMI Assessment Report",
-            subtitle: `${method.toUpperCase()} Repayment Method | Professional Loan Analysis`,
-            details: [
-                { label: "Loan Amount", value: f(parseFloat(amount)) },
-                { label: "ROI (p.a.)", value: `${rate}%` },
-                { label: "Tenure", value: `${tenure} Months (${(parseFloat(tenure) / 12).toFixed(1)} Years)` },
-                { label: "Repayment Method", value: method.toUpperCase() },
-                { label: "--- Results ---", value: "" },
-                { label: method === 'bullet' ? "Final Payment" : "Monthly EMI", value: f(method === 'bullet' ? results.finalPayment : results.emi) },
-                { label: "Total Interest", value: f(results.totalInterest) },
-                { label: "Total Payable", value: f(results.totalPayable) }
-            ],
-            schedule: schedule
-        }, `EMI_Report_${method}.pdf`);
+            await exportAmortizationToPDF({
+                title: "EMI Assessment Report",
+                subtitle: `${method.toUpperCase()} Repayment Method | Professional Loan Analysis`,
+                details: [
+                    { label: "Loan Amount", value: f(parseFloat(amount)) },
+                    { label: "ROI (p.a.)", value: `${rate}%` },
+                    { label: "Tenure", value: `${tenure} Months (${(parseFloat(tenure) / 12).toFixed(1)} Years)` },
+                    { label: "Repayment Method", value: method.toUpperCase() },
+                    { label: "--- Results ---", value: "" },
+                    { label: method === 'bullet' ? "Final Payment" : "Monthly EMI", value: f(method === 'bullet' ? results.finalPayment : results.emi) },
+                    { label: "Total Interest", value: f(results.totalInterest) },
+                    { label: "Total Payable", value: f(results.totalPayable) }
+                ],
+                schedule: schedule
+            }, `EMI_Report_${method}.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -103,10 +125,21 @@ export const EMICalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-primary" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-primary" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                         <Button onClick={() => setIsScheduleOpen(true)} variant="outline" size="sm" className="h-10 gap-2 border-indigo-600/30 hover:bg-indigo-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
                             <TableProperties className="w-5 h-5 text-indigo-600" />
                             AMORTIZATION
@@ -120,7 +153,7 @@ export const EMICalculator: React.FC = () => {
                     <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
                         <div className="space-y-1 share-row" data-share-key="repaymentStrategy" data-share-type="option">
                             <Label className="text-[10px] font-black text-foreground dark:text-muted-foreground uppercase tracking-widest share-label">Repayment Strategy</Label>
-                            <div className="flex p-1 bg-accent/50 dark:bg-slate-800/50 rounded-xl shadow-inner share-value">
+                            <div className="flex p-1 bg-accent/50 dark:bg-slate-800/50 rounded-xl shadow-inner">
                                 {(['reducing', 'flat', 'fixed', 'bullet'] as RepaymentMethod[]).map((m) => (
                                     <button
                                         key={m}
@@ -136,7 +169,9 @@ export const EMICalculator: React.FC = () => {
                                     </button>
                                 ))}
                             </div>
+                            <span className="share-value hidden">{method}</span>
                         </div>
+
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1 share-row" data-share-key="loanAmount" data-share-type="input">

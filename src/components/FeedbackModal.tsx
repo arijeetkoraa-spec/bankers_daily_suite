@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Send, Mail, MessageSquare } from 'lucide-react';
+import { X, Send, Mail, MessageSquare, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -14,18 +15,43 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
     const [fromEmail, setFromEmail] = useState('');
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError(null);
 
-        const body = `From: ${fromEmail}\n\nMessage:\n${message}`;
-        const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=arijit.kora.in@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        try {
+            const body = `From: ${fromEmail}\n\nMessage:\n${message}`;
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=arijit.kora.in@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-        window.open(gmailLink, '_blank');
-        onClose();
+            // Simulate local async behavior or a future API call
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            window.open(gmailLink, '_blank');
+            setIsSuccess(true);
+
+            // Auto close after success
+            setTimeout(() => {
+                onClose();
+                setIsSuccess(false);
+                setFromEmail('');
+                setSubject('');
+                setMessage('');
+            }, 1500);
+        } catch (err) {
+            setError("Failed to generate feedback link. Please try again.");
+            console.error("Feedback error:", err);
+        } finally {
+            setIsLoading(false);
+        }
     };
+
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
@@ -52,6 +78,13 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {error && (
+                            <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-[11px] font-bold flex items-center gap-2 animate-in slide-in-from-top-2">
+                                <AlertCircle className="w-4 h-4" />
+                                {error}
+                            </div>
+                        )}
+
                         <div className="space-y-1.5">
                             <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Your Email Address</Label>
                             <div className="relative">
@@ -59,10 +92,11 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
                                 <Input
                                     type="email"
                                     required
+                                    disabled={isLoading || isSuccess}
                                     placeholder="your@email.com"
                                     value={fromEmail}
                                     onChange={(e) => setFromEmail(e.target.value)}
-                                    className="h-12 bg-accent/30 border-none pl-12 focus-visible:ring-blue-600 font-bold"
+                                    className="h-12 bg-accent/30 border-none pl-12 focus-visible:ring-blue-600 font-bold disabled:opacity-50"
                                 />
                             </div>
                         </div>
@@ -72,10 +106,11 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
                             <Input
                                 type="text"
                                 required
+                                disabled={isLoading || isSuccess}
                                 placeholder="What is this regarding?"
                                 value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
-                                className="h-12 bg-accent/30 border-none focus-visible:ring-blue-600 font-bold"
+                                className="h-12 bg-accent/30 border-none focus-visible:ring-blue-600 font-bold disabled:opacity-50"
                             />
                         </div>
 
@@ -83,6 +118,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
                             <Label className="text-[10px] font-bold uppercase text-foreground opacity-70">Message / Comments</Label>
                             <textarea
                                 required
+                                disabled={isLoading || isSuccess}
                                 rows={4}
                                 placeholder="Your detailed feedback..."
                                 value={message}
@@ -97,12 +133,23 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
 
                         <Button
                             type="submit"
-                            className="w-full h-12 rounded-xl text-sm font-black uppercase tracking-widest gap-2 shadow-lg shadow-blue-600/20"
+                            disabled={isLoading || isSuccess}
+                            className={cn(
+                                "w-full h-12 rounded-xl text-sm font-black uppercase tracking-widest gap-2 shadow-lg transition-all",
+                                isSuccess ? "bg-green-600 hover:bg-green-600 shadow-green-600/20" : "shadow-blue-600/20"
+                            )}
                         >
-                            <Send className="w-4 h-4" />
-                            Send Feedback
+                            {isLoading ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : isSuccess ? (
+                                <CheckCircle className="w-4 h-4" />
+                            ) : (
+                                <Send className="w-4 h-4" />
+                            )}
+                            {isLoading ? "Generating Link..." : isSuccess ? "Done!" : "Send Feedback"}
                         </Button>
                     </form>
+
                 </div>
             </div>
         </div>

@@ -4,7 +4,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { CalendarDays, Clock, ArrowRightLeft, History, FileDown, RotateCcw } from 'lucide-react';
+import { CalendarDays, Clock, ArrowRightLeft, History, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { Button } from '../../components/ui/button';
 import { exportToPDF } from '../../lib/pdf/export';
 import { addDays, addMonths, addYears, format, differenceInDays, parseISO, isValid } from 'date-fns';
@@ -22,6 +23,8 @@ export const DateCalculator: React.FC = () => {
     // Diff Inputs
     const [endDate, setEndDate] = useLocalStorage<string>('date_end', new Date().toISOString().split('T')[0]);
     const [diffDays, setDiffDays] = useState<number>(0);
+    const [isExporting, setIsExporting] = useState(false);
+
 
     const handleReset = () => {
         setMode('maturity');
@@ -65,25 +68,32 @@ export const DateCalculator: React.FC = () => {
         calculate();
     }, [calculate]);
 
-    const downloadPDF = () => {
-        exportToPDF({
-            title: "Date Dynamics Analysis",
-            subtitle: `${mode === 'maturity' ? "Maturity Forecasting Engine" : "Duration Multi-Matrix Analysis"} | Operational Protocol`,
-            details: [
-                { label: "Reference Start Date", value: format(parseISO(startDate), 'dd-MMM-yyyy') },
-                ...(mode === 'maturity' ? [
-                    { label: "Configured Tenure", value: `${tenure} ${tenureType}` },
-                    { label: "--- Forecasted Result ---", value: "" },
-                    { label: "Maturity Date", value: maturityDate }
-                ] : [
-                    { label: "Target Terminal Date", value: format(parseISO(endDate), 'dd-MMM-yyyy') },
-                    { label: "--- Duration Metrics ---", value: "" },
-                    { label: "Total Elapsed Days", value: `${diffDays} Days` },
-                    { label: "Equivalent Weeks", value: `${(diffDays / 7).toFixed(1)} Weeks` }
-                ])
-            ]
-        }, `Date_Analysis_Report.pdf`);
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            await exportToPDF({
+                title: "Date Dynamics Analysis",
+                subtitle: `${mode === 'maturity' ? "Maturity Forecasting Engine" : "Duration Multi-Matrix Analysis"} | Operational Protocol`,
+                details: [
+                    { label: "Reference Start Date", value: format(parseISO(startDate), 'dd-MMM-yyyy') },
+                    ...(mode === 'maturity' ? [
+                        { label: "Configured Tenure", value: `${tenure} ${tenureType}` },
+                        { label: "--- Forecasted Result ---", value: "" },
+                        { label: "Maturity Date", value: maturityDate }
+                    ] : [
+                        { label: "Target Terminal Date", value: format(parseISO(endDate), 'dd-MMM-yyyy') },
+                        { label: "--- Duration Metrics ---", value: "" },
+                        { label: "Total Elapsed Days", value: `${diffDays} Days` },
+                        { label: "Equivalent Weeks", value: `${(diffDays / 7).toFixed(1)} Weeks` }
+                    ])
+                ]
+            }, `Date_Analysis_Report.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -108,10 +118,21 @@ export const DateCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-primary" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-primary" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

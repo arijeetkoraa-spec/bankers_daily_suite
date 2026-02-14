@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { ClipboardCopy, RotateCcw, Banknote, FileDown } from 'lucide-react';
+import { ClipboardCopy, RotateCcw, Banknote, FileDown, Loader2 } from 'lucide-react';
+
 import { formatIndianCurrency, numberToIndianWords, cn, formatPdfCurrency } from '../../lib/utils';
 import { exportToPDF, renderTable } from '../../lib/pdf/export';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
@@ -14,6 +15,8 @@ export const CashCounter: React.FC = () => {
 
     // State for counts
     const [counts, setCounts] = useLocalStorage<Record<number, string>>('cash_counts', {});
+    const [isExporting, setIsExporting] = React.useState(false);
+
 
     // Derived State
     let total = 0;
@@ -47,31 +50,38 @@ export const CashCounter: React.FC = () => {
         alert("Cash summary copied to clipboard!");
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
-        exportToPDF({
-            title: "Cash Denomination Summary",
-            subtitle: "Physical Cash Verification Report | Professional Audit",
-            details: [
-                { label: "Grand Total Value", value: f(total) },
-                { label: "Amount in Words", value: totalWords },
-                { label: "--- Verification Stamp ---", value: "" },
-                { label: "Verified Date", value: new Date().toLocaleDateString('en-IN') },
-                { label: "Audit Status", value: "SELF-VERIFIED" }
-            ]
-        }, `Cash_Assessment.pdf`, (doc, yPos) => {
-            yPos += 10;
-            const columns = ["Denomination", "Quantity", "Total Value"];
-            const rows = denoms
-                .filter(d => counts[d] && parseInt(counts[d]) > 0)
-                .map(d => [
-                    `Rs. ${d}`,
-                    counts[d],
-                    f(d * parseInt(counts[d]))
-                ]);
-            return renderTable(doc, columns, rows, yPos);
-        });
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
+            await exportToPDF({
+                title: "Cash Denomination Summary",
+                subtitle: "Physical Cash Verification Report | Professional Audit",
+                details: [
+                    { label: "Grand Total Value", value: f(total) },
+                    { label: "Amount in Words", value: totalWords },
+                    { label: "--- Verification Stamp ---", value: "" },
+                    { label: "Verified Date", value: new Date().toLocaleDateString('en-IN') },
+                    { label: "Audit Status", value: "SELF-VERIFIED" }
+                ]
+            }, `Cash_Assessment.pdf`, (ctx) => {
+                ctx.cursorY += 10;
+                const columns = ["Denomination", "Quantity", "Total Value"];
+                const rows = denoms
+                    .filter(d => counts[d] && parseInt(counts[d]) > 0)
+                    .map(d => [
+                        `Rs. ${d}`,
+                        counts[d],
+                        f(d * parseInt(counts[d]))
+                    ]);
+                return renderTable(ctx, columns, rows);
+            });
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-3xl mx-auto overflow-hidden">
@@ -100,10 +110,21 @@ export const CashCounter: React.FC = () => {
                             <ClipboardCopy className="w-4 h-4 text-slate-600" />
                             Copy
                         </Button>
-                        <Button onClick={downloadPDF} size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm" variant="outline">
-                            <FileDown className="w-5 h-5 text-primary" />
-                            PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            size="sm"
+                            className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                            variant="outline"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-primary" />
+                            )}
+                            {isExporting ? "..." : "PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

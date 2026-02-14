@@ -1,17 +1,23 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { TrendingDown, Package, Users, FileDown, RotateCcw } from 'lucide-react';
+import { TrendingDown, Package, Users, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { Button } from '../../components/ui/button';
 import { exportToPDF } from '../../lib/pdf/export';
 import { formatPdfCurrency } from '../../lib/utils';
+import { calculateDrawingPower } from '../../core/msmeEngine';
 
 export const DrawingPowerCalculator: React.FC = () => {
+
     // Paid Stock
     const [stock, setStock] = useLocalStorage<string>('dp_stock', '2000000');
     const [creditors, setCreditors] = useLocalStorage<string>('dp_creditors', '500000');
+    const [isExporting, setIsExporting] = useState(false);
+
     const [stockMargin, setStockMargin] = useLocalStorage<string>('dp_stock_margin', '25');
 
     // Debtors
@@ -26,19 +32,19 @@ export const DrawingPowerCalculator: React.FC = () => {
         setDebtorMargin('40');
     };
 
-    const dp = useMemo(() => {
-        const S = parseFloat(stock) || 0;
-        const C = parseFloat(creditors) || 0;
-        const D = parseFloat(debtors) || 0;
-        const SM = parseFloat(stockMargin) || 0;
-        const DM = parseFloat(debtorMargin) || 0;
-
-        const paidStock = Math.max(0, S - C);
-        const valStock = paidStock * (1 - SM / 100);
-        const valDebtors = D * (1 - DM / 100);
-        const calculatedDp = valStock + valDebtors;
-        return calculatedDp > 0 ? calculatedDp : 0;
+    const results = useMemo(() => {
+        const res = calculateDrawingPower({ stock, creditors, stockMargin, debtors, debtorMargin });
+        return {
+            dp: res.drawingPower.toNumber(),
+            paidStock: res.paidStock.toNumber(),
+            valStock: res.valStock.toNumber(),
+            valDebtors: res.valDebtors.toNumber()
+        };
     }, [stock, creditors, stockMargin, debtors, debtorMargin]);
+
+    const { dp, valStock, valDebtors } = results;
+
+
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-IN', {
@@ -48,28 +54,35 @@ export const DrawingPowerCalculator: React.FC = () => {
         }).format(val);
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
 
-        exportToPDF({
-            title: "Drawing Power Assessment",
-            subtitle: "Security Audit Summary | Stock & Book Debt Validation",
-            details: [
-                { label: "--- Inventory Assets (Stock) ---", value: "" },
-                { label: "Gross Stock Value", value: f(parseFloat(stock)) },
-                { label: "Prescribed Stock Margin", value: `${stockMargin}% ` },
-                { label: "Net Margin-Adjusted Stock", value: f(parseFloat(stock) * (1 - parseFloat(stockMargin) / 100)) },
-                { label: "--- Receivables (Book Debts) ---", value: "" },
-                { label: "Eligible Debtor Balance", value: f(parseFloat(debtors)) },
-                { label: "Prescribed Debtor Margin", value: `${debtorMargin}% ` },
-                { label: "Net Margin-Adjusted Debtors", value: f(parseFloat(debtors) * (1 - parseFloat(debtorMargin) / 100)) },
-                { label: "--- Liabilities & Deductions ---", value: "" },
-                { label: "Sundry Creditors (Deduction)", value: f(parseFloat(creditors)) },
-                { label: "--- Terminal Eligibility ---", value: "" },
-                { label: "Final Bank Drawing Power", value: f(dp) }
-            ]
-        }, `Drawing_Power_Assessment.pdf`);
+            await exportToPDF({
+                title: "Drawing Power Assessment",
+                subtitle: "Security Audit Summary | Stock & Book Debt Validation",
+                details: [
+                    { label: "--- Inventory Assets (Stock) ---", value: "" },
+                    { label: "Gross Stock Value", value: f(parseFloat(stock)) },
+                    { label: "Prescribed Stock Margin", value: `${stockMargin}% ` },
+                    { label: "Net Margin-Adjusted Stock", value: f(parseFloat(stock) * (1 - parseFloat(stockMargin) / 100)) },
+                    { label: "--- Receivables (Book Debts) ---", value: "" },
+                    { label: "Eligible Debtor Balance", value: f(parseFloat(debtors)) },
+                    { label: "Prescribed Debtor Margin", value: `${debtorMargin}% ` },
+                    { label: "Net Margin-Adjusted Debtors", value: f(parseFloat(debtors) * (1 - parseFloat(debtorMargin) / 100)) },
+                    { label: "--- Liabilities & Deductions ---", value: "" },
+                    { label: "Sundry Creditors (Deduction)", value: f(parseFloat(creditors)) },
+                    { label: "--- Terminal Eligibility ---", value: "" },
+                    { label: "Final Bank Drawing Power", value: f(dp) }
+                ]
+            }, `Drawing_Power_Assessment.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -94,10 +107,21 @@ export const DrawingPowerCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-amber-500/30 hover:bg-amber-500/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-amber-600" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-amber-500/30 hover:bg-amber-500/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-amber-600 animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-amber-600" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>
@@ -166,8 +190,9 @@ export const DrawingPowerCalculator: React.FC = () => {
                                 <div className="flex flex-col">
                                     <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest share-label">Net Stock</span>
                                     <span className="text-base font-black text-emerald-600 leading-none share-value">
-                                        {formatCurrency(Math.max(0, (parseFloat(stock) * (1 - parseFloat(stockMargin) / 100)) - parseFloat(creditors)))}
+                                        {formatCurrency(valStock)}
                                     </span>
+
                                 </div>
                                 <Package className="w-4 h-4 text-emerald-600/20" />
                             </div>
@@ -175,8 +200,9 @@ export const DrawingPowerCalculator: React.FC = () => {
                                 <div className="flex flex-col">
                                     <span className="text-[10px] font-black text-blue-800 uppercase tracking-widest share-label">Net Debtors</span>
                                     <span className="text-base font-black text-blue-600 leading-none share-value">
-                                        {formatCurrency(parseFloat(debtors) * (1 - parseFloat(debtorMargin) / 100))}
+                                        {formatCurrency(valDebtors)}
                                     </span>
+
                                 </div>
                                 <Users className="w-4 h-4 text-blue-600/20" />
                             </div>

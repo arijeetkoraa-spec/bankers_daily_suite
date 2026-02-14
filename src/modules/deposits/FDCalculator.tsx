@@ -5,7 +5,8 @@ import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { calculateMaturity, calculatePrematurePayout } from '../../lib/deposit_calculations';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { PieChart, AlertTriangle, FileDown, RotateCcw } from 'lucide-react';
+import { PieChart, AlertTriangle, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
 
@@ -15,6 +16,8 @@ export const FDCalculator: React.FC = () => {
     const [rate, setRate] = useLocalStorage<string>('fd_rate', '7.00');
     const [tenure, setTenure] = useLocalStorage<string>('fd_tenure', '1');
     const [tenureType, setTenureType] = useLocalStorage<string>('fd_tenure_type', 'years'); // years, months, days
+    const [isExporting, setIsExporting] = useState(false);
+
 
     // Results
     const [maturityValue, setMaturityValue] = useState<number>(0);
@@ -94,30 +97,37 @@ export const FDCalculator: React.FC = () => {
         }).format(val);
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
 
-        exportToPDF({
-            title: "Fixed Deposit Summary",
-            subtitle: `${isPremature ? "Premature Redemption Assessment" : "Maturity Growth Forecast"} | Professional Payout Schedule`,
-            details: [
-                { label: "Principal Invested", value: f(parseFloat(principal)) },
-                { label: "Base ROI (Annually)", value: `${rate}% p.a.` },
-                { label: "Booked Tenure", value: `${tenure} ${tenureType}` },
-                { label: "Aggregate Interest", value: f(interestEarned) },
-                { label: "Maturity Payout", value: f(maturityValue) },
-                { label: "Effective Yield", value: `${yieldRate.toFixed(2)}%` },
-                ...(isPremature ? [
-                    { label: "--- Premature Termination Details ---", value: "" },
-                    { label: "Actual Days Service", value: `${runTenure} ${runTenureType}` },
-                    { label: "Applicable Base Rate", value: `${cardRate}%` },
-                    { label: "Premature Penalty", value: `${penalty}%` },
-                    { label: "Revised Effective ROI", value: `${prematureResult?.effectiveRate.toFixed(2)}%` },
-                    { label: "Net Payout Amount", value: f(prematureResult?.netPayout || 0) }
-                ] : [])
-            ]
-        }, `FD_Statement_Report.pdf`);
+            await exportToPDF({
+                title: "Fixed Deposit Summary",
+                subtitle: `${isPremature ? "Premature Redemption Assessment" : "Maturity Growth Forecast"} | Professional Payout Schedule`,
+                details: [
+                    { label: "Principal Invested", value: f(parseFloat(principal)) },
+                    { label: "Base ROI (Annually)", value: `${rate}% p.a.` },
+                    { label: "Booked Tenure", value: `${tenure} ${tenureType}` },
+                    { label: "Aggregate Interest", value: f(interestEarned) },
+                    { label: "Maturity Payout", value: f(maturityValue) },
+                    { label: "Effective Yield", value: `${yieldRate.toFixed(2)}%` },
+                    ...(isPremature ? [
+                        { label: "--- Premature Termination Details ---", value: "" },
+                        { label: "Actual Days Service", value: `${runTenure} ${runTenureType}` },
+                        { label: "Applicable Base Rate", value: `${cardRate}%` },
+                        { label: "Premature Penalty", value: `${penalty}%` },
+                        { label: "Revised Effective ROI", value: `${prematureResult?.effectiveRate.toFixed(2)}%` },
+                        { label: "Net Payout Amount", value: f(prematureResult?.netPayout || 0) }
+                    ] : [])
+                ]
+            }, `FD_Statement_Report.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -142,10 +152,21 @@ export const FDCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-blue-600/30 hover:bg-blue-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-blue-600" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-blue-600/30 hover:bg-blue-600/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-blue-600" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

@@ -5,7 +5,8 @@ import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { RotateCcw, Sparkles, FileDown } from 'lucide-react';
+import { RotateCcw, Sparkles, FileDown, Loader2 } from 'lucide-react';
+
 import { cn, formatPdfCurrency } from '../../lib/utils';
 import { exportAmortizationToPDF } from '../../lib/pdf/export';
 import { AmortizationModal } from '../../components/AmortizationModal';
@@ -31,7 +32,9 @@ export const ReverseLoanCalculator: React.FC = () => {
 
     const [result, setResult] = useState<string>('');
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const [schedule, setSchedule] = useState<any[]>([]);
+
 
     const calculate = React.useCallback(() => {
         const P = parseFloat(principal);
@@ -94,23 +97,30 @@ export const ReverseLoanCalculator: React.FC = () => {
     }, []);
 
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
-        exportAmortizationToPDF({
-            title: "Reverse Loan Analysis",
-            subtitle: `Target modeling: ${target.toUpperCase()} | Professional Debt Protocol`,
-            details: [
-                { label: "Target Parameter", value: target.toUpperCase() },
-                { label: "Monthly EMI", value: f(parseFloat(emi)) },
-                { label: "Principal", value: f(parseFloat(principal)) },
-                { label: "Rate", value: `${rate}% p.a.` },
-                { label: "Tenure", value: `${tenure} Months` },
-                { label: "--- Result ---", value: "" },
-                { label: `Computed ${target.charAt(0).toUpperCase() + target.slice(1)}`, value: target === 'rate' ? `${rate}% p.a.` : (target === 'tenure' ? `${tenure} Months` : f(parseFloat(principal))) }
-            ],
-            schedule: schedule
-        }, `Reverse_Loan_${target}.pdf`);
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
+            await exportAmortizationToPDF({
+                title: "Reverse Loan Analysis",
+                subtitle: `Target modeling: ${target.toUpperCase()} | Professional Debt Protocol`,
+                details: [
+                    { label: "Target Parameter", value: target.toUpperCase() },
+                    { label: "Monthly EMI", value: f(parseFloat(emi)) },
+                    { label: "Principal", value: f(parseFloat(principal)) },
+                    { label: "Rate", value: `${rate}% p.a.` },
+                    { label: "Tenure", value: `${tenure} Months` },
+                    { label: "--- Result ---", value: "" },
+                    { label: `Computed ${target.charAt(0).toUpperCase() + target.slice(1)}`, value: target === 'rate' ? `${rate}% p.a.` : (target === 'tenure' ? `${tenure} Months` : f(parseFloat(principal))) }
+                ],
+                schedule: schedule
+            }, `Reverse_Loan_${target}.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -135,10 +145,21 @@ export const ReverseLoanCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-primary" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-primary" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                         <Button onClick={() => setIsScheduleOpen(true)} variant="outline" size="sm" className="h-10 gap-2 border-cyan-500/30 hover:bg-cyan-500/10 hidden md:flex text-xs font-black px-4 shadow-sm">
                             <TableProperties className="w-5 h-5 text-cyan-600" />
                             AMORTIZATION
@@ -153,10 +174,12 @@ export const ReverseLoanCalculator: React.FC = () => {
                         <div className="lg:col-span-7 p-4 md:p-6 space-y-4 border-r border-border/50">
                             <TabsList className="grid w-full grid-cols-3 bg-accent/50 p-1.5 h-11 rounded-xl shadow-inner share-row" data-share-key="targetParameter" data-share-type="option">
                                 <Label className="sr-only share-label">Target Parameter</Label>
-                                <TabsTrigger value="principal" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20 share-value">Amount</TabsTrigger>
+                                <TabsTrigger value="principal" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">Amount</TabsTrigger>
                                 <TabsTrigger value="tenure" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">Tenure</TabsTrigger>
                                 <TabsTrigger value="rate" className="rounded-lg h-8 font-black text-[11px] uppercase tracking-widest text-foreground/70 dark:text-muted-foreground/70 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/20">ROI</TabsTrigger>
+                                <span className="share-value hidden">{target}</span>
                             </TabsList>
+
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-1 share-row" data-share-key="emi" data-share-type="input">

@@ -4,7 +4,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Tractor, FileDown, RotateCcw, Plus, Trash2, AlertCircle, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { Tractor, FileDown, RotateCcw, Plus, Trash2, AlertCircle, Info, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+
 import { exportToPDF, renderTable } from '../../lib/pdf/export';
 import { formatIndianCurrency, numberToIndianWords, formatPdfCurrency } from '../../lib/utils';
 
@@ -55,6 +56,8 @@ export const KCCCalculator: React.FC = () => {
 
     // UI State
     const [showParams, setShowParams] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
+
 
     // -- LOGIC --
 
@@ -206,37 +209,47 @@ export const KCCCalculator: React.FC = () => {
         setInsurancePremium('0');
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
-        exportToPDF({
-            title: "KCC Detailed Assessment",
-            subtitle: `Sanction Report - ${farmerType} (${farmerCategory} Farmer)`,
-            details: [
-                { label: "Total Land Holding", value: `${(landUnit === 'Acres' ? totalAcres : totalHectares).toFixed(2)} ${landUnit}` },
-                { label: "Cropping Pattern", value: isMultiCrop ? "Multi-Crop" : singleCropType },
-                { label: "--- Base Calculation (Year 1) ---", value: "" },
-                { label: "Base Cultivation Cost", value: f(year1Components.base) },
-                { label: `Post Harvest (${postHarvestPercent}%)`, value: f(year1Components.ph) },
-                { label: `Maintenance (${maintenancePercent}%)`, value: f(year1Components.maint) },
-                { label: "Insurance Premium", value: f(year1Components.ins) },
-                { label: "Year 1 Short Term Limit", value: f(projections[0].shortTermLimit) },
-                { label: "--- Final Sanction ---", value: "" },
-                { label: "Max Permissible Limit (MPL)", value: f(maxPermissibleLimit) },
-                { label: "Amount in Words", value: limitWords }
-            ]
-        }, `KCC_Advanced_Assessment.pdf`, (doc: any, yPos: number) => {
-            // Addition of generic table for 5-year projection
-            yPos += 10;
-            const columns = ["Year", "KCC Limit", "Term Loan", "Total"];
-            const rows = projections.map(p => [
-                `Year ${p.year}`,
-                f(p.shortTermLimit),
-                p.termLoan > 0 ? f(p.termLoan) : "-",
-                f(p.totalDrawable)
-            ]);
-            return renderTable(doc, columns, rows, yPos);
-        });
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
+            await exportToPDF({
+                title: "KCC Detailed Assessment",
+                subtitle: `Sanction Report - ${farmerType} (${farmerCategory} Farmer)`,
+                details: [
+                    { label: "Total Land Holding", value: `${(landUnit === 'Acres' ? totalAcres : totalHectares).toFixed(2)} ${landUnit}` },
+                    { label: "Cropping Pattern", value: isMultiCrop ? "Multi-Crop" : singleCropType },
+                    { label: "--- Base Calculation (Year 1) ---", value: "" },
+                    { label: "Base Cultivation Cost", value: f(year1Components.base) },
+                    { label: `Post Harvest (${postHarvestPercent}%)`, value: f(year1Components.ph) },
+                    { label: `Maintenance (${maintenancePercent}%)`, value: f(year1Components.maint) },
+                    { label: "Insurance Premium", value: f(year1Components.ins) },
+                    { label: "Year 1 Short Term Limit", value: f(projections[0].shortTermLimit) },
+                    { label: "--- Final Sanction ---", value: "" },
+                    { label: "Max Permissible Limit (MPL)", value: f(maxPermissibleLimit) },
+                    { label: "Amount in Words", value: limitWords }
+                ]
+            }, `KCC_Advanced_Assessment.pdf`, (ctx) => {
+                // Addition of generic table for 5-year projection
+                let currentCtx = ctx;
+                currentCtx.cursorY += 10;
+                const columns = ["Year", "KCC Limit", "Term Loan", "Total"];
+                const rows = projections.map(p => [
+                    `Year ${p.year}`,
+                    f(p.shortTermLimit),
+                    p.termLoan > 0 ? f(p.termLoan) : "-",
+                    f(p.totalDrawable)
+                ]);
+                return renderTable(currentCtx, columns, rows, {});
+            });
+
+
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-5xl mx-auto overflow-hidden">
@@ -261,10 +274,21 @@ export const KCCCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-green-600/30 hover:bg-green-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-green-700" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-green-600/30 hover:bg-green-600/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-green-700 animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-green-700" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

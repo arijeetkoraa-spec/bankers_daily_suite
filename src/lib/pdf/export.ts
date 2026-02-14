@@ -1,7 +1,11 @@
 import { jsPDF } from 'jspdf';
-import {
+import type {
     PDFDataBase,
     AmortizationPDFData,
+    RenderContext,
+} from './layout';
+
+import {
     createRenderContext,
     renderPageBase,
     renderSection,
@@ -16,11 +20,12 @@ import { renderAmortizationTable } from './amortization';
  * EXPORT: Standard Report
  * Returns jsPDF instance to allow caller to save, preview or upload.
  */
-export const exportToPDF = (
+export const exportToPDF = async (
     data: PDFDataBase,
     fileName: string = 'report.pdf',
-    customRenderer?: (ctx: any) => any
-): jsPDF => {
+    customRenderer?: (ctx: RenderContext) => RenderContext
+): Promise<jsPDF> => {
+
     const doc = new jsPDF();
     let ctx = createRenderContext(doc);
 
@@ -68,10 +73,10 @@ export const exportToPDF = (
  * EXPORT: Amortization Report
  * Uses a post-rendering footer patch to handle total page count correctly.
  */
-export const exportAmortizationToPDF = (
+export const exportAmortizationToPDF = async (
     data: AmortizationPDFData,
     fileName: string = 'amortization-schedule.pdf'
-): jsPDF => {
+): Promise<jsPDF> => {
     const doc = new jsPDF();
     let ctx = createRenderContext(doc);
 

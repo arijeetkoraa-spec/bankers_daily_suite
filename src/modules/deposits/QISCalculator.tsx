@@ -4,7 +4,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { CalendarClock, AlertTriangle, FileDown, RotateCcw } from 'lucide-react';
+import { CalendarClock, AlertTriangle, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { calculatePrematurePayout } from '../../lib/deposit_calculations';
 import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
@@ -12,6 +13,8 @@ import { cn, formatPdfCurrency } from '../../lib/utils';
 export const QISCalculator: React.FC = () => {
     const [principal, setPrincipal] = useLocalStorage<string>('qis_principal', '500000');
     const [rate, setRate] = useLocalStorage<string>('qis_rate', '7.50');
+    const [isExporting, setIsExporting] = useState(false);
+
 
     const [quarterlyPayout, setQuarterlyPayout] = useState<number>(0);
 
@@ -72,29 +75,36 @@ export const QISCalculator: React.FC = () => {
         }).format(val);
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
 
-        exportToPDF({
-            title: "Quarterly Income Assessment",
-            subtitle: `${isPremature ? "Premature Liquidation Review" : "Quarterly Strategic Payout"} | Professional Banking Summary`,
-            details: [
-                { label: "Principal Investment", value: f(parseFloat(principal)) },
-                { label: "ROI (Annually)", value: `${rate}% p.a.` },
-                { label: "Quarterly Interest Payout", value: f(quarterlyPayout) },
-                ...(isPremature ? [
-                    { label: "--- Premature Termination Details ---", value: "" },
-                    { label: "Active Months Run", value: `${runMonths}` },
-                    { label: "Applicable Base Rate", value: `${cardRate}%` },
-                    { label: "Foreclosure Penalty", value: `${penalty}%` },
-                    { label: "Interest Already Disbursed", value: f(parseFloat(interestAlreadyPaid)) },
-                    { label: "Interest Recovery Component", value: f(prematureResult?.interestRecovery || 0) },
-                    { label: "--- Final Settlement ---", value: "" },
-                    { label: "Net Redemption Amount", value: f(prematureResult?.netPayout || 0) }
-                ] : [])
-            ]
-        }, `QIS_Growth_Statement.pdf`);
+            await exportToPDF({
+                title: "Quarterly Income Assessment",
+                subtitle: `${isPremature ? "Premature Liquidation Review" : "Quarterly Strategic Payout"} | Professional Banking Summary`,
+                details: [
+                    { label: "Principal Investment", value: f(parseFloat(principal)) },
+                    { label: "ROI (Annually)", value: `${rate}% p.a.` },
+                    { label: "Quarterly Interest Payout", value: f(quarterlyPayout) },
+                    ...(isPremature ? [
+                        { label: "--- Premature Termination Details ---", value: "" },
+                        { label: "Active Months Run", value: `${runMonths}` },
+                        { label: "Applicable Base Rate", value: `${cardRate}%` },
+                        { label: "Foreclosure Penalty", value: `${penalty}%` },
+                        { label: "Interest Already Disbursed", value: f(parseFloat(interestAlreadyPaid)) },
+                        { label: "Interest Recovery Component", value: f(prematureResult?.interestRecovery || 0) },
+                        { label: "--- Final Settlement ---", value: "" },
+                        { label: "Net Redemption Amount", value: f(prematureResult?.netPayout || 0) }
+                    ] : [])
+                ]
+            }, `QIS_Growth_Statement.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -119,10 +129,21 @@ export const QISCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-primary" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-primary" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

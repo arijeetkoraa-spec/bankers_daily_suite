@@ -4,13 +4,18 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Briefcase, Coins, ShieldCheck, BarChart3, FileDown, RotateCcw } from 'lucide-react';
+import { Briefcase, Coins, ShieldCheck, BarChart3, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { Button } from '../../components/ui/button';
 import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
+import { calculateNayakWC, calculateTandonMPBF } from '../../core/msmeEngine';
+
 
 export const WorkingCapitalCalculator: React.FC = () => {
     const [method, setMethod] = useLocalStorage<string>('wc_method', 'turnover');
+    const [isExporting, setIsExporting] = useState(false);
+
 
     // Turnover Method
     const [sales, setSales] = useLocalStorage<string>('wc_sales', '10000000'); // 1 Cr
@@ -30,25 +35,14 @@ export const WorkingCapitalCalculator: React.FC = () => {
 
     const calculate = React.useCallback(() => {
         if (method === 'turnover') {
-            const S = parseFloat(sales);
-            if (isNaN(S) || S <= 0) {
-                setTurnoverLimit(0);
-                return;
-            }
-            const bankFinance = S * 0.20;
-            setTurnoverLimit(bankFinance);
-
+            const res = calculateNayakWC({ turnover: sales });
+            setTurnoverLimit(res.limit.toNumber());
         } else if (method === 'mpbf') {
-            const CA = parseFloat(ca);
-            const CL = parseFloat(cl);
-            if (isNaN(CA) || isNaN(CL)) {
-                setMpbf(0);
-                return;
-            }
-            const val = 0.75 * (CA - CL);
-            setMpbf(val > 0 ? val : 0);
+            const res = calculateTandonMPBF({ currentAssets: ca, currentLiabilities: cl });
+            setMpbf(res.mpbf.toNumber());
         }
     }, [method, sales, ca, cl]);
+
 
     useEffect(() => {
         calculate();
@@ -62,29 +56,36 @@ export const WorkingCapitalCalculator: React.FC = () => {
         }).format(val);
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
 
-        exportToPDF({
-            title: "Working Capital Assessment",
-            subtitle: `${method === 'turnover' ? "Nayak Committee (Turnover Method)" : "Tandon Committee (MPBF Method II)"} | Professional Review`,
-            details: [
-                { label: "Assessment Method", value: method === 'turnover' ? "Nayak Committee (Turnover)" : "Tandon Committee (MPBF-II)" },
-                ...(method === 'turnover' ? [
-                    { label: "Projected Annual Sales", value: f(parseFloat(sales)) },
-                    { label: "WC Requirement (25%)", value: f(parseFloat(sales) * 0.25) },
-                    { label: "Minimum Margin (5%)", value: f(parseFloat(sales) * 0.05) },
-                ] : [
-                    { label: "Total Current Assets", value: f(parseFloat(ca)) },
-                    { label: "Other Current Liabilities", value: f(parseFloat(cl)) },
-                    { label: "Working Capital Gap", value: f(parseFloat(ca) - parseFloat(cl)) },
-                ]),
-                { label: "--- Final Credit Sanction ---", value: "" },
-                { label: "Permissible Bank Finance", value: method === 'turnover' ? "20% of Sales" : "75% of Gap" },
-                { label: "Calculated Limit", value: f(method === 'turnover' ? turnoverLimit : mpbf) }
-            ]
-        }, `Working_Capital_${method}.pdf`);
+            await exportToPDF({
+                title: "Working Capital Assessment",
+                subtitle: `${method === 'turnover' ? "Nayak Committee (Turnover Method)" : "Tandon Committee (MPBF Method II)"} | Professional Review`,
+                details: [
+                    { label: "Assessment Method", value: method === 'turnover' ? "Nayak Committee (Turnover)" : "Tandon Committee (MPBF-II)" },
+                    ...(method === 'turnover' ? [
+                        { label: "Projected Annual Sales", value: f(parseFloat(sales)) },
+                        { label: "WC Requirement (25%)", value: f(parseFloat(sales) * 0.25) },
+                        { label: "Minimum Margin (5%)", value: f(parseFloat(sales) * 0.05) },
+                    ] : [
+                        { label: "Total Current Assets", value: f(parseFloat(ca)) },
+                        { label: "Other Current Liabilities", value: f(parseFloat(cl)) },
+                        { label: "Working Capital Gap", value: f(parseFloat(ca) - parseFloat(cl)) },
+                    ]),
+                    { label: "--- Final Credit Sanction ---", value: "" },
+                    { label: "Permissible Bank Finance", value: method === 'turnover' ? "20% of Sales" : "75% of Gap" },
+                    { label: "Calculated Limit", value: f(method === 'turnover' ? turnoverLimit : mpbf) }
+                ]
+            }, `Working_Capital_${method}.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -109,10 +110,21 @@ export const WorkingCapitalCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-primary" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-primary" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>
@@ -138,7 +150,9 @@ export const WorkingCapitalCalculator: React.FC = () => {
                                 </TabsTrigger>
                             ))}
                         </TabsList>
+                        <span className="share-value hidden">{method}</span>
                     </div>
+
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[400px]">
                         {/* Inputs Section */}

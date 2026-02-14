@@ -1,4 +1,4 @@
-import { RenderContext, PDF_LAYOUT, ensurePageSpace } from './layout';
+import { type RenderContext, PDF_LAYOUT, ensurePageSpace } from './layout';
 
 /**
  * ENGINE: Render Table
@@ -8,10 +8,10 @@ export const renderTable = (
     ctx: RenderContext,
     columns: string[],
     rows: (string | number)[][],
-    options: { colWidths?: number[] } = {}
+    _options: { colWidths?: number[] } = {}
 ): RenderContext => {
     let currentCtx = ctx;
-    const { doc, pageWidth } = currentCtx;
+    const { pageWidth } = currentCtx;
     const tableWidth = pageWidth - (PDF_LAYOUT.margin * 2);
     const colWidth = tableWidth / columns.length;
 

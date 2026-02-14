@@ -4,7 +4,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Coins, AlertTriangle, FileDown, RotateCcw } from 'lucide-react';
+import { Coins, AlertTriangle, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { calculatePrematurePayout } from '../../lib/deposit_calculations';
 import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
@@ -12,6 +13,8 @@ import { cn, formatPdfCurrency } from '../../lib/utils';
 export const MISCalculator: React.FC = () => {
     const [principal, setPrincipal] = useLocalStorage<string>('mis_principal', '500000');
     const [rate, setRate] = useLocalStorage<string>('mis_rate', '7.50');
+    const [isExporting, setIsExporting] = useState(false);
+
 
     const [monthlyPayout, setMonthlyPayout] = useState<number>(0);
     const [quarterlyYield, setQuarterlyYield] = useState<number>(0);
@@ -78,30 +81,37 @@ export const MISCalculator: React.FC = () => {
         }).format(val);
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
 
-        exportToPDF({
-            title: "Monthly Income Plan Assessment",
-            subtitle: `${isPremature ? "Premature Liquidation Review" : "Monthly Yield Forecast"} | Professional Payout Model`,
-            details: [
-                { label: "Principal Investment", value: f(parseFloat(principal)) },
-                { label: "Booked ROI (Annually)", value: `${rate}% p.a.` },
-                { label: "Discounted Monthly Income", value: f(monthlyPayout) },
-                { label: "Annualized Effective Yield", value: `${quarterlyYield.toFixed(2)}%` },
-                ...(isPremature ? [
-                    { label: "--- Termination Analysis ---", value: "" },
-                    { label: "Active Tenure (Months)", value: `${runMonths}` },
-                    { label: "Prevailing Card Rate", value: `${cardRate}%` },
-                    { label: "Premature Penalty", value: `${penalty}%` },
-                    { label: "Interest Already Disbursed", value: f(parseFloat(interestAlreadyPaid)) },
-                    { label: "Interest Recovery Amount", value: f(prematureResult?.interestRecovery || 0) },
-                    { label: "--- Final Settlement ---", value: "" },
-                    { label: "Net Payout for Liquidation", value: f(prematureResult?.netPayout || 0) }
-                ] : [])
-            ]
-        }, `MIS_Statement.pdf`);
+            await exportToPDF({
+                title: "Monthly Income Plan Assessment",
+                subtitle: `${isPremature ? "Premature Liquidation Review" : "Monthly Yield Forecast"} | Professional Payout Model`,
+                details: [
+                    { label: "Principal Investment", value: f(parseFloat(principal)) },
+                    { label: "Booked ROI (Annually)", value: `${rate}% p.a.` },
+                    { label: "Discounted Monthly Income", value: f(monthlyPayout) },
+                    { label: "Annualized Effective Yield", value: `${quarterlyYield.toFixed(2)}%` },
+                    ...(isPremature ? [
+                        { label: "--- Termination Analysis ---", value: "" },
+                        { label: "Active Tenure (Months)", value: `${runMonths}` },
+                        { label: "Prevailing Card Rate", value: `${cardRate}%` },
+                        { label: "Premature Penalty", value: `${penalty}%` },
+                        { label: "Interest Already Disbursed", value: f(parseFloat(interestAlreadyPaid)) },
+                        { label: "Interest Recovery Amount", value: f(prematureResult?.interestRecovery || 0) },
+                        { label: "--- Final Settlement ---", value: "" },
+                        { label: "Net Payout for Liquidation", value: f(prematureResult?.netPayout || 0) }
+                    ] : [])
+                ]
+            }, `MIS_Statement.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -126,10 +136,21 @@ export const MISCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-purple-600/30 hover:bg-purple-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-purple-600" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-purple-600/30 hover:bg-purple-600/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-purple-600" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

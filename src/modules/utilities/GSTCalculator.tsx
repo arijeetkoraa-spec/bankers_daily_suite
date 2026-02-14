@@ -3,7 +3,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../..
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { Calculator, Plus, Minus, FileDown, RotateCcw } from 'lucide-react';
+import { Calculator, Plus, Minus, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { Button } from '../../components/ui/button';
 import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
@@ -13,6 +14,8 @@ export const GSTCalculator: React.FC = () => {
     const [mode, setMode] = useLocalStorage<string>('gst_mode', 'exclusive'); // exclusive, inclusive
     const [amount, setAmount] = useLocalStorage<string>('gst_amount', '1000');
     const [rate, setRate] = useLocalStorage<string>('gst_rate', '18');
+    const [isExporting, setIsExporting] = useState(false);
+
 
     const handleReset = () => {
         setMode('exclusive');
@@ -61,24 +64,31 @@ export const GSTCalculator: React.FC = () => {
         calculate();
     }, [calculate]);
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
-        exportToPDF({
-            title: "GST Assessment Report",
-            subtitle: `Tax Configuration: GST ${mode.toUpperCase()} | Statutory Compliance`,
-            details: [
-                { label: "Transaction Amount", value: f(parseFloat(amount)) },
-                { label: "Applicable Tax Rate", value: `${rate}%` },
-                { label: "--- Tax Itemization ---", value: "" },
-                { label: "Net Basic Value", value: f(netAmount) },
-                { label: "Total GST Component", value: f(gstAmount) },
-                { label: "CGST (Central Tax)", value: f(gstAmount / 2) },
-                { label: "SGST (State Tax)", value: f(gstAmount / 2) },
-                { label: "--- Final Valuation ---", value: "" },
-                { label: "Gross Invoice Value", value: f(totalAmount) }
-            ]
-        }, `GST_Report.pdf`);
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
+            await exportToPDF({
+                title: "GST Assessment Report",
+                subtitle: `Tax Configuration: GST ${mode.toUpperCase()} | Statutory Compliance`,
+                details: [
+                    { label: "Transaction Amount", value: f(parseFloat(amount)) },
+                    { label: "Applicable Tax Rate", value: `${rate}%` },
+                    { label: "--- Tax Itemization ---", value: "" },
+                    { label: "Net Basic Value", value: f(netAmount) },
+                    { label: "Total GST Component", value: f(gstAmount) },
+                    { label: "CGST (Central Tax)", value: f(gstAmount / 2) },
+                    { label: "SGST (State Tax)", value: f(gstAmount / 2) },
+                    { label: "--- Final Valuation ---", value: "" },
+                    { label: "Gross Invoice Value", value: f(totalAmount) }
+                ]
+            }, `GST_Report.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -104,10 +114,20 @@ export const GSTCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} size="sm" className="h-10 gap-2 bg-white text-slate-950 hover:bg-slate-100 hidden md:flex text-xs font-black px-4 shadow-xl border-none">
-                            <FileDown className="w-5 h-5" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            size="sm"
+                            className="h-10 gap-2 bg-white text-slate-950 hover:bg-slate-100 hidden md:flex text-xs font-black px-4 shadow-xl border-none"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

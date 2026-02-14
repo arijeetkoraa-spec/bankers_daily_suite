@@ -4,7 +4,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { TrendingUp, AlertTriangle, FileDown, RotateCcw } from 'lucide-react';
+import { TrendingUp, AlertTriangle, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { calculateMaturity, calculatePrematurePayout } from '../../lib/deposit_calculations';
 import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
@@ -13,6 +14,8 @@ export const RDCalculator: React.FC = () => {
     const [monthlyInstallment, setMonthlyInstallment] = useLocalStorage<string>('rd_installment', '5000');
     const [rate, setRate] = useLocalStorage<string>('rd_rate', '7.00');
     const [months, setMonths] = useLocalStorage<string>('rd_months', '12');
+    const [isExporting, setIsExporting] = useState(false);
+
 
     const [maturityValue, setMaturityValue] = useState<number>(0);
     const [interestEarned, setInterestEarned] = useState<number>(0);
@@ -75,29 +78,36 @@ export const RDCalculator: React.FC = () => {
         }).format(val);
     };
 
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
 
-        exportToPDF({
-            title: "Recurring Deposit Assessment",
-            subtitle: `${isPremature ? "Premature Closure Review" : "Maturity Growth Forecast"} | Professional Wealth Profile`,
-            details: [
-                { label: "Monthly Installment", value: f(parseFloat(monthlyInstallment)) },
-                { label: "ROI (Annually)", value: `${rate}% p.a.` },
-                { label: "Planned Tenure", value: `${months} Months` },
-                { label: "Net Principal Invested", value: f(parseFloat(monthlyInstallment) * parseInt(months)) },
-                { label: "Accumulated Interest", value: f(isPremature ? prematureResult?.interestEarned : interestEarned) },
-                { label: "--- Final Payout ---", value: "" },
-                { label: isPremature ? "Net Closure Amount" : "Expected Maturity Value", value: f(isPremature ? prematureResult?.netPayout : maturityValue) },
-                ...(isPremature ? [
-                    { label: "--- Premature Penalties ---", value: "" },
-                    { label: "Months Served", value: `${runMonths}` },
-                    { label: "Base Card Rate", value: `${cardRate}%` },
-                    { label: "Penalty Deducted", value: `${penalty}%` }
-                ] : [])
-            ]
-        }, `RD_Financial_Statement.pdf`);
+            await exportToPDF({
+                title: "Recurring Deposit Assessment",
+                subtitle: `${isPremature ? "Premature Closure Review" : "Maturity Growth Forecast"} | Professional Wealth Profile`,
+                details: [
+                    { label: "Monthly Installment", value: f(parseFloat(monthlyInstallment)) },
+                    { label: "ROI (Annually)", value: `${rate}% p.a.` },
+                    { label: "Planned Tenure", value: `${months} Months` },
+                    { label: "Net Principal Invested", value: f(parseFloat(monthlyInstallment) * parseInt(months)) },
+                    { label: "Accumulated Interest", value: f(isPremature ? prematureResult?.interestEarned : interestEarned) },
+                    { label: "--- Final Payout ---", value: "" },
+                    { label: isPremature ? "Net Closure Amount" : "Expected Maturity Value", value: f(isPremature ? prematureResult?.netPayout : maturityValue) },
+                    ...(isPremature ? [
+                        { label: "--- Premature Penalties ---", value: "" },
+                        { label: "Months Served", value: `${runMonths}` },
+                        { label: "Base Card Rate", value: `${cardRate}%` },
+                        { label: "Penalty Deducted", value: `${penalty}%` }
+                    ] : [])
+                ]
+            }, `RD_Financial_Statement.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
+
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -122,10 +132,21 @@ export const RDCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-emerald-600/30 hover:bg-emerald-600/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-emerald-600" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-emerald-600/30 hover:bg-emerald-600/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-emerald-600" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>

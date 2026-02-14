@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
+
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { ShieldCheck, Info, Percent, ArrowRight, FileDown, RotateCcw } from 'lucide-react';
+import { ShieldCheck, Info, Percent, ArrowRight, FileDown, RotateCcw, Loader2 } from 'lucide-react';
+
 import { Button } from '../../components/ui/button';
 import { exportToPDF } from '../../lib/pdf/export';
 import { cn, formatPdfCurrency } from '../../lib/utils';
+import { calculateCGTMSEFee } from '../../core/msmeEngine';
+
 
 // Simple Premium Switch Component
 const SimpleSwitch = ({ checked, onCheckedChange, id }: { checked: boolean; onCheckedChange: (c: boolean) => void; id: string }) => (
@@ -33,70 +37,48 @@ const SimpleSwitch = ({ checked, onCheckedChange, id }: { checked: boolean; onCh
 export const FeesCalculator: React.FC = () => {
     const [loanAmount, setLoanAmount] = useLocalStorage<string>('cgtmse_loan', '1500000');
     const [isSocialCategory, setIsSocialCategory] = useState<boolean>(false);
+    const [isExporting, setIsExporting] = useState(false);
+
 
     const handleReset = () => {
         setLoanAmount('1500000');
         setIsSocialCategory(false);
     };
 
-    const [fee, setFee] = useState<number>(0);
-    const [rate, setRate] = useState<number>(0);
-
-    const calculate = React.useCallback(() => {
-        const amt = parseFloat(loanAmount);
-        if (isNaN(amt) || amt <= 0) {
-            setFee(0);
-            setRate(0);
-            return;
-        }
-
-        let baseRate = 0;
-        if (amt <= 1000000) baseRate = 0.37;
-        else if (amt <= 5000000) baseRate = 0.55;
-        else if (amt <= 20000000) {
-            if (amt <= 10000000) baseRate = 0.60;
-            else baseRate = 1.20;
-        } else {
-            baseRate = 1.35;
-        }
-
-        if (isSocialCategory) {
-            baseRate = baseRate * 0.90;
-        }
-
-        setRate(baseRate);
-        setFee(amt * (baseRate / 100));
-
+    const results = useMemo(() => {
+        const res = calculateCGTMSEFee({ loanAmount, isSocialCategory });
+        return {
+            fee: res.fee.toNumber(),
+            rate: res.rate.toNumber()
+        };
     }, [loanAmount, isSocialCategory]);
 
-    const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            maximumFractionDigits: 0
-        }).format(val);
+    const { fee, rate } = results;
+
+
+    const downloadPDF = async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            const f = formatPdfCurrency;
+
+            await exportToPDF({
+                title: "CGTMSE Fee Assessment",
+                subtitle: "Credit Guarantee Fund Trust for Micro & Small Enterprises | Statutory Audit",
+                details: [
+                    { label: "Sanctioned Loan Amount", value: f(parseFloat(loanAmount)) },
+                    { label: "Entrepreneur Category", value: isSocialCategory ? "Special (10% Concessionary)" : "General / Standard" },
+                    { label: "Applicable Annual Fee Rate", value: `${rate.toFixed(3)}%` },
+                    { label: "--- Payout Liability ---", value: "" },
+                    { label: "Aggregate Annual Fee", value: f(fee) },
+                    { label: "Quarterly Installment", value: f(fee / 4) }
+                ]
+            }, `CGTMSE_Fee_Assessment.pdf`);
+        } finally {
+            setIsExporting(false);
+        }
     };
 
-    useEffect(() => {
-        calculate();
-    }, [calculate]);
-
-    const downloadPDF = () => {
-        const f = formatPdfCurrency;
-
-        exportToPDF({
-            title: "CGTMSE Fee Assessment",
-            subtitle: "Credit Guarantee Fund Trust for Micro & Small Enterprises | Statutory Audit",
-            details: [
-                { label: "Sanctioned Loan Amount", value: f(parseFloat(loanAmount)) },
-                { label: "Entrepreneur Category", value: isSocialCategory ? "Special (10% Concessionary)" : "General / Standard" },
-                { label: "Applicable Annual Fee Rate", value: `${rate.toFixed(3)}%` },
-                { label: "--- Payout Liability ---", value: "" },
-                { label: "Aggregate Annual Fee", value: f(fee) },
-                { label: "Quarterly Installment", value: f(fee / 4) }
-            ]
-        }, `CGTMSE_Fee_Assessment.pdf`);
-    };
 
     return (
         <Card className="premium-card w-full max-w-4xl mx-auto overflow-hidden">
@@ -121,10 +103,21 @@ export const FeesCalculator: React.FC = () => {
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>
-                        <Button onClick={downloadPDF} variant="outline" size="sm" className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm">
-                            <FileDown className="w-5 h-5 text-primary" />
-                            EXPORT PDF
+                        <Button
+                            onClick={downloadPDF}
+                            disabled={isExporting}
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-2 border-primary/30 hover:bg-primary/10 hidden md:flex text-xs font-black px-4 shadow-sm"
+                        >
+                            {isExporting ? (
+                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : (
+                                <FileDown className="w-5 h-5 text-primary" />
+                            )}
+                            {isExporting ? "EXPORTING..." : "EXPORT PDF"}
                         </Button>
+
                     </div>
                 </div>
             </CardHeader>
@@ -181,7 +174,7 @@ export const FeesCalculator: React.FC = () => {
                                 <div className="space-y-1 text-center">
                                     <span className="result-label share-label">Annual Fee</span>
                                     <div className="hero-result-value h-16 flex items-center justify-center text-purple-600 share-value">
-                                        {formatCurrency(fee)}
+                                        {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(fee)}
                                     </div>
                                 </div>
                             </div>
@@ -200,8 +193,11 @@ export const FeesCalculator: React.FC = () => {
                                 <div className="stat-card p-4 rounded-xl border border-border/50 bg-background shadow-sm flex items-center justify-between share-row" data-share-key="quarterlyFee" data-share-type="result">
                                     <div className="flex flex-col">
                                         <span className="result-label share-label">Quarterly Equivalent</span>
-                                        <span className="text-xl font-black text-purple-600 share-value">{formatCurrency(fee / 4)}</span>
+                                        <span className="text-xl font-black text-purple-600 share-value">
+                                            {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(fee / 4)}
+                                        </span>
                                     </div>
+
                                     <ArrowRight className="w-5 h-5 text-purple-600 opacity-40" />
                                 </div>
                             </div>

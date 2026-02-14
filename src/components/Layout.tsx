@@ -152,6 +152,7 @@ export const Layout: React.FC<LayoutProps> = ({
                     fields.push({ key, label, value, type });
                 }
             }
+
         });
 
         if (fields.length === 0) {
