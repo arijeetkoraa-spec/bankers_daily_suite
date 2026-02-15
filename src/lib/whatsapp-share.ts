@@ -1,4 +1,4 @@
-export const HEADER = "🔵 BANKERS DAILY SUITE";
+export const HEADER = "⭕ BANKERS DAILY SUITE";
 export const DIVIDER = "──────────────────";
 
 export interface ShareField {
@@ -70,7 +70,7 @@ export const buildWhatsappMessage = (calculatorKey: string, fields: ShareField[]
 
     message += `${DIVIDER}\n`;
     message += `🔗 https://bankersdailysuite.vercel.app\n`;
-    message += `👨💻 Developed by Bankers Daily Suite | Arijit Kora`;
+    message += `👨‍💻 Developed by Bankers Daily Suite | Arijit Kora`;
 
     return message;
 };
