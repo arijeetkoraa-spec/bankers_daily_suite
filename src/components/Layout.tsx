@@ -7,7 +7,8 @@ import {
     Menu,
     ChevronRight,
     Mail,
-    MessageCircle
+    MessageCircle,
+    Users
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
@@ -16,6 +17,8 @@ import { FeedbackModal } from './FeedbackModal';
 import { AboutModal } from './AboutModal';
 import { Info } from 'lucide-react';
 import { buildWhatsappMessage, type ShareField } from '../lib/whatsapp-share';
+import { BRAND } from '../config/brand';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface SidebarItem {
     id: string;
@@ -77,6 +80,14 @@ export const modules: SidebarItem[] = [
             { id: 'date', label: 'Date Calculator' },
             { id: 'converter', label: 'Unit Converter' },
         ]
+    },
+    {
+        id: 'specialized',
+        label: 'Specialized Tools',
+        icon: <Users className="w-5 h-5" />,
+        items: [
+            { id: 'shg', label: 'SHG Management' },
+        ]
     }
 ];
 
@@ -89,6 +100,9 @@ export const Layout: React.FC<LayoutProps> = ({
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
     const [isFeedbackOpen, setIsFeedbackOpen] = React.useState(false);
     const [isAboutOpen, setIsAboutOpen] = React.useState(false);
+    const [theme] = useLocalStorage<'light' | 'dark'>('theme', 'light');
+
+    const isDark = theme === 'dark';
 
     const getCalcColor = (id: string, isMobile: boolean = false) => {
         switch (id) {
@@ -101,6 +115,8 @@ export const Layout: React.FC<LayoutProps> = ({
             case 'mis':
             case 'fees':
                 return isMobile ? 'bg-purple-600' : 'from-purple-600 to-purple-700 shadow-purple-500/40';
+            case 'shg':
+                return isMobile ? 'bg-primary' : 'from-primary to-primary/80 shadow-primary/40';
             case 'qis':
                 return isMobile ? 'bg-orange-600' : 'from-orange-600 to-orange-700 shadow-orange-500/40';
             case 'emi':
@@ -124,13 +140,11 @@ export const Layout: React.FC<LayoutProps> = ({
         }
     };
 
-    // Auto-close sidebar on mobile after navigation
     const handleWhatsAppShare = () => {
         const rows = document.querySelectorAll('.share-row');
         const fields: ShareField[] = [];
 
         rows.forEach(row => {
-            // Only scrape visible elements (e.g., skip hidden tabs)
             if ((row as HTMLElement).offsetParent === null) return;
 
             const labelEl = row.querySelector('.share-label');
@@ -152,11 +166,10 @@ export const Layout: React.FC<LayoutProps> = ({
                     fields.push({ key, label, value, type });
                 }
             }
-
         });
 
         if (fields.length === 0) {
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Check out this Calculator on Banker's Daily Suite!")}`, '_blank');
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out this Calculator on ${BRAND.name} Suite!`)}`, '_blank');
         } else {
             const message = buildWhatsappMessage(activeCalculator, fields);
             const encodedMessage = encodeURIComponent(message);
@@ -173,27 +186,25 @@ export const Layout: React.FC<LayoutProps> = ({
 
     return (
         <div className="flex h-screen bg-background text-foreground overflow-hidden flex-col md:flex-row antialiased">
-            {/* Sidebar */}
             <aside
                 className={cn(
                     "bg-card/50 backdrop-blur-2xl border-r border-border/50 transition-all duration-500 ease-in-out flex flex-col fixed md:relative z-30 h-full",
                     isSidebarOpen ? "w-64 translate-x-0 shadow-2xl" : "w-0 -translate-x-full md:w-64 md:translate-x-0 overflow-hidden"
                 )}
             >
-                {/* Sidebar Header - Fixed */}
-                <div className="p-6 border-b border-border/50 bg-background/40">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-accent/40 dark:bg-accent/20 border border-border/40 flex items-center justify-center shadow-sm">
-                            <span className="text-2xl font-black text-foreground italic tracking-tighter">B</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <h1 className="text-2xl font-black tracking-tighter leading-none text-primary uppercase">
-                                BANKER'S
-                            </h1>
-                            <span className="text-[11px] font-black tracking-[0.4em] text-muted-foreground leading-none mt-2 uppercase">
-                                DAILY SUITE
-                            </span>
-                        </div>
+                <div className="p-6 border-b border-border/50 bg-background/40 flex flex-col items-center text-center">
+                    <img
+                        src={BRAND.logoIcon}
+                        alt={BRAND.name}
+                        className="w-16 h-16 mb-2 object-contain rounded-full ring-2 ring-primary/20 bg-background shadow-sm"
+                    />
+                    <div className="flex flex-col">
+                        <h1 className="text-xl font-black tracking-tighter leading-none text-primary uppercase">
+                            {BRAND.name.split(' ')[0]}
+                        </h1>
+                        <span className="text-[10px] font-black tracking-[0.3em] text-muted-foreground leading-none mt-1 uppercase">
+                            {BRAND.name.split(' ')[1]} SUITE
+                        </span>
                     </div>
                 </div>
 
@@ -253,9 +264,8 @@ export const Layout: React.FC<LayoutProps> = ({
                 </div>
             </aside>
 
-            {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-                <header className="bg-background/80 backdrop-blur-xl border-b border-border/10 p-2 md:px-8 flex items-center justify-between shadow-sm z-10 sticky top-0 h-14">
+                <header className="bg-background/80 backdrop-blur-xl border-b border-border/10 p-2 md:px-8 flex items-center justify-between shadow-sm z-10 sticky top-0 h-16">
                     <div className="flex items-center gap-4">
                         <Button
                             variant="ghost"
@@ -265,16 +275,28 @@ export const Layout: React.FC<LayoutProps> = ({
                         >
                             <Menu className="w-5 h-5" />
                         </Button>
+                        <div className="hidden md:flex items-center gap-3 mr-4 border-r border-border/50 pr-6">
+                            <img
+                                src={isDark ? BRAND.logoDark : BRAND.logoLight}
+                                alt={BRAND.name}
+                                className="h-10 w-auto object-contain"
+                            />
+                        </div>
                         <div className="flex flex-col">
                             <span className="text-[11px] uppercase font-display font-black tracking-widest text-primary/70">
                                 {modules.find(m => m.id === activeModule)?.label || 'Dashboard'}
                             </span>
-                            <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 text-foreground">
+                            <h2 className="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2 text-foreground">
                                 {modules.find(m => m.id === activeModule)?.items?.find(i => i.id === activeCalculator)?.label || 'Suite'}
                             </h2>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
+                        <img
+                            src={BRAND.logoIcon}
+                            alt={BRAND.name}
+                            className="h-8 w-8 md:hidden object-contain rounded-full ring-1 ring-primary/10 mr-2"
+                        />
                         <Button
                             variant="ghost"
                             size="icon"
@@ -294,11 +316,10 @@ export const Layout: React.FC<LayoutProps> = ({
                         </div>
                     </div>
 
-                    {/* Global Calculation Footer */}
                     <footer className="mt-8 pt-6 border-t border-border/10 max-w-6xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                                <Landmark className="w-5 h-5 text-primary" />
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 overflow-hidden p-1 shadow-inner">
+                                <img src={BRAND.logoIcon} alt="" className="w-full h-full object-contain rounded-full" />
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-1">Architect & Developer</span>
@@ -332,19 +353,14 @@ export const Layout: React.FC<LayoutProps> = ({
                         </div>
                     </footer>
                 </div>
-
             </main>
 
-
-            {/* Mobile Overlay */}
-            {
-                isSidebarOpen && (
-                    <div
-                        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-20 md:hidden"
-                        onClick={() => setIsSidebarOpen(false)}
-                    />
-                )
-            }
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/70 backdrop-blur-sm z-20 md:hidden"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
 
             <FeedbackModal
                 isOpen={isFeedbackOpen}
@@ -355,6 +371,6 @@ export const Layout: React.FC<LayoutProps> = ({
                 open={isAboutOpen}
                 onClose={() => setIsAboutOpen(false)}
             />
-        </div >
+        </div>
     );
 };

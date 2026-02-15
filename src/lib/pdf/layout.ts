@@ -5,9 +5,9 @@ import { jsPDF } from 'jspdf';
  * Centralized source of truth for all branding strings.
  */
 export const PDF_BRANDING = {
-    suiteTitle: "BANKER'S DAILY SUITE",
+    suiteTitle: "BANKERS DAILY SUITE",
     assessmentSubtitle: "Professional Banking Assessment Report",
-    developedBy: "Banker's Daily Suite | Developed by ARIJIT KORA",
+    developedBy: "Bankers Daily Suite | Developed by ARIJIT KORA",
     logoBase64: (typeof window !== 'undefined' && (window as any).process?.env?.PDF_LOGO) ||
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAAAAACPAi4CAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AgKCQ8OJSvW9AAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAABlSURBVFjD7dXBDcAgDETRpiuDshmDshmDshmTshnLshlDsqkLsv+L/i+iB0mRJEmSJEmSJEmSJEmSJEmSJEmSJEnyf6R7pLumC7mQC7mQC7mQC6X8l6R7pLumC7mQC7mQC/m/lv8C7U7pDukOAAAAAElFTkSuQmCC"
 };
@@ -17,29 +17,29 @@ export const PDF_BRANDING = {
  * SaaS-style layout constants for easy theme updates.
  */
 export const PDF_LAYOUT = {
-    margin: 12,
-    headerHeight: 35,
-    footerHeight: 15,
-    watermarkSize: 120,
-    pageTopStart: 35,
-    contentLimit: 260,
+    margin: 15, // Slightly larger margin for professional look
+    headerHeight: 40,
+    footerHeight: 18,
+    watermarkSize: 130,
+    pageTopStart: 40,
+    contentLimit: 265,
     colors: {
-        primary: [30, 64, 175] as [number, number, number],
-        text: [0, 0, 0] as [number, number, number],
-        muted: [100, 100, 100] as [number, number, number],
-        lightBlue: [240, 244, 255] as [number, number, number],
-        divider: [230, 230, 230] as [number, number, number],
-        rowAlternate: [252, 252, 252] as [number, number, number],
+        primary: [2, 38, 115] as [number, number, number], // Bankers Blue
+        text: [20, 20, 20] as [number, number, number],
+        muted: [110, 110, 110] as [number, number, number],
+        lightBlue: [245, 248, 255] as [number, number, number],
+        divider: [225, 225, 225] as [number, number, number],
+        rowAlternate: [253, 253, 253] as [number, number, number],
     },
     font: {
-        title: 16,
-        subtitle: 10,
-        section: 11,
+        title: 18,
+        subtitle: 11,
+        section: 12,
         body: 10,
-        tableHeader: 9,
-        tableRow: 8,
-        footerBranding: 14,
-        footerPage: 9,
+        tableHeader: 10,
+        tableRow: 9,
+        footerBranding: 13,
+        footerPage: 10,
     }
 };
 
@@ -71,6 +71,7 @@ export interface PDFDataBase {
 
 export interface AmortizationRow {
     month: number;
+    dueDate?: string;
     emi: number;
     principal: number;
     interest: number;
@@ -113,15 +114,23 @@ export const ensurePageSpace = (ctx: RenderContext, requiredHeight: number): Ren
  */
 export const renderHeader = (ctx: RenderContext) => {
     const { doc } = ctx;
-    // Logo
+
+    // Logo - Rendered as Circle
     try {
+        doc.saveGraphicsState();
+        // @ts-ignore
+        doc.circle(21, 17, 9, 'F');
+        // @ts-ignore
+        doc.clip();
         doc.addImage(PDF_BRANDING.logoBase64, 'PNG', 12, 8, 18, 18);
+        doc.restoreGraphicsState();
     } catch (e) {
         doc.setFillColor(...PDF_LAYOUT.colors.primary);
-        doc.rect(12, 8, 18, 18, 'F');
+        // @ts-ignore
+        doc.circle(21, 17, 9, 'F');
         doc.setTextColor(255);
         doc.setFontSize(12);
-        doc.text("B", 18, 20);
+        doc.text("B", 18.5, 20);
     }
 
     // Title
@@ -187,6 +196,17 @@ export const renderWatermark = (ctx: RenderContext) => {
     } catch (e) { }
 
     doc.restoreGraphicsState();
+};
+
+/**
+ * UTILITY: Format Currency for PDF
+ * Uses "Rs. " instead of "₹" to avoid character rendering artifacts in standard fonts.
+ */
+export const formatPDFCurrency = (value: number): string => {
+    return 'Rs. ' + value.toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 };
 
 /**

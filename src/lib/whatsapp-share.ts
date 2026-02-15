@@ -1,4 +1,4 @@
-export const HEADER = "📊 BANKER'S DAILY SUITE";
+export const HEADER = "🔵 BANKERS DAILY SUITE";
 export const DIVIDER = "──────────────────";
 
 export interface ShareField {
@@ -33,7 +33,8 @@ export const calculatorConfigMap: Record<string, { title: string, results: strin
     'cash-counter': { title: "CASH DENOMINATION AUDIT", results: ["totalAmount", "totalNotes"] },
     gst: { title: "GST TAX ASSESSMENT", results: ["gstAmount", "totalAmount"] },
     date: { title: "DATE DYNAMICS ANALYSIS", results: ["differenceDays"] },
-    converter: { title: "MEASUREMENT MATRIX", results: ["conversionResult"] }
+    converter: { title: "MEASUREMENT MATRIX", results: ["conversionResult"] },
+    shg: { title: "SHG LOAN MONITORING", results: ["totalMemberOutstanding", "balanceStatus"] }
 };
 
 export const buildWhatsappMessage = (calculatorKey: string, fields: ShareField[]): string => {
@@ -69,7 +70,7 @@ export const buildWhatsappMessage = (calculatorKey: string, fields: ShareField[]
 
     message += `${DIVIDER}\n`;
     message += `🔗 https://bankersdailysuite.vercel.app\n`;
-    message += `👨💻 Developed by Arijit Kora`;
+    message += `👨💻 Developed by Bankers Daily Suite | Arijit Kora`;
 
     return message;
 };
