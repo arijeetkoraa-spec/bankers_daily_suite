@@ -25,6 +25,9 @@ import { DateCalculator } from './modules/utilities/DateCalculator'
 import { UnitConverter } from './modules/utilities/UnitConverter'
 import { CashCounter } from './modules/utilities/CashCounter'
 
+// Specialized
+import { SHGCalculator } from './modules/shg/SHGCalculator'
+
 function App() {
   const [activeModule, setActiveModule] = useLocalStorage<string>('activeModule', 'deposits')
   const [activeCalculator, setActiveCalculator] = useLocalStorage<string>('activeCalculator', 'fd')
@@ -78,6 +81,14 @@ function App() {
         case 'converter': return <UnitConverter />;
         case 'cash-counter': return <CashCounter />;
         default: return <GSTCalculator />;
+      }
+    }
+
+    // Specialized Modules
+    if (activeModule === 'specialized') {
+      switch (activeCalculator) {
+        case 'shg': return <SHGCalculator />;
+        default: return <SHGCalculator />;
       }
     }
 

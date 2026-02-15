@@ -129,3 +129,4 @@ export const exportAmortizationToPDF = async (
 export * from './layout';
 export * from './tables';
 export * from './amortization';
+export * from './shg';
